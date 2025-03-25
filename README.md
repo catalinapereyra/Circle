@@ -1,17 +1,7 @@
-### 📆 Fecha: [DD/MM/AAAA]  
-🕒 Hora: [HH:MM]  
-👤 Participantes: [Nombres]  
+CODEAR
+- hacer PULL antes de trabajar 
+- fijarse que estémos en .venv 
+- cuando bajamos algo nuevo, pip freeze > requirements.txt (y la otra haga  pip install -r requirements.txt)
 
-#### **📝 Resumen de la reunión / avances:**  
-- [Resumen breve de lo discutido o trabajado]  
-
-#### **✅ Tareas completadas:**  
-- [Tarea 1]  
-- [Tarea 2]  
-
-#### **📌 Pendientes para la próxima reunión:**  
-- [Tarea 1]  
-- [Tarea 2]  
-
-#### **💡 Notas / Comentarios adicionales:**  
-- [Detalles importantes, ideas nuevas, problemas encontrados]  
+25/03/25 - 13hs 
+- instalamos base de datos, flask, sqlalchemy
