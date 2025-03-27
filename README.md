@@ -57,3 +57,8 @@ tinder-clone/
 │── requirements.txt         # Dependencias necesarias
 │── run.py                   # Punto de entrada de la app
 │── README.md                # Documentación básica
+
+27 march 4pm 
+- falta hacer el user_routes, empezar por esto!!!!! 
+- depsues de esto init flask... 
+- flask db init, flask db migrate -m "create user and subscription tables", flask db upgrade
