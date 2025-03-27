@@ -14,11 +14,11 @@ from flask import Blueprint, request, jsonify
 from app.models import db
 from app.models.user import User
 
-bp = Blueprint('user', __name__, url_prefix='/user') #creo un blueprint 'user'que tiene el prefijo '/user' en la URL
+bp_user = Blueprint('user', __name__, url_prefix='/user') #creo un blueprint 'user'que tiene el prefijo '/user' en la URL
 
 
 # SIGN UP
-@bp.route('/register', methods=['POST']) #la routa del blueprint tiene url register y los metodos que acepta son 'POST'
+@bp_user.route('/register', methods=['POST']) #la routa del blueprint tiene url register y los metodos que acepta son 'POST'
 def register_user():
     data = request.get_json() #con esto acceso al input que dio el usuario desde la pagina y guardo eso en una varianle
     username = data.get('username')
