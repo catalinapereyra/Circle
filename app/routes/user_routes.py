@@ -50,15 +50,16 @@ def register_user():
 
 
 # LOG IN
-@bp.route('/login', methods=['POST'])
+@bp_user.route('/login', methods=['POST'])
 def login_user():
-    data = request.get_json()
-    username = data.get('username')
+    data = request.get_json() #obtengo el imput de la web
+    username = data.get('username') #lo guardo en variables
     password = data.get('password')
 
     # Buscar el usuario en la base de datos
-    user = User.query.filter_by(username=username).first()
+    user = User.query.filter_by(username=username)
 
-    if user and user.password == password:
+    if user and user.password == password: #si el user no es null, y la contrasena coincide
         return jsonify({"message": "Login successful!"}), 200
+        #creo que hay que haer una session para que pueda 'entrar' a la web y no sea solo el print.... check
     return jsonify({"message": "Invalid credentials!"}), 401
