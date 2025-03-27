@@ -35,3 +35,25 @@ Este archivo es el encargado de interactuar con los clientes (los usuarios de la
 	•	Recibe el pedido: cuando alguien quiere registrarse, el mesero recibe la solicitud.
 	•	Pasa el pedido a la cocina (llama a user_service.py para registrar al usuario).
 	•	Responde al cliente: si todo está bien, confirma el registro; si hay un problema, devuelve un mensaje de error.
+
+tinder-clone/
+│── venv/                    # Entorno virtual
+│── app/                     # Carpeta principal de la aplicación
+│   ├── __init__.py          # Inicializa la app como un paquete
+│   ├── models/              # Define el modelo de usuario
+│   │   ├── __init__.py
+│   │   ├── user.py          # Modelo de usuario
+│   ├── routes/              # Define la ruta para registrar usuarios
+│   │   ├── __init__.py
+│   │   ├── user_routes.py   # Ruta para registrar usuarios
+│   ├── services/            # Lógica para manejar usuarios
+│   │   ├── __init__.py
+│   │   ├── user_service.py  # Lógica del registro de usuarios
+│   ├── database/            # Conexión con la base de datos
+│   │   ├── __init__.py
+│   │   ├── db_connection.py # Manejo de conexión a SQL
+│── .env                     # Variables de entorno (por ejemplo, URL de la base de datos)
+│── config.py                # Configuración de la aplicación
+│── requirements.txt         # Dependencias necesarias
+│── run.py                   # Punto de entrada de la app
+│── README.md                # Documentación básica
