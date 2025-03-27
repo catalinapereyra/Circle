@@ -1,19 +1,13 @@
-from flask import Blueprint, request, jsonify
-from app.models import db
-from app.models.user import User
+from flask import Blueprint
 
-bp = Blueprint('user', __name__, url_prefix='/user')
+# Importar los Blueprints de las rutas de usuario
+from .user_routes import bp_user as user_bp #renombro a user_bp para usarlo mas facil
+
+# Crear una lista con los Blueprints
+blueprints = [user_bp] #blueprints es una variable que contiene todos los blueprints
 
 
-@bp.route('/register', methods=['POST'])
-def register_user():
-    data = request.get_json()
-    username = data.get('username')
-    password = data.get('password')
+def init_app(app): # Función para registrar todos los Blueprints en la aplicación
+    for blueprint in blueprints:
+        app.register_blueprint(blueprint)
 
-    # Crea un nuevo usuario
-    new_user = User(username=username, password=password)
-    db.session.add(new_user)
-    db.session.commit()
-
-    return jsonify({"message": "User registered successfully!"}), 201
