@@ -1,2 +1,7 @@
+from app import circle
+from
 
-class User(Base):
+class User():
+    __tablename__ = 'users'
+
+    username = db.column()
