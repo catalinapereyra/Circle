@@ -1,16 +1,30 @@
-# This is a sample Python script.
+from flask import Flask
+from flask_sqlalchemy import SQLAlchemy
 
-# Press ⌃R to execute it or replace it with your code.
-# Press Double ⇧ to search everywhere for classes, files, tool windows, actions, and settings.
+# Definir db globalmente sin importarlo en el inicio
+db = SQLAlchemy()
 
+def create_app():
+    """Configura la aplicación Flask y registra los blueprints."""
+    app = Flask(__name__)
+    app.config.from_object('config.Config')  # Configuración de la app
 
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press ⌘F8 to toggle the breakpoint.
+    # Aquí importa el blueprint después de la configuración de la app
+    from app.routes.user_routes import bp_user  # Importación dentro de la función para evitar el import circular
+    from app.models.user import User  # Asegúrate de que los modelos estén importados después
 
+    db.init_app(app)  # Inicializa la base de datos con la app
 
-# Press the green button in the gutter to run the script.
-if __name__ == '__main__':
-    print_hi('PyCharm')
+    # Registrar blueprints
+    app.register_blueprint(bp_user)  # Registra el blueprint del usuario
 
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
+    # Crear las tablas en la base de datos si es necesario
+    with app.app_context():
+        db.create_all()
+
+    return app
+
+# Configuración para correr la app en modo debug si es ejecutado como script
+if __name__ == "__main__":
+    app = create_app()
+    app.run(debug=True)  # Aquí aseguramos que el modo debug esté activado

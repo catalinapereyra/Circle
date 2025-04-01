@@ -11,7 +11,7 @@
 
 
 from flask import Blueprint, request, jsonify
-from app.models import db
+from main import db
 from app.models.user import User
 
 bp_user = Blueprint('user', __name__, url_prefix='/user') #creo un blueprint 'user'que tiene el prefijo '/user' en la URL
