@@ -63,6 +63,13 @@ tinder-clone/
 - sign up y log in hecho en routes/user_routes pero no se si funciona todavia, solo codee
 - falta entender el init de routes
 
+
+1 april 13pm
 comando para correr en vez de flask run 
 ```bash
 flask --app main --debug run
+```
+- cambio de init en cada package al main -> todo lo que estaba en los inits lo organizamos en el main.py y los inits deben quedar vacios 
+- creamos el file config que creo que es para unir la base de datos
+- hasta aca ya funciona el url a la pagina, ahora hay que conectarlo con el front
+- decidimos usar flask + react 
