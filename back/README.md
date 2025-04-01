@@ -62,3 +62,7 @@ tinder-clone/
 - hay que hacer lo de flask db init, flask db migrate -m "create user and subscription tables", flask db upgrade CREO, fijarse para que es
 - sign up y log in hecho en routes/user_routes pero no se si funciona todavia, solo codee
 - falta entender el init de routes
+
+comando para correr en vez de flask run 
+```bash
+flask --app main --debug run

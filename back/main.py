@@ -25,6 +25,6 @@ def create_app():
     return app
 
 # Configuración para correr la app en modo debug si es ejecutado como script
-if __name__ == "__main__":
-    app = create_app()
-    app.run(debug=True)  # Aquí aseguramos que el modo debug esté activado
+# if __name__ == "__main__":
+#     app = create_app()
+#     app.run(debug=True)  # Aquí aseguramos que el modo debug esté activado
