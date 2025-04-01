@@ -15,7 +15,7 @@ def create_app():
 
     db.init_app(app)  # Inicializa la base de datos con la app
 
-    # Registrar blueprints
+    # Registrar blueprintduadhgiowahs
     app.register_blueprint(bp_user)  # Registra el blueprint del usuario
 
     # Crear las tablas en la base de datos si es necesario
