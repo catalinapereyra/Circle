@@ -16,6 +16,10 @@ from app.models.user import User
 
 bp_user = Blueprint('user', __name__, url_prefix='/user') #creo un blueprint 'user'que tiene el prefijo '/user' en la URL
 
+@bp_user.route('/register', methods=['GET'])
+def register():
+    return "Register endpoint"
+
 
 # SIGN UP
 @bp_user.route('/register', methods=['POST']) #la routa del blueprint tiene url register y los metodos que acepta son 'POST'

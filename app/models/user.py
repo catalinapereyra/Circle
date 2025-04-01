@@ -17,5 +17,5 @@ class User(db.Model):
     email = db.Column(db.String(100), nullable=False, unique=True)
     gender = db.Column(db.Enum(Genders), nullable=False)
     location = db.Column(db.String(255), nullable=False) # ver si hay que hacerlo con coordenadas o que!!!!!!
-    id_subscription = db.Column(db.Integer, db.ForeignKey('subscription.id'), nullable=False) # columna de clave foránea en la tabla actual que hace referencia a la columna id de la tabla subscription
+    # id_subscription = db.Column(db.Integer, db.ForeignKey('subscription.id'), nullable=False) # columna de clave foránea en la tabla actual que hace referencia a la columna id de la tabla subscription
 
