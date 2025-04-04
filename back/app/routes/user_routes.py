@@ -67,3 +67,59 @@ def login_user():
         return jsonify({"message": "Login successful!"}), 200
         #creo que hay que haer una session para que pueda 'entrar' a la web y no sea solo el print.... check
     return jsonify({"message": "Invalid credentials!"}), 401
+
+
+# GET all users
+@bp_user.route('/all', methods=['GET'])
+def get_all_users():
+    users = User.query.all()  # trae todos los usuarios
+    result = []
+    for user in users:
+        result.append({
+            "username": user.username,
+            "name": user.name,
+            "email": user.email,
+            "age": user.age,
+            "gender": user.gender.name,
+            "location": user.location
+            # aca desp va subscription tmb
+        })
+    return jsonify(result), 200
+
+
+# PUT - Actualizar un usuario
+@bp_user.route('/<username>', methods=['PUT'])
+def update_user(username):
+    user = User.query.filter_by(username=username) #busco en la base de datos la user con ese username
+    # user.query accede a la tabla user, depsues con filter by filtra segun el username = username
+    if not user:
+        return jsonify({"message": "User not found"}), 404 # si no encuentra al user, tira error
+
+    data = request.get_json() #busca la data que se pone en la pagina web
+
+    # Actualizamos solo si mandan ese dato
+    if 'username' in data:
+        user.email = data['username']
+    if 'password' in data:
+        user.email = data['password']
+    if 'email' in data:
+        user.email = data['email']
+    if 'location' in data:
+        user.location = data['location']
+
+    db.session.commit() # SQLAlchemy, nada se guarda de verdad hasta que hacés db.session.commit()
+    return jsonify({"message": "User updated successfully!"})
+
+
+# DELETE - Eliminar un usuario
+@bp_user.route('/<username>', methods=['DELETE'])
+def delete_user(username):
+    user = User.query.filter_by(username=username).first()
+    # busco en la base de datos la user con ese username
+    # user.query accede a la tabla user, depsues con filter by filtra segun el username = username
+    if not user:
+        return jsonify({"message": "User not found"}), 404
+
+    db.session.delete(user)
+    db.session.commit()
+    return jsonify({"message": "User deleted successfully!"})
