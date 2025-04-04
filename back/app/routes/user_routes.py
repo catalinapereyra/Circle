@@ -32,7 +32,7 @@ def register_user():
     email = data.get('email')
     gender = data.get('gender')
     location = data.get('location')
-    id_subscription = data.get('id_subscription')
+    #id_subscription = data.get('id_subscription')
 
     # Crear un nuevo usuario con los datos
     new_user = User(
@@ -43,7 +43,7 @@ def register_user():
         email=email,
         gender=gender,
         location=location,
-        id_subscription=id_subscription
+        #id_subscription=id_subscription
     )
 
     # Guardar el usuario en la base de datos

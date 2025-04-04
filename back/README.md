@@ -73,3 +73,6 @@ flask --app main --debug run
 - creamos el file config que creo que es para unir la base de datos
 - hasta aca ya funciona el url a la pagina, ahora hay que conectarlo con el front
 - decidimos usar flask + react 
+
+4 de abril 13pm
+- cambio de puerto de 5000 a 5001
