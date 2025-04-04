@@ -4,10 +4,14 @@ from flask_sqlalchemy import SQLAlchemy
 # Definir db globalmente sin importarlo en el inicio
 db = SQLAlchemy()
 
+from flask_cors import CORS
+
+
 def create_app():
     """Configura la aplicación Flask y registra los blueprints."""
     app = Flask(__name__)
     app.config.from_object('config.Config')  # Configuración de la app
+    CORS(app) # para que react se conecte
 
     # Aquí importa el blueprint después de la configuración de la app
     from app.routes.user_routes import bp_user  # Importación dentro de la función para evitar el import circular
