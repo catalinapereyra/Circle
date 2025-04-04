@@ -106,6 +106,7 @@ def update_user(username):
         user.email = data['email']
     if 'location' in data:
         user.location = data['location']
+    # hay que fijarse tema subscription
 
     db.session.commit() # SQLAlchemy, nada se guarda de verdad hasta que hacés db.session.commit()
     return jsonify({"message": "User updated successfully!"})
