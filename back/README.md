@@ -76,4 +76,11 @@ flask --app main --debug run
 
 4 de abril 13pm
 - cambio de puerto de 5000 a 5001
-- 
+
+PARA CORRER
+primero en pycharm 
+	source .venv/bin/activate
+	export FLASK_APP=main:create_app
+	flask run --port=5001
+depsues en intllij 
+	npm run dev
