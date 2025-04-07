@@ -1,6 +1,7 @@
 // src/components/RegisterForm.jsx
 import { useState } from 'react';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 function RegisterForm() {
     const [formData, setFormData] = useState({ // aca seteo el formato del form, es decir que cosas van a aparecer para llenar
@@ -14,6 +15,9 @@ function RegisterForm() {
         location: '',
     });
 
+    const [message, setMessage] = useState('');
+    const navigate = useNavigate();
+
     const handleChange = (e) => { // Cuando alguien escriba en un input, guardá ese valor en formData usando el name del campo como clave, es como que cada vez que escribo algo nuevo que sigue en el from me va creando mi objeto user
         const { name, value } = e.target;
         setFormData(prev => ({ ...prev, [name]: value }));
@@ -22,11 +26,14 @@ function RegisterForm() {
     const handleSubmit = async (e) => { // es para saber si funciono o no, y aparte lo conecta con axios
         e.preventDefault();
         try {
-            await axios.post('http://localhost:5001/user/register', formData); // se manda al servidor
-            alert('Signed up succesfully');
-        } catch (err) {
-            console.error(err);
-            alert('Fail in sign up');
+            const response = await axios.post('http://localhost:5001/user/register', formData);
+            setMessage(response.data.message);
+
+            if (response.status === 201) {
+                navigate('/login'); //  Redirige al login
+            }
+        } catch (error) {
+            setMessage('Fail to register user');
         }
     };
 
