@@ -61,7 +61,7 @@ def login_user():
     password = data.get('password')
 
     # Buscar el usuario en la base de datos
-    user = User.query.filter_by(username=username)
+    user = User.query.filter_by(username=username).first()
 
     if user and user.password == password: #si el user no es null, y la contrasena coincide
         return jsonify({"message": "Login successful!"}), 200
