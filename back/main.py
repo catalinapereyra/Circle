@@ -1,35 +1,27 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
-
-# Definir db globalmente sin importarlo en el inicio
-db = SQLAlchemy()
-
 from flask_cors import CORS
 
+db = SQLAlchemy()
 
 def create_app():
     """Configura la aplicación Flask y registra los blueprints."""
     app = Flask(__name__)
     app.config.from_object('config.Config')  # Configuración de la app
-    CORS(app) # para que react se conecte
+    CORS(app)  # para que React se conecte
 
-    # Aquí importa el blueprint después de la configuración de la app
-    from app.routes.user_routes import bp_user  # Importación dentro de la función para evitar el import circular
-    from app.models.user import User  # Asegúrate de que los modelos estén importados después
+    # Importaciones de modelos y rutas dentro del contexto de la app
+    from app.routes.user_routes import bp_user
+    from app.models.user import User
+    from app.models.profile import CoupleMode, FriendshipMode  # <-- AGREGAR ESTO
 
-    db.init_app(app)  # Inicializa la base de datos con la app
+    db.init_app(app)
 
-    # Registrar blueprintduadhgiowahs
-    app.register_blueprint(bp_user)  # Registra el blueprint del usuario
+    # Registrar blueprints
+    app.register_blueprint(bp_user)
 
-    # Crear las tablas en la base de datos si es necesario
+    # Crear las tablas en la base de datos
     with app.app_context():
         db.create_all()
 
     return app
-
-# Configuración para correr la app en modo debug si es ejecutado como script
-# if __name__ == "__main__":
-#     app = create_app()
-#     app.run(debug=True)  # Aquí aseguramos que el modo debug esté activado
-#hola
