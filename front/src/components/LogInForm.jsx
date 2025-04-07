@@ -1,21 +1,17 @@
-// src/components/LoginForm.jsx
 import { useState } from 'react';
 import axios from 'axios';
+import { useLocation } from 'react-router-dom';
 
 function LoginForm() {
-    const [formData, setFormData] = useState({
-        username: '',
-        password: '',
-    });
-
-    const [message, setMessage] = useState('');
+    const [formData, setFormData] = useState({ username: '', password: '' });
+    // crreo objeto formData que arranca con username y password vacio
+    const [message, setMessage] = useState(''); // otro estado que se llama message para mandar log in sucedful o no
+    const location = useLocation(); // para saber donde estoy navegando
+    const fromRegister = location.state?.fromRegister;
 
     const handleChange = (e) => {
         const { name, value } = e.target;
-        setFormData((prev) => ({
-            ...prev,
-            [name]: value,
-        }));
+        setFormData((prev) => ({ ...prev, [name]: value }));
     };
 
     const handleSubmit = async (e) => {
@@ -29,12 +25,15 @@ function LoginForm() {
     };
 
     return (
-        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '8px', width: '300px' }}>
-            <input name="username" placeholder="Username" onChange={handleChange} required />
-            <input name="password" type="password" placeholder="Password" onChange={handleChange} required />
-            <button type="submit">Log In</button>
-            <p>{message}</p>
-        </form>
+        <>
+            {fromRegister && <p style={{ color: 'green' }}>¡Registro exitoso! Iniciá sesión.</p>}
+            <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '8px', width: '300px' }}>
+                <input name="username" placeholder="Username" onChange={handleChange} required />
+                <input name="password" type="password" placeholder="Password" onChange={handleChange} required />
+                <button type="submit">Log In</button>
+                <p>{message}</p>
+            </form>
+        </>
     );
 }
 

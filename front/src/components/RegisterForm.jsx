@@ -30,14 +30,14 @@ function RegisterForm() {
             setMessage(response.data.message);
 
             if (response.status === 201) {
-                navigate('/login'); //  Redirige al login
-            }
+                navigate('/login', { state: { fromRegister: true } }); //  Redirige al login
+            } // andá a la ruta /login y llevá esta info extra (fromRegister: true)
         } catch (error) {
             setMessage('Fail to register user');
         }
     };
 
-    return ( // defino formulario
+    return ( // Defino formulario
         // lo que dice input es para hacer el cuadradito
         //  Campo especial: type
         // 	•	type="password": oculta lo que se escribe.
