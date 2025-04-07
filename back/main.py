@@ -16,7 +16,7 @@ def create_app():
     # Aquí importa el blueprint después de la configuración de la app
     from app.routes.user_routes import bp_user  # Importación dentro de la función para evitar el import circular
     from app.models.user import User  # Asegúrate de que los modelos estén importados después
-    from app.models.profile import CoupleMode, FriendshipMode
+
     db.init_app(app)  # Inicializa la base de datos con la app
 
     # Registrar blueprintduadhgiowahs
@@ -28,4 +28,7 @@ def create_app():
 
     return app
 
-
+# Configuración para correr la app en modo debug si es ejecutado como script
+# if __name__ == "__main__":
+#     app = create_app()
+#     app.run(debug=True)  # Aquí aseguramos que el modo debug esté activado
