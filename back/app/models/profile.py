@@ -3,7 +3,7 @@ from sqlalchemy import Enum
 import enum
 from app.models.user import User
 
-
+#hola
 # Enum para las preferencias del modo pareja
 class CouplePreferences(enum.Enum):
     WOMEN = 'women'
