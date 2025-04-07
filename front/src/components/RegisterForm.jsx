@@ -30,13 +30,16 @@ function RegisterForm() {
             setMessage(response.data.message);
 
             if (response.status === 201) {
-                navigate('/login', { state: { fromRegister: true } }); //  Redirige al login
-            } // andá a la ruta /login y llevá esta info extra (fromRegister: true)
+                // Guardás el username para usarlo en la creación de perfil
+                localStorage.setItem('username', formData.username);
+
+                // Redirigís al selector de tipo de perfil
+                navigate('/choose-profile');
+            }
         } catch (error) {
             setMessage('Fail to register user');
         }
     };
-
     return ( // Defino formulario
         // lo que dice input es para hacer el cuadradito
         //  Campo especial: type

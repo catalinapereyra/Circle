@@ -18,7 +18,12 @@ function LoginForm() {
         e.preventDefault();
         try {
             const response = await axios.post('http://localhost:5001/user/login', formData);
+
+            //Guardás el username en el localStorage
+            localStorage.setItem('username', formData.username);
+
             setMessage(response.data.message);
+            navigate('/seleccion-perfiles', { state: { fromLogin: true } }); // o donde quieras llevar al usuario después
         } catch (error) {
             setMessage('Fail to log in');
         }

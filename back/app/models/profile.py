@@ -9,7 +9,7 @@ class CouplePreferences(enum.Enum):
     WOMEN = 'women'
     MEN = 'men'
     BOTH = 'both'
-    OTHER = 'other'
+    ALL = 'all'
 
 class CoupleMode(db.Model):
     __tablename__ = 'couple_mode'

@@ -125,3 +125,11 @@ def delete_user(username):
     db.session.commit()
     return jsonify({"message": "User deleted successfully!"})
 
+
+@bp_user.route('/user/<username>', methods=['GET'])
+def get_user(username):
+    user = User.query.filter_by(username=username).first()
+    if user:
+        return jsonify({"name": user.name})
+    return jsonify({"error": "Not found"}), 404
+
