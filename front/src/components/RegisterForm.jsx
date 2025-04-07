@@ -4,6 +4,7 @@ import axios from 'axios';
 
 function RegisterForm() {
     const [formData, setFormData] = useState({ // aca seteo el formato del form, es decir que cosas van a aparecer para llenar
+        // el use State es crear un estado de un objeto. formData es el objeto que tiene todos estos datos
         username: '',
         password: '',
         name: '',
@@ -21,7 +22,7 @@ function RegisterForm() {
     const handleSubmit = async (e) => { // es para saber si funciono o no, y aparte lo conecta con axios
         e.preventDefault();
         try {
-            await axios.post('http://localhost:5001/user/register', formData);
+            await axios.post('http://localhost:5001/user/register', formData); // se manda al servidor
             alert('Signed up succesfully');
         } catch (err) {
             console.error(err);
