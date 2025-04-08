@@ -13,8 +13,8 @@ def create_app():
     # Importaciones de modelos y rutas dentro del contexto de la app
     from app.routes.user_routes import bp_user
     from app.routes.profile_routes import bp_profile  # <-- IMPORTANTE
-    from app.models.user import User
-    from app.models.profile import CoupleMode, FriendshipMode
+    from app.models.models import User
+    from app.models.models import CoupleMode, FriendshipMode
 
     db.init_app(app)
 

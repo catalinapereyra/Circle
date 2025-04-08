@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify
 from werkzeug.utils import secure_filename
-from app.models.user import User
-from app.models.profile import CoupleMode, FriendshipMode, CouplePreferences
+
+from app.models.models import CouplePreferences, CoupleMode, User, FriendshipMode
 from main import db
 import os
 
@@ -26,7 +26,7 @@ def create_couple_profile():
 
     # ✅ Validar y convertir el string a Enum
     try:
-        preference_enum = CouplePreferences(preferences_str.lower())
+        preference_enum = CouplePreferences(preferences_str.lower()).value
     except ValueError:
         return jsonify({'error': f'Invalid preference: {preferences_str}'}), 400
 
