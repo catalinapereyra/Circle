@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import axios from 'axios';
-import { useLocation } from 'react-router-dom';
+import {useLocation, useNavigate} from 'react-router-dom';
 
 function LoginForm() {
+    const navigate = useNavigate();
     const [formData, setFormData] = useState({ username: '', password: '' });
     // crreo objeto formData que arranca con username y password vacio
     const [message, setMessage] = useState(''); // otro estado que se llama message para mandar log in sucedful o no
