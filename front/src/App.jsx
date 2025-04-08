@@ -1,5 +1,5 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import Landing from './pages/Landing'; // 👈 import nuevo
+import Landing from './pages/Landing';
 import Register from './pages/Register';
 import Login from './pages/LogIn';
 import RegisterProfileType from './components/RegisterProfileType.jsx';
