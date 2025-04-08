@@ -7,6 +7,8 @@ import CoupleProfilePage from './pages/CoupleProfilePage';
 import FriendshipProfilePage from './pages/FriendshipProfilePage';
 import Home from './components/Home';
 import RegisterProfilePage from './pages/RegisterProfilePage';
+import ChooseMood from './components/ChooseMood';
+
 
 function App() {
     return (
@@ -19,6 +21,7 @@ function App() {
                 <Route path="/couple-profile" element={<CoupleProfilePage />} />
                 <Route path="/friend-profile" element={<FriendshipProfilePage />} />
                 <Route path="/home" element={<Home />} />
+                <Route path="/choose-mood" element={<ChooseMood />} />
             </Routes>
         </Router>
     );

@@ -24,7 +24,8 @@ function LoginForm() {
             localStorage.setItem('username', formData.username);
 
             setMessage(response.data.message);
-            navigate('/home', { state: { fromLogin: true } }); // o donde quieras llevar al usuario después
+            navigate('/choose-mood');
+            // o donde quieras llevar al usuario después
         } catch (error) {
             setMessage('Fail to log in');
         }

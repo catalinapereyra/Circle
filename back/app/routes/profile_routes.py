@@ -31,8 +31,8 @@ def create_couple_profile():
         return jsonify({'error': f'Invalid preference: {preferences_str}'}), 400
 
     profile_picture = None
-    if 'profilePicture' in request.files:
-        image_file = request.files['profilePicture']
+    if 'profile_picture' in request.files:
+        image_file = request.files['profile_picture']
         profile_picture = image_file.filename
         # opcional: image_file.save('ruta/' + profile_picture)
 
