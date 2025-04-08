@@ -20,6 +20,7 @@ def create_couple_profile():
     display_name = data['display_name']
     bio = data.get('bio', '')
     interest = data.get('interest', '')
+    preferences = data.get('preferences', '');
 
     try:
         preference_enum = CouplePreferences(data['preferences'])
@@ -55,6 +56,7 @@ def create_friendship_profile():
     username = request.form.get('username')
     bio = request.form.get('bio')
     picture = request.files.get('profile_picture')
+    interest = request.form.get('interest')
 
     user = User.query.filter_by(username=username).first()
     if not user:
@@ -73,7 +75,7 @@ def create_friendship_profile():
         display_name=username,
         bio=bio,
         profile_picture=picture_path,
-        preferences="N/A"
+        interest=interest,
     )
 
     db.session.add(new_profile)
