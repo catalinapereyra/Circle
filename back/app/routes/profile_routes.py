@@ -55,27 +55,38 @@ def create_couple_profile():
 @bp_profile.route('/friendship-profile', methods=['POST'])
 def create_friendship_profile():
     username = request.form.get('username')
+    display_name = request.form.get('display_name', username)
     bio = request.form.get('bio')
-    picture = request.files.get('profile_picture')
     interest = request.form.get('interest')
 
     user = User.query.filter_by(username=username).first()
     if not user:
         return jsonify({"message": "User not found"}), 404
 
-    picture_path = None
-    if picture and allowed_file(picture.filename):
-        filename = secure_filename(picture.filename)
-        picture_path = os.path.join('uploads', filename)
-        picture.save(picture_path)
-    elif picture:
-        return jsonify({"message": "Tipo de archivo no permitido"}), 400
+    profile_picture = None
+    if 'profile_picture' in request.files:
+        image_file = request.files['profile_picture']
+        if allowed_file(image_file.filename):
+            filename = secure_filename(image_file.filename)
+
+            # ✅ asegurarse que el directorio existe
+            upload_folder = 'uploads'
+            os.makedirs(upload_folder, exist_ok=True)
+
+            # ✅ guardar imagen en disco (opcional)
+            image_path = os.path.join(upload_folder, filename)
+            image_file.save(image_path)
+
+            # ✅ guardar solo el nombre del archivo en DB
+            profile_picture = filename
+        else:
+            return jsonify({"message": "Tipo de archivo no permitido"}), 400
 
     new_profile = FriendshipMode(
         username=username,
-        display_name=username,
+        display_name=display_name,
         bio=bio,
-        profile_picture=picture_path,
+        profile_picture=profile_picture,
         interest=interest,
     )
 
