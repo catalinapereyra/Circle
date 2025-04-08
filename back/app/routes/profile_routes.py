@@ -16,22 +16,25 @@ def allowed_file(filename):
 @bp_profile.route('/couple-profile', methods=['POST'])
 def create_couple_profile():
     data = request.form
+    print("📥 Form Data recibido:", data)
+
     username = data['username']
-    display_name = data['display_name']
+    display_name = data.get('display_name', '')
     bio = data.get('bio', '')
     interest = data.get('interest', '')
-    preferences = data.get('preferences', '');
+    preferences_str = data.get('preferences', '')
 
+    # ✅ Validar y convertir el string a Enum
     try:
-        preference_enum = CouplePreferences(data['preferences'])
+        preference_enum = CouplePreferences(preferences_str.lower())
     except ValueError:
-        return jsonify({'error': 'Invalid preference'}), 400
+        return jsonify({'error': f'Invalid preference: {preferences_str}'}), 400
 
     profile_picture = None
     if 'profilePicture' in request.files:
         image_file = request.files['profilePicture']
-        # acá podés guardarlo y ponerle un path
-        profile_picture = image_file.filename  # esto es un ejemplo
+        profile_picture = image_file.filename
+        # opcional: image_file.save('ruta/' + profile_picture)
 
     new_profile = CoupleMode(
         username=username,
@@ -46,8 +49,6 @@ def create_couple_profile():
     db.session.commit()
 
     return jsonify({'message': 'Couple profile created successfully'})
-
-
 
 
 
