@@ -11,6 +11,7 @@ function CoupleProfileForm() {
         bio: '',
         preferences: 'all', // default value
         profile_picture: null,
+        interest: ''
     });
 
     const [message, setMessage] = useState('');
@@ -41,7 +42,8 @@ function CoupleProfileForm() {
         const data = new FormData();
         data.append('username', formData.username);
         data.append('bio', formData.bio);
-        data.append('preferences', formData.preferences); // ✅ CORREGIDO
+        data.append('preferences', formData.preferences);
+        data.append('interest', formData.interest)
         if (formData.profile_picture) {
             data.append('profile_picture', formData.profile_picture);
         }
@@ -69,7 +71,7 @@ function CoupleProfileForm() {
 
                 <textarea
                     name="bio"
-                    placeholder="Escribí tu bio"
+                    placeholder="Write your bio"
                     value={formData.bio}
                     onChange={handleChange}
                     required
@@ -79,7 +81,7 @@ function CoupleProfileForm() {
                     <strong>Who catches your eye?</strong>
                     <select
                         name="preferences"
-                        value={formData.preferences}  // ✅ CORREGIDO
+                        value={formData.preferences}
                         onChange={handleChange}
                     >
                         <option value="women">Women</option>
@@ -88,6 +90,14 @@ function CoupleProfileForm() {
                         <option value="all">All</option>
                     </select>
                 </label>
+
+                <textarea
+                    name="interest"
+                    placeholder="Write your interests!"
+                    value={formData.interest}
+                    onChange={handleChange}
+                    required
+                />
 
                 <input
                     type="file"

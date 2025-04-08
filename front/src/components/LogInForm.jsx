@@ -20,7 +20,7 @@ function LoginForm() {
         try {
             const response = await axios.post('http://localhost:5001/user/login', formData);
 
-            //Guardás el username en el localStorage
+            //Guardas el username en el localStorage
             localStorage.setItem('username', formData.username);
 
             setMessage(response.data.message);
