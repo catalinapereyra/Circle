@@ -7,6 +7,7 @@ function FriendshipProfileForm() {
         username: '',
         bio: '',
         profilePicture: null,
+        interest: '',
     });
     const [message, setMessage] = useState('');
     const navigate = useNavigate();
@@ -41,6 +42,7 @@ function FriendshipProfileForm() {
         form.append('username', formData.username);
         form.append('bio', formData.bio);
         form.append('profilePicture', formData.profilePicture);
+        form.append('interest', formData.interest)
 
         try {
             const response = await axios.post('http://localhost:5001/profile/friendship-profile', form, {
@@ -54,13 +56,39 @@ function FriendshipProfileForm() {
     };
 
     return (
-        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', width: '300px', gap: '1rem' }}>
-            <h2>Create Friendship Profile</h2>
-            <input name="bio" placeholder="Bio" onChange={handleChange} required />
-            <input type="file" accept="image/*" onChange={handleFileChange} required />
-            <button type="submit">Create Profile</button>
-            <p>{message}</p>
-        </form>
+        <div style={{ padding: '2rem' }}>
+            <h2>Crear Friendship Profile</h2>
+            <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '10px', width: '300px' }}>
+                <input type="text" value={formData.username} disabled />
+
+                <textarea
+                    name="bio"
+                    placeholder="Write your bio"
+                    value={formData.bio}
+                    onChange={handleChange}
+                    required
+                />
+
+
+                <textarea
+                    name="interest"
+                    placeholder="Write your interests!"
+                    value={formData.interest}
+                    onChange={handleChange}
+                    required
+                />
+
+                <input
+                    type="file"
+                    name="profile_picture"
+                    accept="image/*"
+                    onChange={handleChange}
+                />
+
+                <button type="submit">Crear Perfil</button>
+                <p>{message}</p>
+            </form>
+        </div>
     );
 }
 
