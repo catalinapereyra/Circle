@@ -94,3 +94,17 @@ def create_friendship_profile():
     db.session.commit()
 
     return jsonify({"message": "Perfil de amistad creado exitosamente"}), 201
+
+
+# Añadir esto a profile_routes.py
+
+@bp_profile.route('/check-profiles/<username>', methods=['GET'])
+def check_profiles(username):
+    # Buscar perfiles del usuario
+    couple_profile = CoupleMode.query.filter_by(username=username).first()
+    friendship_profile = FriendshipMode.query.filter_by(username=username).first()
+
+    return jsonify({
+        'has_couple_profile': couple_profile is not None,
+        'has_friendship_profile': friendship_profile is not None
+    })

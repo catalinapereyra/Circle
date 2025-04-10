@@ -1,48 +1,76 @@
+// LogInForm.jsx
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import {useLocation, useNavigate} from 'react-router-dom';
 
-function LoginForm() {
+function LogInForm() {
+    const [formData, setFormData] = useState({
+        username: '',
+        password: ''
+    });
+    const [error, setError] = useState('');
     const navigate = useNavigate();
-    const [formData, setFormData] = useState({ username: '', password: '' });
-    // crreo objeto formData que arranca con username y password vacio
-    const [message, setMessage] = useState(''); // otro estado que se llama message para mandar log in sucedful o no
-    const location = useLocation(); // para saber donde estoy navegando
-    const fromRegister = location.state?.fromRegister;
 
     const handleChange = (e) => {
         const { name, value } = e.target;
-        setFormData((prev) => ({ ...prev, [name]: value }));
+        setFormData({
+            ...formData,
+            [name]: value
+        });
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setError('');
+
         try {
+            // Modificado para usar el puerto 5001
             const response = await axios.post('http://localhost:5001/user/login', formData);
 
-            //Guardas el username en el localStorage
-            localStorage.setItem('username', formData.username);
-
-            setMessage(response.data.message);
-            navigate('/choose-mood');
-            // o donde quieras llevar al usuario después
+            if (response.status === 200) {
+                localStorage.setItem('username', formData.username);
+                navigate('/choose-mood');
+            }
         } catch (error) {
-            setMessage('Fail to log in');
+            setError('Credenciales inválidas. Por favor, inténtelo de nuevo.');
+            console.error('Error al iniciar sesión:', error);
         }
     };
 
     return (
-        <>
-            {fromRegister && <p style={{ color: 'green' }}>¡Registro exitoso! Iniciá sesión.</p>}
-            <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '8px', width: '300px' }}>
-                <input name="username" placeholder="Username" onChange={handleChange} required />
-                <input name="password" type="password" placeholder="Password" onChange={handleChange} required />
-                <button type="submit">Log In</button>
-                <p>{message}</p>
+        <div className="login-form-container">
+            <h2>Iniciar Sesión</h2>
+            {error && <div className="error-message">{error}</div>}
+
+            <form onSubmit={handleSubmit}>
+                <div className="form-group">
+                    <label htmlFor="username">Nombre de usuario</label>
+                    <input
+                        type="text"
+                        id="username"
+                        name="username"
+                        value={formData.username}
+                        onChange={handleChange}
+                        required
+                    />
+                </div>
+
+                <div className="form-group">
+                    <label htmlFor="password">Contraseña</label>
+                    <input
+                        type="password"
+                        id="password"
+                        name="password"
+                        value={formData.password}
+                        onChange={handleChange}
+                        required
+                    />
+                </div>
+
+                <button type="submit" className="submit-button">Iniciar Sesión</button>
             </form>
-        </>
+        </div>
     );
 }
 
-export default LoginForm;
-//holaaaa
+export default LogInForm;
