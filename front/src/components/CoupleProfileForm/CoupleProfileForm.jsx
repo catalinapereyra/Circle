@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
+import './CoupleProfileForm.css'; // importo style
 
 function CoupleProfileForm() {
     const navigate = useNavigate();
@@ -64,32 +65,54 @@ function CoupleProfileForm() {
     };
 
     return (
-        <div style={{ padding: '2rem' }}>
-            <h2>Crear Couple Profile</h2>
-            <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '10px', width: '300px' }}>
-                <input type="text" value={formData.username} disabled />
+        <div className="form-container couple"> {/* NUEVO: fondo negro y padding */}
+            <h2 className="form-title">create couple profile</h2> {/* NUEVO: título más sutil */}
 
+            <form onSubmit={handleSubmit} className="form-wrapper"> {/* NUEVO: usa flex column + gap */}
+
+                <label className="upload-photo"> {/* NUEVO: círculo rosa con texto */}
+                    <div className="photo-circle">
+                        <span>UPLOAD<br />PHOTO</span>
+                    </div>
+                    <input
+                        type="file"
+                        name="profile_picture"
+                        accept="image/*"
+                        onChange={handleChange}
+                        className="hidden-file" // NUEVO: ocultar input original
+                    />
+                </label>
+
+                <label className="form-label">WHAT'S YOUR NAME?</label> {/* NUEVO: estilo rosa y mayúscula */}
+                <input
+                    type="text"
+                    value={formData.username}
+                    disabled
+                    className="form-input" // NUEVO: sin fondo, subrayado rosa
+                />
+
+                <label className="form-label">WRITE YOUR BIO</label> {/* NUEVO */}
                 <textarea
                     name="bio"
                     placeholder="Write your bio"
                     value={formData.bio}
                     onChange={handleChange}
                     required
+                    className="form-textarea" // NUEVO
                 />
 
-                <label>
-                    <strong>Who catches your eye?</strong>
-                    <select
-                        name="preferences"
-                        value={formData.preferences}
-                        onChange={handleChange}
-                    >
-                        <option value="women">Women</option>
-                        <option value="men">Men</option>
-                        <option value="both">Both</option>
-                        <option value="all">All</option>
-                    </select>
-                </label>
+                <label className="form-label">WHO CATCHES YOUR EYE...</label> {/* NUEVO */}
+                <select
+                    name="preferences"
+                    value={formData.preferences}
+                    onChange={handleChange}
+                    className="form-select" // NUEVO
+                >
+                    <option value="women">Women</option>
+                    <option value="men">Men</option>
+                    <option value="both">Both</option>
+                    <option value="all">All</option>
+                </select>
 
                 <textarea
                     name="interest"
@@ -97,17 +120,15 @@ function CoupleProfileForm() {
                     value={formData.interest}
                     onChange={handleChange}
                     required
+                    className="form-textarea" // NUEVO
                 />
 
-                <input
-                    type="file"
-                    name="profile_picture"
-                    accept="image/*"
-                    onChange={handleChange}
-                />
+                <div className="form-buttons"> {/* NUEVO: botones separados */}
+                    <button type="button" onClick={() => navigate(-1)} className="back-button">BACK</button> {/* NUEVO */}
+                    <button type="submit" className="submit-button">READY</button> {/* NUEVO */}
+                </div>
 
-                <button type="submit">Crear Perfil</button>
-                <p>{message}</p>
+                <p className="form-message">{message}</p> {/* NUEVO: texto de feedback centrado */}
             </form>
         </div>
     );

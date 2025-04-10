@@ -1,5 +1,5 @@
 // src/pages/CoupleProfileForm.jsx
-import CoupleProfileForm from '../components/CoupleProfileForm';
+import CoupleProfileForm from '../components/CoupleProfileForm/CoupleProfileForm.jsx';
 
 function CoupleProfilePage() {
     return (

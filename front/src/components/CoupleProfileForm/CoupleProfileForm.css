@@ -1,0 +1,88 @@
+/* === COUPLE PROFILE STYLES (rosa fuerte) === */
+.couple .form-container {
+    background-color: black;
+    color: #c51d86;
+    font-family: 'Arial Black', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.couple .couple-form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 90%;
+    max-width: 400px;
+    gap: 1.5rem;
+}
+
+.couple .upload-photo {
+    border: 6px solid #c51d86;
+    border-radius: 50%;
+    width: 180px;
+    height: 180px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: bold;
+    text-align: center;
+    font-size: 1rem;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+}
+
+.couple .upload-photo input {
+    display: none;
+}
+
+.couple input[type="text"],
+.couple textarea,
+.couple select {
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid #c51d86;
+    color: #c51d86;
+    font-size: 1rem;
+    padding: 0.5rem;
+    width: 100%;
+    outline: none;
+    font-family: inherit;
+}
+
+.couple textarea {
+    resize: none;
+    min-height: 60px;
+}
+
+.couple .select-wrapper {
+    width: 100%;
+}
+
+.couple .button-row {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    font-weight: bold;
+    font-size: 1rem;
+    margin-top: 1.5rem;
+}
+
+.couple .button-row button {
+    background: none;
+    border: none;
+    color: #c51d86;
+    cursor: pointer;
+}
+
+.couple .photo-preview {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    border-radius: 50%;
+}

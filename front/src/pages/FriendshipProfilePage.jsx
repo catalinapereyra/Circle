@@ -1,4 +1,4 @@
-import FriendshipProfileForm from '../components/FriendshipProfileForm';
+import FriendshipProfileForm from '../components/FriendshipProfileForm/FriendshipProfileForm.jsx';
 
 function FriendshipProfilePage() {
     return (
