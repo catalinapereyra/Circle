@@ -1,0 +1,82 @@
+.loader-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background: #111;
+}
+
+.intro-circle {
+    width: 180px;
+    height: 180px;
+    border-radius: 50%;
+    position: relative;
+    transform: scale(0);
+    animation: circleScale 0.5s ease-out forwards, disappear 0.8s ease-in-out 4.2s forwards;
+}
+
+/* El círculo visual de borde animado */
+.intro-circle::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    border: 14px solid transparent;
+    background: conic-gradient(#c51d86 0deg, #c51d86 0deg);
+    animation: fillCircle 4s ease-in-out forwards;
+    box-shadow: 0 0 20px #c51d86;
+    z-index: 1;
+}
+
+/* Centro del círculo (hueco) */
+.intro-circle::after {
+    content: '';
+    position: absolute;
+    inset: 14px;
+    background: #111;
+    border-radius: 50%;
+    z-index: 2;
+}
+
+/* Animar escala de entrada */
+@keyframes circleScale {
+    to {
+        transform: scale(1);
+    }
+}
+
+/* Animación de "llenado" y cambio de color */
+@keyframes fillCircle {
+    0% {
+        background: conic-gradient(#c51d86 0deg, #c51d86 0deg);
+        box-shadow: 0 0 20px #c51d86;
+    }
+    25% {
+        background: conic-gradient(#c51d86 0deg, #c51d86 120deg);
+        box-shadow: 0 0 20px #c51d86;
+    }
+    35% {
+        background: conic-gradient(#ffdb0a 0deg, #ffdb0a 240deg);
+        box-shadow: 0 0 20px #ffdb0a;
+    }
+    55% {
+        background: conic-gradient(#00d9ff 0deg, #00d9ff 360deg);
+        box-shadow: 0 0 25px #00d9ff;
+    }
+    75% {
+        background: conic-gradient(white 0deg, white 360deg);
+        box-shadow: 0 0 30px white;
+    }
+    100% {
+        background: conic-gradient(white 0deg, white 360deg);
+        box-shadow: 0 0 30px white;
+    }
+}
+
+/* Achicar y desvanecer al final */
+@keyframes disappear {
+    to {
+        transform: scale(0);
+        opacity: 0;
+    }
+}
