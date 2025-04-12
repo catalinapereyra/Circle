@@ -5,7 +5,7 @@ import Login from './pages/LogIn';
 import RegisterProfileType from './components/RegisterProfileType.jsx';
 import CoupleProfilePage from './pages/CoupleProfilePage';
 import FriendshipProfilePage from './pages/FriendshipProfilePage';
-import Home from './components/Home';
+import Home from './pages/Home.jsx';
 import RegisterProfilePage from './pages/RegisterProfilePage';
 import ChooseMood from './components/ChooseMood';
 

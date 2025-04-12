@@ -12,6 +12,18 @@ ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
+class CouplePhoto(db.Model):
+    # creamos una tabla para guardar las fotos del perfil porque si las guardaramos en la tabla couple:
+        # si hay pocas fotos -> hay muchos nulls
+        # haces un query y tenes todas las fotos -> + simple
+        # Agregar/eliminar fotos sin modificar la estructura de la tabla CoupleMode
+    __tablename__ = 'couple_photos'
+
+    id = db.Column(db.Integer, primary_key=True)
+    couple_id = db.Column(db.Integer, db.ForeignKey('couple_mode.id'), nullable=False)
+    filename = db.Column(db.String(255), nullable=False)
+
+    couple = db.relationship('CoupleMode', backref='photos') # para poder acceder de una foto al perfil y del perfil a la foto
 
 @bp_profile.route('/couple-profile', methods=['POST'])
 def create_couple_profile():
@@ -30,11 +42,17 @@ def create_couple_profile():
     except ValueError:
         return jsonify({'error': f'Invalid preference: {preferences_str}'}), 400
 
+
     profile_picture = None
     if 'profile_picture' in request.files:
         image_file = request.files['profile_picture']
         profile_picture = image_file.filename
         # opcional: image_file.save('ruta/' + profile_picture)
+
+    extra_photos = request.files.getlist('extra_photos')  # busca el nombre de las fotos
+    if len(extra_photos) < 3 or len(extra_photos) > 10:
+        return jsonify({'error': 'You must upload between 3 and 10 extra photos.'}), 400
+
 
     new_profile = CoupleMode(
         username=username,
@@ -46,10 +64,24 @@ def create_couple_profile():
     )
 
     db.session.add(new_profile)
-    db.session.commit()
+    db.session.commit() # aca guardo el perfil
+
+    upload_folder = 'uploads/couple_photos'
+    os.makedirs(upload_folder, exist_ok=True)
+
+    for file in extra_photos:
+        if file and allowed_file(file.filename):
+            filename = secure_filename(file.filename)
+            filepath = os.path.join(upload_folder, filename)
+            file.save(filepath)
+
+            photo = CouplePhoto(couple_id=new_profile.id, filename=filename)
+            db.session.add(photo)
+        else:
+            return jsonify({'error': 'Invalid file type'}), 400
+    db.session.commit() # aca guardo el upload de foto
 
     return jsonify({'message': 'Couple profile created successfully'})
-
 
 
 @bp_profile.route('/friendship-profile', methods=['POST'])
