@@ -3,6 +3,7 @@ from enum import Enum
 import sqlalchemy
 
 from main import db
+from datetime import datetime
 
 metadata = sqlalchemy.MetaData()
 
@@ -61,3 +62,32 @@ class FriendshipMode(db.Model):
     interest = db.Column(db.String(255))
 
     user = db.relationship('User', backref=db.backref('friendship_mode', uselist=False))
+
+class SwipeType(Enum):
+    LIKE = "like"
+    DISLIKE = "dislike"
+
+
+class SwipeMode(Enum):
+    COUPLE = "couple"
+    FRIEND = "friend"
+
+
+class Swipe(db.Model): # creo la tabla swipes para almacenar quienes ya me aparecieron en mi home para que no me vuelvan a aparecer
+    id = db.Column(db.Integer, primary_key=True)
+
+    swiper_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    swiped_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+
+    type = db.Column(db.Enum(SwipeType), nullable=False)  # LIKE o DISLIKE
+    mode = db.Column(db.Enum(SwipeMode), nullable=False)  # COUPLE o FRIEND
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+
+    # estoes para SUBSCRIPTION, para poder hacer rollback (osea te va a mostrar todos los usuarios y que vos veas a cuales le diste dislike y que lo puedas recuperar, con esta liena se ven los dilikes)
+    # swiper = db.relationship("User", foreign_keys=[swiper_id], backref="swipes_given")
+    # swiped = db.relationship("User", foreign_keys=[swiped_id], backref="swipes_received")
+
+    __table_args__ = (
+        db.UniqueConstraint('swiper_id', 'swiped_id', 'mode', name='unique_swipe_per_mode'),
+        # esta linea dice que no vuelva a aparecer en el mismo modo un user que ya aparece en la tabla swipe de ese user
+    )
