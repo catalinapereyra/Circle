@@ -6,10 +6,10 @@ import './FriendshipProfileForm.css'; // ✅ Importamos los estilos nuevos
 function FriendshipProfileForm() {
     // ✅ Estado para manejar los datos del formulario
     const [formData, setFormData] = useState({
-        username: '',
         bio: '',
         profilePicture: null,
         interest: '',
+        extra_photos: []
     });
 
     // ✅ NUEVO: Estado para mostrar la imagen como fondo del círculo
@@ -30,51 +30,66 @@ function FriendshipProfileForm() {
 
     // ✅ Manejo de cambios en campos de texto
     const handleChange = (e) => {
-        const { name, value } = e.target;
-        setFormData(prev => ({
-            ...prev,
-            [name]: value
-        }));
-    };
+        const {name, value, files} = e.target;
 
-    // ✅ Manejo de imagen y creación de preview
-    const handleFileChange = (e) => {
-        const file = e.target.files[0];
-        if (file) {
-            setPreview(URL.createObjectURL(file)); // ✅ NUEVO: Creamos una URL para mostrar como fondo
-            setFormData(prev => ({
+        if (name === 'profile_picture') {
+            setFormData((prev) => ({
                 ...prev,
-                profilePicture: file
+                profile_picture: files[0]  // solo una imagen
+            }));
+        } else if (name === 'extra_photos') {
+            setFormData((prev) => ({
+                ...prev,
+                extra_photos: Array.from(files)  // muchas imágenes
+            }));
+        } else {
+            setFormData((prev) => ({
+                ...prev,
+                [name]: value
             }));
         }
     };
 
-    // ✅ Manejo de envío del formulario
+
     const handleSubmit = async (e) => {
         e.preventDefault();
-        const form = new FormData();
-        form.append('username', formData.username);
-        form.append('bio', formData.bio);
-        form.append('profilePicture', formData.profilePicture);
-        form.append('interest', formData.interest);
+        const data = new FormData();
+        data.append('username', formData.username);
+        data.append('bio', formData.bio);
+        data.append('interest', formData.interest);
+
+        if (formData.profile_picture) {
+            data.append('profile_picture', formData.profile_picture);
+        }
+
+        // ✅ AGREGAR LAS EXTRA PHOTOS
+        if (formData.extra_photos.length >= 3) {
+            formData.extra_photos.forEach((photo, index) => {
+                data.append('extra_photos', photo); // el mismo nombre para todos
+            });
+        }
 
         try {
-            const response = await axios.post('http://localhost:5001/profile/friendship-profile', form, {
-                headers: { 'Content-Type': 'multipart/form-data' }
-            });
-            setMessage(response.data.message);
-            navigate('/home');
-        } catch (error) {
-            setMessage('Error creating friendship profile');
+            const res = await axios.post('http://localhost:5001/profile/friendship-profile', data);
+            setMessage('Perfil creado exitosamente');
+
+            const then = location.state?.then;
+            if (then) {
+                navigate(then);
+            } else {
+                navigate('/home');
+            }
+        } catch (err) {
+            setMessage('Error al crear perfil');
+            console.error(err.response?.data); // 👉 Esto te dice qué error devolvió el back
         }
     };
 
     return (
         <div className="form-container friendship"> { /* lo separamos en friendship y couple para que no se superpongan */}
-            <div className="form-title">create friend profile first</div>
+            <div className="form-title">create friend profile</div>
 
             <form className="form-wrapper" onSubmit={handleSubmit}>
-                {/* ✅ Círculo de subir foto con preview */}
                 <label className="upload-photo">
                     <div
                         className="photo-circle"
@@ -87,19 +102,10 @@ function FriendshipProfileForm() {
                         name="profile_picture"
                         accept="image/*"
                         className="hidden-file"
-                        onChange={handleFileChange}
+                        onChange={handleChange}
                     />
                 </label>
 
-                {/* ✅ Nombre (desactivado porque viene del localStorage) */}
-                <label className="form-label">WHAT'S YOUR NAME?</label>
-                <input
-                    type="text"
-                    name="username"
-                    className="form-input"
-                    value={formData.username}
-                    disabled
-                />
 
                 {/* ✅ Bio */}
                 <label className="form-label">WRITE YOUR BIO</label>
@@ -121,6 +127,20 @@ function FriendshipProfileForm() {
                     onChange={handleChange}
                     required
                 />
+
+                <label className="upload-photos"> {/* area clickeable */}
+                    <div className="photo-square"> {/* css */}
+                        <span>UPLOAD<br/>PHOTOS</span> {/* texto visible para el usuario */}
+                    </div>
+                    <input
+                        type="file"
+                        name="extra_photos"
+                        accept="image/*"
+                        multiple
+                        onChange={handleChange}
+                        className="hidden-file"
+                    />
+                </label>
 
                 {/* ✅ Botones de navegación */}
                 <div className="form-buttons">

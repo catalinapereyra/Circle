@@ -87,3 +87,4 @@ depsues en intllij
 
 CUANDO SE CAMBIA LA BASE DE DATOS 
  flask db migrate -m "Descripción de lo que cambiaste"
+flask db upgrade

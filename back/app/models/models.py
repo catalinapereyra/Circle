@@ -59,6 +59,19 @@ class CoupleMode(db.Model):
 
     user = db.relationship('User', backref=db.backref('couple_mode', uselist=False))
 
+class FriendshipPhoto(db.Model):
+    # creamos una tabla para guardar las fotos del perfil porque si las guardaramos en la tabla couple:
+        # si hay pocas fotos -> hay muchos nulls
+        # haces un query y tenes todas las fotos -> + simple
+        # Agregar/eliminar fotos sin modificar la estructura de la tabla CoupleMode
+    __tablename__ = 'friendship_photos'
+
+    id = db.Column(db.Integer, primary_key=True)
+    friendship_id = db.Column(db.Integer, db.ForeignKey('friendship_mode.id'), nullable=False)
+    filename = db.Column(db.String(255), nullable=False)
+
+    friendship = db.relationship('FriendshipMode', backref='photos') # para poder acceder de una foto al perfil y del perfil a la foto
+
 
 class FriendshipMode(db.Model):
     __tablename__ = 'friendship_mode'
@@ -66,10 +79,8 @@ class FriendshipMode(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(25), db.ForeignKey('user.username'), nullable=False)
 
-    display_name = db.Column(db.String(50), nullable=False)
     profile_picture = db.Column(db.String(255))
     bio = db.Column(db.Text)
-    preferences = db.Column(db.Text)
     active = db.Column(db.Boolean, default=True)
     interest = db.Column(db.String(255))
 
