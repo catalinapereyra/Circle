@@ -25,7 +25,6 @@ function CoupleProfileForm() {
     const location = useLocation();
 
     const [formData, setFormData] = useState({
-        username: '',
         bio: '',
         preferences: 'all', // default value
         profile_picture: null,
@@ -74,9 +73,17 @@ function CoupleProfileForm() {
         data.append('username', formData.username);
         data.append('bio', formData.bio);
         data.append('preferences', formData.preferences);
-        data.append('interest', formData.interest)
+        data.append('interest', formData.interest);
+
         if (formData.profile_picture) {
             data.append('profile_picture', formData.profile_picture);
+        }
+
+        // ✅ AGREGAR LAS EXTRA PHOTOS
+        if (formData.extra_photos.length >= 3) {
+            formData.extra_photos.forEach((photo, index) => {
+                data.append('extra_photos', photo); // el mismo nombre para todos
+            });
         }
 
         try {
@@ -91,6 +98,7 @@ function CoupleProfileForm() {
             }
         } catch (err) {
             setMessage('Error al crear perfil');
+            console.error(err.response?.data); // 👉 Esto te dice qué error devolvió el back
         }
     };
 
@@ -113,13 +121,6 @@ function CoupleProfileForm() {
                     />
                 </label>
 
-                <label className="form-label">WHAT'S YOUR NAME?</label> {/* NUEVO: estilo rosa y mayúscula */}
-                <input
-                    type="text"
-                    value={formData.username}
-                    disabled
-                    className="form-input" // NUEVO: sin fondo, subrayado rosa
-                />
 
                 <label className="form-label">WRITE YOUR BIO</label> {/* NUEVO */}
                 <textarea

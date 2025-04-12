@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify
 from werkzeug.utils import secure_filename
 
-from app.models.models import CouplePreferences, CoupleMode, User, FriendshipMode
+from app.models.models import CouplePreferences, CoupleMode, User, FriendshipMode, CouplePhoto
 from main import db
 import os
 
@@ -19,7 +19,6 @@ def create_couple_profile():
     print("📥 Form Data recibido:", data)
 
     username = data['username']
-    display_name = data.get('display_name', '')
     bio = data.get('bio', '')
     interest = data.get('interest', '')
     preferences_str = data.get('preferences', '')
@@ -44,7 +43,6 @@ def create_couple_profile():
 
     new_profile = CoupleMode(
         username=username,
-        display_name=display_name,
         profile_picture=profile_picture,
         bio=bio,
         preferences=preference_enum,

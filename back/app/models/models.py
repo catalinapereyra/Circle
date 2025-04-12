@@ -51,7 +51,6 @@ class CoupleMode(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(25), db.ForeignKey('user.username'), nullable=False)
 
-    display_name = db.Column(db.String(50), nullable=False)
     profile_picture = db.Column(db.String(255))
     bio = db.Column(db.Text)
     preferences = db.Column(db.String(50), nullable=False)
