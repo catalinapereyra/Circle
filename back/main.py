@@ -1,8 +1,12 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
+from flask_migrate import Migrate
 
 db = SQLAlchemy()
+migrate = Migrate()
+
+
 
 def create_app():
     """Configura la aplicación Flask y registra los blueprints."""
@@ -14,9 +18,11 @@ def create_app():
     from app.routes.user_routes import bp_user
     from app.routes.profile_routes import bp_profile  # <-- IMPORTANTE
     from app.models.models import User
-    from app.models.models import CoupleMode, FriendshipMode
+    from app.models.models import CoupleMode, FriendshipMode, CouplePhoto
 
     db.init_app(app)
+    migrate.init_app(app, db)
+
 
     # Registrar blueprints
     app.register_blueprint(bp_user)

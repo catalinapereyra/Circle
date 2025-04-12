@@ -1,7 +1,24 @@
-import { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import {useState, useEffect} from 'react';
+import {useNavigate, useLocation} from 'react-router-dom';
 import axios from 'axios';
 import './CoupleProfileForm.css'; // importo style
+// FORMATO GENERAL
+/* <label className="estilo-contenedor"> -> conectado a CSS
+  <div className="lo-que-el-usuario-ve">
+    <span>Texto o ícono o imagen</span>
+  </div>
+
+  <input
+    type="TIPO"
+    name="NOMBRE_DEL_INPUT"
+    accept="..." // si aplica
+    multiple // si aplica
+    onChange={handleChange}
+    className="hidden" // ocultar el input real
+  />
+</label>
+
+ */
 
 function CoupleProfileForm() {
     const navigate = useNavigate();
@@ -12,7 +29,8 @@ function CoupleProfileForm() {
         bio: '',
         preferences: 'all', // default value
         profile_picture: null,
-        interest: ''
+        interest: '',
+        extra_photos: []
     });
 
     const [message, setMessage] = useState('');
@@ -23,17 +41,29 @@ function CoupleProfileForm() {
         if (!storedUsername) {
             navigate('/register');
         } else {
-            setFormData((prev) => ({ ...prev, username: storedUsername }));
+            setFormData((prev) => ({...prev, username: storedUsername}));
         }
     }, [navigate]);
 
     // Manejar cambios en inputs
     const handleChange = (e) => {
-        const { name, value, files } = e.target;
+        const {name, value, files} = e.target;
+
         if (name === 'profile_picture') {
-            setFormData((prev) => ({ ...prev, profile_picture: files[0] }));
+            setFormData((prev) => ({
+                ...prev,
+                profile_picture: files[0]  // solo una imagen
+            }));
+        } else if (name === 'extra_photos') {
+            setFormData((prev) => ({
+                ...prev,
+                extra_photos: Array.from(files)  // muchas imágenes
+            }));
         } else {
-            setFormData((prev) => ({ ...prev, [name]: value }));
+            setFormData((prev) => ({
+                ...prev,
+                [name]: value
+            }));
         }
     };
 
@@ -70,9 +100,9 @@ function CoupleProfileForm() {
 
             <form onSubmit={handleSubmit} className="form-wrapper"> {/* NUEVO: usa flex column + gap */}
 
-                <label className="upload-photo"> {/* NUEVO: círculo rosa con texto */}
+                <label className="upload-profile-photo"> {/* NUEVO: círculo rosa con texto */}
                     <div className="photo-circle">
-                        <span>UPLOAD<br />PHOTO</span>
+                        <span>UPLOAD<br />PROFILE<br />PHOTO</span>
                     </div>
                     <input
                         type="file"
@@ -98,7 +128,7 @@ function CoupleProfileForm() {
                     value={formData.bio}
                     onChange={handleChange}
                     required
-                    className="form-textarea" // NUEVO
+                    className="form-textarea"
                 />
 
                 <label className="form-label">WHO CATCHES YOUR EYE...</label> {/* NUEVO */}
@@ -106,7 +136,7 @@ function CoupleProfileForm() {
                     name="preferences"
                     value={formData.preferences}
                     onChange={handleChange}
-                    className="form-select" // NUEVO
+                    className="form-select"
                 >
                     <option value="women">Women</option>
                     <option value="men">Men</option>
@@ -120,18 +150,34 @@ function CoupleProfileForm() {
                     value={formData.interest}
                     onChange={handleChange}
                     required
-                    className="form-textarea" // NUEVO
+                    className="form-textarea"
                 />
 
+                <label className="upload-photos"> {/* area clickeable */}
+                    <div className="photo-square"> {/* css */}
+                        <span>UPLOAD<br/>PHOTOS</span> {/* texto visible para el usuario */}
+                    </div>
+                    <input
+                        type="file"
+                        name="extra_photos"
+                        accept="image/*"
+                        multiple
+                        onChange={handleChange}
+                        className="hidden-file"
+                    />
+                </label>
+
                 <div className="form-buttons"> {/* NUEVO: botones separados */}
-                    <button type="button" onClick={() => navigate(-1)} className="back-button">BACK</button> {/* NUEVO */}
-                    <button type="submit" className="submit-button">READY</button> {/* NUEVO */}
+                    <button type="button" onClick={() => navigate(-1)} className="back-button">BACK</button>
+                    {/* NUEVO */}
+                    <button type="submit" className="submit-button">READY</button>
+                    {/* NUEVO */}
                 </div>
 
                 <p className="form-message">{message}</p> {/* NUEVO: texto de feedback centrado */}
             </form>
         </div>
-    );
+);
 }
 
 export default CoupleProfileForm;

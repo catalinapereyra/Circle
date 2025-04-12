@@ -12,18 +12,6 @@ ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
-class CouplePhoto(db.Model):
-    # creamos una tabla para guardar las fotos del perfil porque si las guardaramos en la tabla couple:
-        # si hay pocas fotos -> hay muchos nulls
-        # haces un query y tenes todas las fotos -> + simple
-        # Agregar/eliminar fotos sin modificar la estructura de la tabla CoupleMode
-    __tablename__ = 'couple_photos'
-
-    id = db.Column(db.Integer, primary_key=True)
-    couple_id = db.Column(db.Integer, db.ForeignKey('couple_mode.id'), nullable=False)
-    filename = db.Column(db.String(255), nullable=False)
-
-    couple = db.relationship('CoupleMode', backref='photos') # para poder acceder de una foto al perfil y del perfil a la foto
 
 @bp_profile.route('/couple-profile', methods=['POST'])
 def create_couple_profile():

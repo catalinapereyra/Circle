@@ -84,3 +84,6 @@ primero en pycharm
 	flask run --port=5001
 depsues en intllij 
 	npm run dev
+
+CUANDO SE CAMBIA LA BASE DE DATOS 
+ flask db migrate -m "Descripción de lo que cambiaste"
