@@ -118,8 +118,6 @@ def create_friendship_profile():
     return jsonify({'message': 'Couple profile created successfully'})
 
 
-# Añadir esto a profile_routes.py
-
 @bp_profile.route('/check-profiles/<username>', methods=['GET'])
 def check_profiles(username):
     # Buscar perfiles del usuario
@@ -130,3 +128,35 @@ def check_profiles(username):
         'has_couple_profile': couple_profile is not None,
         'has_friendship_profile': friendship_profile is not None
     })
+
+@bp_profile.route('/home/<mode>', methods=['GET'])
+def get_profiles_by_mode(mode):
+    if mode == 'couple':
+        profiles = CoupleMode.query.all()
+        result = [
+            {
+                'username': p.username,
+                'bio': p.bio,
+                'interest': p.interest,
+                'profile_picture': p.profile_picture
+            }
+            for p in profiles
+        ]
+        return jsonify(result)
+
+    elif mode == 'friendship':
+        profiles = FriendshipMode.query.all()
+        result = [
+            {
+                'username': p.username,
+                'bio': p.bio,
+                'interest': p.interest,
+                'profile_picture': p.profile_picture
+            }
+            for p in profiles
+        ]
+        return jsonify(result)
+
+    else:
+        return jsonify({'error': 'Modo inválido'}), 400
+

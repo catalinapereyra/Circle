@@ -1,0 +1,42 @@
+.home-page {
+    padding: 2rem;
+    min-height: 100vh;
+    box-sizing: border-box;
+}
+
+.home-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.home-logo {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background-color: black;
+    margin-bottom: 1rem;
+}
+
+.home-title {
+    font-size: 1.5rem;
+    color: #333;
+    text-align: center;
+}
+
+/* Fondo para cada modo */
+.couple-bg {
+    background-color: #fff0f7;
+}
+
+.friendship-bg {
+    background-color: #fffbe5;
+}
+
+.card-grid {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1.5rem;
+}

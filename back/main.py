@@ -16,7 +16,7 @@ def create_app():
 
     # Importaciones de modelos y rutas dentro del contexto de la app
     from app.routes.user_routes import bp_user
-    from app.routes.profile_routes import bp_profile  # <-- IMPORTANTE
+    from app.routes.profile_routes import bp_profile
     from app.models.models import User
     from app.models.models import CoupleMode, FriendshipMode, CouplePhoto
 
@@ -26,7 +26,7 @@ def create_app():
 
     # Registrar blueprints
     app.register_blueprint(bp_user)
-    app.register_blueprint(bp_profile, url_prefix="/profile")  # <-- NUEVO
+    app.register_blueprint(bp_profile, url_prefix="/profile")
 
     # Crear las tablas en la base de datos
     with app.app_context():
