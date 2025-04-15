@@ -67,6 +67,7 @@ def login_user():
     # Buscar el usuario en la base de datos
     user = User.query.filter_by(username=username).first()
 
+
     if user and user.password == password:
         token = generate_token(user.username)
         return jsonify({

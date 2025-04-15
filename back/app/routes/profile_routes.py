@@ -16,32 +16,32 @@ def allowed_file(filename):
 
 
 @bp_profile.route('/couple-profile', methods=['POST'])
+@jwt_required()
 def create_couple_profile():
+    print("fjfyjfjfjy")
     data = request.form
     print("📥 Form Data recibido:", data)
 
-    username = data['username']
+    username = get_jwt_identity()  # Usamos el username del token
+    print(username)
+
     bio = data.get('bio', '')
     interest = data.get('interest', '')
     preferences_str = data.get('preferences', '')
 
-    # ✅ Validar y convertir el string a Enum
     try:
         preference_enum = CouplePreferences(preferences_str.lower()).value
     except ValueError:
         return jsonify({'error': f'Invalid preference: {preferences_str}'}), 400
 
-
     profile_picture = None
     if 'profile_picture' in request.files:
         image_file = request.files['profile_picture']
         profile_picture = image_file.filename
-        # opcional: image_file.save('ruta/' + profile_picture)
 
-    extra_photos = request.files.getlist('extra_photos')  # busca el nombre de las fotos
+    extra_photos = request.files.getlist('extra_photos')
     if len(extra_photos) < 3 or len(extra_photos) > 10:
         return jsonify({'error': 'You must upload between 3 and 10 extra photos.'}), 400
-
 
     new_profile = CoupleMode(
         username=username,
@@ -52,7 +52,7 @@ def create_couple_profile():
     )
 
     db.session.add(new_profile)
-    db.session.commit() # aca guardo el perfil
+    db.session.commit()
 
     upload_folder = 'uploads/couple_photos'
     os.makedirs(upload_folder, exist_ok=True)
@@ -67,17 +67,20 @@ def create_couple_profile():
             db.session.add(photo)
         else:
             return jsonify({'error': 'Invalid file type'}), 400
-    db.session.commit() # aca guardo el upload de foto
+
+    db.session.commit()
 
     return jsonify({'message': 'Couple profile created successfully'})
 
 
 @bp_profile.route('/friendship-profile', methods=['POST'])
+@jwt_required()
 def create_friendship_profile():
     data = request.form
     print("📥 Form Data recibido:", data)
 
-    username = data['username']
+    username = get_jwt_identity()  # ✅ Usamos el username del token
+
     bio = data.get('bio', '')
     interest = data.get('interest', '')
 
@@ -85,22 +88,20 @@ def create_friendship_profile():
     if 'profile_picture' in request.files:
         image_file = request.files['profile_picture']
         profile_picture = image_file.filename
-        # opcional: image_file.save('ruta/' + profile_picture)
 
-    extra_photos = request.files.getlist('extra_photos')  # busca el nombre de las fotos
+    extra_photos = request.files.getlist('extra_photos')
     if len(extra_photos) < 3 or len(extra_photos) > 10:
         return jsonify({'error': 'You must upload between 3 and 10 extra photos.'}), 400
 
-
     new_profile = FriendshipMode(
         username=username,
-        bio=bio,
         profile_picture=profile_picture,
-        interest=interest,
+        bio=bio,
+        interest=interest
     )
 
     db.session.add(new_profile)
-    db.session.commit() # cree profile
+    db.session.commit()
 
     upload_folder = 'uploads/friendship_photos'
     os.makedirs(upload_folder, exist_ok=True)
@@ -115,9 +116,10 @@ def create_friendship_profile():
             db.session.add(photo)
         else:
             return jsonify({'error': 'Invalid file type'}), 400
-    db.session.commit()  # aca guardo el upload de foto
 
-    return jsonify({'message': 'Couple profile created successfully'})
+    db.session.commit()
+
+    return jsonify({'message': 'Friendship profile created successfully'})
 
 
 @bp_profile.route('/check-profiles/<username>', methods=['GET'])

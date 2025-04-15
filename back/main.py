@@ -1,3 +1,5 @@
+from datetime import timedelta
+
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
@@ -14,9 +16,15 @@ def create_app():
     """Configura la aplicación Flask y registra los blueprints."""
     app = Flask(__name__)
     app.config.from_object('config.Config')  # Configuración de la app
-    CORS(app)  # para que React se conecte
+    # Configurar JWT
+    app.config["JWT_SECRET_KEY"] = "deligo-mili-pili"
+    app.config['JWT_TOKEN_LOCATION'] = ['headers']
+    app.config['JWT_HEADER_NAME'] = 'Authorization'
+    app.config['JWT_HEADER_TYPE'] = 'Bearer'
+    app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=1)
+    JWTManager(app)
+    CORS(app, expose_headers=["Authorization"])  # para que React se conecte
 
-    jwt = JWTManager(app)
 
     # Importaciones de modelos y rutas dentro del contexto de la app
     from app.routes.user_routes import bp_user
