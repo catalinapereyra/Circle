@@ -28,9 +28,11 @@ function LogInForm() {
             const response = await axios.post('http://localhost:5001/user/login', formData);
 
             if (response.status === 200) {
-                localStorage.setItem('username', formData.username);
+                localStorage.setItem('token', response.data.token);  // GUARDAMOS EL TOKEN
+                localStorage.setItem('username', formData.username); //
                 navigate('/choose-mood');
             }
+
         } catch (error) {
             setError('Credenciales inválidas. Por favor, inténtelo de nuevo.');
             console.error('Error al iniciar sesión:', error);
