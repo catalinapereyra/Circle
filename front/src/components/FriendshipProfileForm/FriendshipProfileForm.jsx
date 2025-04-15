@@ -1,13 +1,13 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-import {useLocation, useNavigate} from 'react-router-dom';
-import './FriendshipProfileForm.css'; // ✅ Importamos los estilos nuevos
+import { useLocation, useNavigate } from 'react-router-dom';
+import './FriendshipProfileForm.css';
 
 function FriendshipProfileForm() {
     const location = useLocation();
     const [formData, setFormData] = useState({
         bio: '',
-        profilePicture: null,
+        profile_picture: null,
         interest: '',
         extra_photos: []
     });
@@ -18,25 +18,16 @@ function FriendshipProfileForm() {
     const [message, setMessage] = useState('');
     const navigate = useNavigate();
 
-    // ✅ Recuperamos el username del localStorage al cargar
-    useEffect(() => {
-        const storedUsername = localStorage.getItem('username');
-        if (!storedUsername) {
-            navigate('/register');
-        } else {
-            setFormData(prev => ({ ...prev, username: storedUsername }));
-        }
-    }, [navigate]);
-
     // ✅ Manejo de cambios en campos de texto
     const handleChange = (e) => {
-        const {name, value, files} = e.target;
+        const { name, value, files } = e.target;
 
         if (name === 'profile_picture') {
             setFormData((prev) => ({
                 ...prev,
                 profile_picture: files[0]  // solo una imagen
             }));
+            setPreview(URL.createObjectURL(files[0])); // Muestra preview
         } else if (name === 'extra_photos') {
             setFormData((prev) => ({
                 ...prev,
@@ -50,11 +41,11 @@ function FriendshipProfileForm() {
         }
     };
 
-
     const handleSubmit = async (e) => {
         e.preventDefault();
         const data = new FormData();
-        data.append('username', formData.username);
+
+        // Ya no enviamos el username, lo valida el backend por token
         data.append('bio', formData.bio);
         data.append('interest', formData.interest);
 
@@ -63,13 +54,25 @@ function FriendshipProfileForm() {
         }
 
         if (formData.extra_photos.length >= 3) {
-            formData.extra_photos.forEach((photo, index) => {
+            formData.extra_photos.forEach((photo) => {
                 data.append('extra_photos', photo); // el mismo nombre para todos
             });
         }
 
         try {
-            const res = await axios.post('http://localhost:5001/profile/friendship-profile', data);
+            const token = localStorage.getItem("token"); //  Autenticación con JWT
+
+            const res = await axios.post(
+                'http://localhost:5001/profile/friendship-profile',
+                data,
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`, // Se manda el token
+                        'Content-Type': 'multipart/form-data',
+                    },
+                }
+            );
+
             setMessage('Perfil creado exitosamente');
 
             const then = location.state?.then;
@@ -80,7 +83,7 @@ function FriendshipProfileForm() {
             }
         } catch (err) {
             setMessage('Error al crear perfil');
-            console.error(err.response?.data); // 👉 Esto te dice qué error devolvió el back
+            console.error("📛 Error al enviar friendship profile:", err.response?.data); // te dice qué error devolvió el back
         }
     };
 
@@ -104,7 +107,6 @@ function FriendshipProfileForm() {
                         onChange={handleChange}
                     />
                 </label>
-
 
                 {/* ✅ Bio */}
                 <label className="form-label">WRITE YOUR BIO</label>
@@ -147,7 +149,7 @@ function FriendshipProfileForm() {
                     <button type="submit" className="submit-button">NEXT</button>
                 </div>
 
-                {/* ✅ Mensaje de éxito o error */}
+                {/* Mensaje de éxito o error */}
                 {message && <p className="form-message">{message}</p>}
             </form>
         </div>
