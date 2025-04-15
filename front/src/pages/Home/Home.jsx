@@ -1,3 +1,5 @@
+import AOS from 'aos';
+import 'aos/dist/aos.css';
 import { useEffect, useState } from "react";
 import { useUserMode } from "../../contexts/UserModeContext";
 import ProfileCard from "../../components/ProfileCard/ProfileCard";
@@ -7,6 +9,13 @@ function Home() {
     const { mode } = useUserMode(); // "couple" o "friendship"
     const [profiles, setProfiles] = useState([]);
     const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        AOS.init({
+            duration: 800,
+            once: true
+        });
+    }, []);
 
     useEffect(() => {
         if (!mode) return;
@@ -39,13 +48,15 @@ function Home() {
 
             <div className="card-grid">
                 {profiles.map((user, index) => (
-                    <ProfileCard
-                        key={index}
-                        username={user.username}
-                        bio={user.bio}
-                        interest={user.interest}
-                        profilePicture={`http://localhost:5001/uploads/${mode}_photos/${user.profile_picture}`}
-                    />
+                    <div data-aos="fade-up" key={index}>
+                        <ProfileCard
+                            username={user.username}
+                            bio={user.bio}
+                            interest={user.interest}
+                            profilePicture={`http://localhost:5001/uploads/${mode}_photos/${user.profile_picture}`}
+                            photos={user.photos?.map(photo => `http://localhost:5001/uploads/${mode}_photos/${photo}`)}
+                        />
+                    </div>
                 ))}
             </div>
         </div>

@@ -142,7 +142,8 @@ def get_profiles_by_mode(mode):
                 'username': p.username,
                 'bio': p.bio,
                 'interest': p.interest,
-                'profile_picture': p.profile_picture
+                'profile_picture': p.profile_picture,
+                'photos': [photo.filename for photo in p.photos]
             }
             for p in profiles
         ]
@@ -163,3 +164,4 @@ def get_profiles_by_mode(mode):
 
     else:
         return jsonify({'error': 'Modo inválido'}), 400
+
