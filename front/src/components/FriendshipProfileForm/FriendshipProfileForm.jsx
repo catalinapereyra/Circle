@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import {useLocation, useNavigate} from 'react-router-dom';
 import './FriendshipProfileForm.css'; // ✅ Importamos los estilos nuevos
 
 function FriendshipProfileForm() {
-    // ✅ Estado para manejar los datos del formulario
+    const location = useLocation();
     const [formData, setFormData] = useState({
         bio: '',
         profilePicture: null,
@@ -62,7 +62,6 @@ function FriendshipProfileForm() {
             data.append('profile_picture', formData.profile_picture);
         }
 
-        // ✅ AGREGAR LAS EXTRA PHOTOS
         if (formData.extra_photos.length >= 3) {
             formData.extra_photos.forEach((photo, index) => {
                 data.append('extra_photos', photo); // el mismo nombre para todos
@@ -77,7 +76,7 @@ function FriendshipProfileForm() {
             if (then) {
                 navigate(then);
             } else {
-                navigate('/home');
+                navigate('/choose-mood');
             }
         } catch (err) {
             setMessage('Error al crear perfil');

@@ -1,7 +1,8 @@
 import {useState, useEffect} from 'react';
 import {useNavigate, useLocation} from 'react-router-dom';
 import axios from 'axios';
-import './CoupleProfileForm.css'; // importo style
+import './CoupleProfileForm.css';
+
 // FORMATO GENERAL
 /* <label className="estilo-contenedor"> -> conectado a CSS
   <div className="lo-que-el-usuario-ve">
@@ -23,6 +24,7 @@ import './CoupleProfileForm.css'; // importo style
 function CoupleProfileForm() {
     const navigate = useNavigate();
     const location = useLocation();
+    console.log(location.state);
 
     const [formData, setFormData] = useState({
         bio: '',
@@ -90,7 +92,7 @@ function CoupleProfileForm() {
             const res = await axios.post('http://localhost:5001/profile/couple-profile', data);
             setMessage('Perfil creado exitosamente');
 
-            const then = location.state?.then;
+            const then = location.state?.then; // si tiene algo en navigate.then anda al path, sino anda al home. esto se seteo en best of both worlds en register profile type
             if (then) {
                 navigate(then);
             } else {
