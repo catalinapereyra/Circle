@@ -4,6 +4,8 @@ from werkzeug.utils import secure_filename
 from app.models.models import CouplePreferences, CoupleMode, User, FriendshipMode, CouplePhoto, FriendshipPhoto
 from main import db
 import os
+from flask_jwt_extended import jwt_required, get_jwt_identity
+
 
 bp_profile = Blueprint('profile', __name__)
 

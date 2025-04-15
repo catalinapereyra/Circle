@@ -2,6 +2,8 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 from flask_migrate import Migrate
+from flask_jwt_extended import JWTManager
+
 
 db = SQLAlchemy()
 migrate = Migrate()
@@ -13,6 +15,8 @@ def create_app():
     app = Flask(__name__)
     app.config.from_object('config.Config')  # Configuración de la app
     CORS(app)  # para que React se conecte
+
+    jwt = JWTManager(app)
 
     # Importaciones de modelos y rutas dentro del contexto de la app
     from app.routes.user_routes import bp_user

@@ -88,3 +88,18 @@ depsues en intllij
 CUANDO SE CAMBIA LA BASE DE DATOS 
  flask db migrate -m "Descripción de lo que cambiaste"
 flask db upgrade
+
+
+TOKEN -> Para que cosas usarlo?
+- Verificar identidad del usuario logueado
+- Para que un usuario no pueda crear un perfil en nombre de otro
+- Para evitar que un usuario pueda mandar likes en nombre de otro
+- Para asegurar de que solo los usuarios que hicieron match pueden acceder al chat
+- Cuando queramos enviar preguntas distintas segun el modo (pareja/amistad
+- Restricción de funciones por rol (a futuro tdvia no lo hcimos): Usuario free vs usuario premium
+
+user_routes:
+Usar el /me para todo lo que sea PRIVADO o personal (datos sensibles, configuración, email)
+
+Usar el  /user/<username> para mostrar datos visibles de otros usuarios (como en un match o en un swipe)
+
