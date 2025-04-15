@@ -2,8 +2,10 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { useUserMode } from "../contexts/UserModeContext";
 
 function ChooseMood() {
+    const { setMode } = useUserMode(); // usar hook
     const navigate = useNavigate();
     const [profiles, setProfiles] = useState({
         has_couple_profile: false,
@@ -32,6 +34,7 @@ function ChooseMood() {
     }, [username]);
 
     const handleCoupleModeClick = () => {
+        setMode("couple"); // guardo modo elijido
         if (profiles.has_couple_profile) {
             // Si ya tiene perfil de pareja, llevarlo al home
             console.log("Usuario ya tiene perfil de pareja, redirigiendo a home");
@@ -44,6 +47,7 @@ function ChooseMood() {
     };
 
     const handleFriendshipModeClick = () => {
+        setMode("friendship");
         if (profiles.has_friendship_profile) {
             // Si ya tiene perfil de amistad, llevarlo al home
             console.log("Usuario ya tiene perfil de amistad, redirigiendo a home");
