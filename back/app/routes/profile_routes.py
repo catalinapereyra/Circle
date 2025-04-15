@@ -162,3 +162,4 @@ def get_profiles_by_mode(mode):
 
     else:
         return jsonify({'error': 'Modo inválido'}), 400
+
