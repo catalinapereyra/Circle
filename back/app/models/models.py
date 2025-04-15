@@ -114,3 +114,4 @@ class Swipe(db.Model): # creo la tabla swipes para almacenar quienes ya me apare
         db.UniqueConstraint('swiper_id', 'swiped_id', 'mode', name='unique_swipe_per_mode'),
         # esta linea dice que no vuelva a aparecer en el mismo modo un user que ya aparece en la tabla swipe de ese user
     )
+

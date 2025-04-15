@@ -8,22 +8,25 @@ import FriendshipProfilePage from './pages/FriendshipProfilePage';
 import Home from './pages/Home.jsx';
 import RegisterProfilePage from './pages/RegisterProfilePage';
 import ChooseMood from './components/ChooseMood';
+import { UserModeProvider } from "./contexts/UserModeContext";
 
 
 function App() {
     return (
-        <Router>
-            <Routes>
-                <Route path="/" element={<Landing />} /> {/* 👈 cambió esto */}
-                <Route path="/register" element={<Register />} />
-                <Route path="/login" element={<Login />} />
-                <Route path="/choose-profile" element={<RegisterProfilePage />} />
-                <Route path="/couple-profile" element={<CoupleProfilePage />} />
-                <Route path="/friend-profile" element={<FriendshipProfilePage />} />
-                <Route path="/home" element={<Home />} />
-                <Route path="/choose-mood" element={<ChooseMood />} />
-            </Routes>
-        </Router>
+        <UserModeProvider> {/*para usar lo de almacenar el user mode*/}
+            <Router>
+                <Routes>
+                    <Route path="/" element={<Landing />} /> {/* 👈 cambió esto */}
+                    <Route path="/register" element={<Register />} />
+                    <Route path="/login" element={<Login />} />
+                    <Route path="/choose-profile" element={<RegisterProfilePage />} />
+                    <Route path="/couple-profile" element={<CoupleProfilePage />} />
+                    <Route path="/friend-profile" element={<FriendshipProfilePage />} />
+                    <Route path="/home" element={<Home />} />
+                    <Route path="/choose-mood" element={<ChooseMood />} />
+                </Routes>
+            </Router>
+        </UserModeProvider>
     );
 }
 

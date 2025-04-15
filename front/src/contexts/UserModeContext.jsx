@@ -1,14 +1,15 @@
+// este file es para guardar en que mode estoy para que se use en toda la app
 import { createContext, useContext, useState } from 'react';
 
-// Creamos el contexto
+// contexto
 const UserModeContext = createContext();
 
-// Hook personalizado para usarlo fácilmente
+// hook
 export const useUserMode = () => useContext(UserModeContext);
 
-// Proveedor del contexto
+
 export const UserModeProvider = ({ children }) => {
-    const [mode, setMode] = useState(null); // 'couple' o 'friendship'
+    const [mode, setMode] = useState(null); // Puede ser "couple" o "friendship"
 
     return (
         <UserModeContext.Provider value={{ mode, setMode }}>
