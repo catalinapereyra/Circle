@@ -14,6 +14,9 @@ from flask import Blueprint, request, jsonify
 
 from app.models.models import User
 from main import db
+from utils.token_utils import generate_token  # asegurate de importar esto
+from flask_jwt_extended import jwt_required, get_jwt_identity
+
 
 bp_user = Blueprint('user', __name__, url_prefix='/user') #creo un blueprint 'user'que tiene el prefijo '/user' en la URL
 
@@ -64,8 +67,13 @@ def login_user():
     # Buscar el usuario en la base de datos
     user = User.query.filter_by(username=username).first()
 
-    if user and user.password == password: #si el user no es null, y la contrasena coincide
-        return jsonify({"message": "Login successful!"}), 200
+    if user and user.password == password:
+        token = generate_token(user.username)
+        return jsonify({
+            "message": "Login successful!",
+            "token": token
+        }), 200
+
         #creo que hay que haer una session para que pueda 'entrar' a la web y no sea solo el print.... check
     return jsonify({"message": "Invalid credentials!"}), 401
 
@@ -134,3 +142,20 @@ def get_user(username):
         return jsonify({"name": user.name})
     return jsonify({"error": "Not found"}), 404
 
+@bp_user.route('/me', methods=['GET'])
+@jwt_required()
+def get_me():
+    username = get_jwt_identity()
+    user = User.query.filter_by(username=username).first()
+
+    if user:
+        return jsonify({
+            "username": user.username,
+            "name": user.name,
+            "email": user.email,
+            "age": user.age,
+            "gender": user.gender.name,
+            "location": user.location
+        }), 200
+
+    return jsonify({"error": "User not found"}), 404
