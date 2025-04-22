@@ -37,7 +37,8 @@ function RegisterForm() {
             setMessage(response.data.message);
 
             if (response.status === 201) {
-                localStorage.setItem('username', formData.username);
+                localStorage.setItem('token', response.data.token);  // ✅ nuevo token del usuario
+                localStorage.setItem('username', formData.username); // opcional
                 navigate('/choose-profile');
             }
         } catch (error) {

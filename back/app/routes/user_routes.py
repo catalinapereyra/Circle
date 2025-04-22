@@ -54,8 +54,13 @@ def register_user():
     db.session.add(new_user)
     db.session.commit()
 
-    return jsonify({"message": "User registered successfully!"}), 201 # El código de estado HTTP 201, que indica que el usuario fue registrado exitosamente y un nuevo recurso (usuario) fue creado.
+    token = generate_token(username)
 
+    # 🔥 Devolver también el token
+    return jsonify({
+        "message": "User registered successfully!",
+        "token": token
+    }), 201
 
 # LOG IN
 @bp_user.route('/login', methods=['POST'])

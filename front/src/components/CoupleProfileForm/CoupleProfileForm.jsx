@@ -19,6 +19,7 @@ function CoupleProfileForm() {
     });
 
     const [message, setMessage] = useState('');
+    const [preview, setPreview] = useState(null);
 
     // 🔁 Manejar cambios en inputs
     const handleChange = (e) => {
@@ -29,6 +30,7 @@ function CoupleProfileForm() {
                 ...prev,
                 profile_picture: files[0]
             }));
+            setPreview(URL.createObjectURL(files[0]));
         } else if (name === 'extra_photos') {
             setFormData((prev) => ({
                 ...prev,
@@ -41,6 +43,7 @@ function CoupleProfileForm() {
             }));
         }
     };
+
 
     // ✅ Enviar formulario con token en headers
     const handleSubmit = async (e) => {
