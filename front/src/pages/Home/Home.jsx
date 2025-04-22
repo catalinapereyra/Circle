@@ -18,6 +18,7 @@ function Home() {
     }, []);
 
     useEffect(() => {
+        console.log("🏷️ Modo actual:", mode);
         if (!mode) return;
 
         const fetchProfiles = async () => {

@@ -2,10 +2,13 @@ import {useState, useEffect} from 'react';
 import {useNavigate, useLocation} from 'react-router-dom';
 import axios from 'axios';
 import './CoupleProfileForm.css';
+import {useUserMode} from "../../contexts/UserModeContext.jsx";
 
 function CoupleProfileForm() {
     const navigate = useNavigate();
     const location = useLocation();
+    const { setMode } = useUserMode();
+    const then = location.state?.then;
 
     const [formData, setFormData] = useState({
         bio: '',
@@ -73,10 +76,11 @@ function CoupleProfileForm() {
             );
 
             setMessage('Perfil creado exitosamente');
+            setMode('couple');
 
-            const then = location.state?.then;
+
             if (then) {
-                navigate(then);
+                navigate(then, { state: { then: '/choose-mood' } }); // aca then = create friends
             } else {
                 navigate('/home');
             }

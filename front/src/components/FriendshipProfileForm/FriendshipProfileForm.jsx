@@ -2,9 +2,13 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useLocation, useNavigate } from 'react-router-dom';
 import './FriendshipProfileForm.css';
+import {useUserMode} from "../../contexts/UserModeContext.jsx";
 
 function FriendshipProfileForm() {
     const location = useLocation();
+    const { setMode } = useUserMode();
+    const then = location.state?.then;
+
     const [formData, setFormData] = useState({
         bio: '',
         profile_picture: null,
@@ -74,13 +78,15 @@ function FriendshipProfileForm() {
             );
 
             setMessage('Perfil creado exitosamente');
+            setMode('friendship');
 
-            const then = location.state?.then;
             if (then) {
-                navigate(then);
+                navigate(then); // en este caso sería '/choose-mood'
             } else {
-                navigate('/choose-mood');
+                navigate('/home');
             }
+
+
         } catch (err) {
             setMessage('Error al crear perfil');
             console.error("📛 Error al enviar friendship profile:", err.response?.data); // te dice qué error devolvió el back

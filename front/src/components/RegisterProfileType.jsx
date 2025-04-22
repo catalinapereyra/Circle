@@ -11,9 +11,9 @@ function RegisterProfileType() {
         return null;
     }
 
-    const handleChoose = (path, withFriendship = false) => {
+    const handleChoose = (path, withFriendship = false, then = null) => {
         if (withFriendship) {
-            navigate(path, { state: { then: '/create-friendship-profile' } });
+            navigate(path, { state: { withFriendship: true, then } });
         } else {
             navigate(path);
         }
@@ -24,7 +24,7 @@ function RegisterProfileType() {
             <h2>Create your profile/s</h2>
             <button onClick={() => handleChoose('/create-couple-profile')}>Romance me, maybe?</button>
             <button onClick={() => handleChoose('/create-friendship-profile')}>Friendzone me, please?</button>
-            <button onClick={() => handleChoose('/create-couple-profile', true)}>Best of both worlds</button>
+            <button onClick={() => handleChoose('/create-couple-profile', true, '/create-friendship-profile')}>Best of both worlds</button>
         </div>
     );
 }

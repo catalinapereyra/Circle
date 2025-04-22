@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import './RegisterForm.css';
+import { useLocation } from 'react-router-dom';
 
 // Iconos
 import { FaUser, FaLock, FaEnvelope, FaBirthdayCake, FaVenusMars, FaMapMarkerAlt } from 'react-icons/fa';
@@ -17,6 +18,9 @@ function RegisterForm() {
         gender: '',
         location: '',
     });
+
+    const location = useLocation();
+    const withFriendship = location.state?.withFriendship || false;
 
     const [message, setMessage] = useState('');
     const navigate = useNavigate();
@@ -40,6 +44,11 @@ function RegisterForm() {
             setMessage('Fail to register user');
         }
     };
+
+    const goToCreateFriendshipProfile = () => {
+        navigate('/create-friendship-profile', { state: { withFriendship } });
+    };
+
 
     return (
         <div className="register-container">
