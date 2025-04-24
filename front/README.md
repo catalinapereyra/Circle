@@ -5,12 +5,21 @@ ORGANIZACION
 - package.json tiene todas las dependencias
 - vamos a usar AXIOS, que es mas facil y mejor que fetch ( npm install axios)
 
-COMPONENTES 
+FONTS
+@import url('https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;600&family=Playfair+Display:ital@1&display=swap');
+font-family: 'Anton', sans-serif; // esto para los titulos grandes
+
+font-family: 'Playfair Display', serif; // esto para los cursiva
+font-style: italic; 
+
+font-family: 'Inter', sans-serif; // otros textos, como interest 
+font-weight: 600;
+text-transform: uppercase;
+letter-spacing: 0.03em;
+font-size: 1rem;
+color: #111;
 
 
 
 
-MEJORAR EL SIGN UP, CUANDO CREAS PERFIL EN MODO PAREJA TE LLEVA A LA HOME DE AMISTAD
-CUANDO CREAR EN MODO AMISTAD TE LLEVA A LA VISTA DE CREAR PERFIL
-CUANDO CREAS EN AMBOS, TE LLEVA TMB A LA VISTA DE CREAR PERFIL!!!!
 
