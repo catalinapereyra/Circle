@@ -1,15 +1,13 @@
 // src/components/RegisterForm.jsx
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
 import './RegisterForm.css';
-import { useLocation } from 'react-router-dom';
 
-// Iconos
 import { FaUser, FaLock, FaEnvelope, FaBirthdayCake, FaVenusMars, FaMapMarkerAlt } from 'react-icons/fa';
 
 function RegisterForm() {
-    const [formData, setFormData] = useState({ // Estado inicial del formulario
+    const [formData, setFormData] = useState({
         username: '',
         password: '',
         name: '',
@@ -19,26 +17,37 @@ function RegisterForm() {
         location: '',
     });
 
+    const [wantsPremium, setWantsPremium] = useState(false); // ✅ NUEVO
+
     const location = useLocation();
     const withFriendship = location.state?.withFriendship || false;
 
     const [message, setMessage] = useState('');
     const navigate = useNavigate();
 
-    const handleChange = (e) => { // Guarda lo que escribe el usuario en formData
+    const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData(prev => ({ ...prev, [name]: value }));
     };
 
-    const handleSubmit = async (e) => { // Envía los datos al backend
+    const handleSubmit = async (e) => {
         e.preventDefault();
         try {
             const response = await axios.post('http://localhost:5001/user/register', formData);
             setMessage(response.data.message);
 
             if (response.status === 201) {
-                localStorage.setItem('token', response.data.token);  // ✅ nuevo token del usuario
-                localStorage.setItem('username', formData.username); // opcional
+                const token = response.data.token;
+                localStorage.setItem('token', token);
+                localStorage.setItem('username', formData.username);
+
+                // ✅ Si seleccionó Premium, creamos la suscripción
+                if (wantsPremium) {
+                    await axios.post('http://localhost:5001/user/subscribe', null, {
+                        headers: { Authorization: `Bearer ${token}` }
+                    });
+                }
+
                 navigate('/choose-profile');
             }
         } catch (error) {
@@ -46,25 +55,16 @@ function RegisterForm() {
         }
     };
 
-    const goToCreateFriendshipProfile = () => {
-        navigate('/create-friendship-profile', { state: { withFriendship } });
-    };
-
-
     return (
         <div className="register-container">
-            {/* 🔵 Círculo que representa el logo */}
             <div className="logo-circle" />
 
-            {/* 🧾 Formulario de registro */}
             <form className="register-form" onSubmit={handleSubmit}>
-                {/* Input: Usuario */}
                 <div className="input-group">
                     <FaUser />
                     <input name="username" placeholder="Username" onChange={handleChange} required />
                 </div>
 
-                {/* Input: Contraseña */}
                 <div className="input-group">
                     <FaLock />
                     <input name="password" type="password" placeholder="Password" onChange={handleChange} required />
@@ -72,22 +72,19 @@ function RegisterForm() {
 
                 <div className="input-group">
                     <FaUser />
-                    <input name="name" placeholder="Name" onChange={handleChange} required /> {/* ✅ FIX */}
+                    <input name="name" placeholder="Name" onChange={handleChange} required />
                 </div>
 
-                {/* Input: Email */}
                 <div className="input-group">
                     <FaEnvelope />
                     <input name="email" type="email" placeholder="Email" onChange={handleChange} required />
                 </div>
 
-                {/* Input: Edad */}
                 <div className="input-group">
                     <FaBirthdayCake />
                     <input name="age" type="number" placeholder="Age" onChange={handleChange} />
                 </div>
 
-                {/* Input: Género */}
                 <div className="input-group">
                     <FaVenusMars />
                     <select name="gender" onChange={handleChange} required>
@@ -98,20 +95,25 @@ function RegisterForm() {
                     </select>
                 </div>
 
-                {/* Input: Ubicación */}
                 <div className="input-group">
                     <FaMapMarkerAlt />
                     <input name="location" placeholder="Location" onChange={handleChange} />
                 </div>
 
-                {/* Botones */}
+                {/* ✅ Botón de premium toggle */}
+                <div
+                    className={`premium-option ${wantsPremium ? 'selected' : ''}`}
+                    onClick={() => setWantsPremium(!wantsPremium)}
+                >
+                    {wantsPremium ? '✔️ ¡Quiero la opción Premium!' : '¿Obtener la opción Premium?'}
+                </div>
+
                 <div className="button-group">
                     <button className="register-button" type="submit">SIGN UP</button>
                     <button className="back-button" type="button" onClick={() => navigate(-1)}>BACK</button>
                 </div>
             </form>
 
-            {/* Mensaje de feedback */}
             {message && <p>{message}</p>}
         </div>
     );

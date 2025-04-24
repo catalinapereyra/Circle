@@ -14,16 +14,25 @@ class Genders(Enum): #clase para generar las opciones de gender
     OTHER = 3
 
 class User(db.Model):
-    __tablename__ = 'user' #nombro a la tabla
+    __tablename__ = 'user'
 
-    #defino todas las columnas de la tabla
-    username = db.Column(db.String(25), unique=True, nullable=False, primary_key=True) #username de tipo string de lomg 255 caracteres
-    password = db.Column(db.String(30), nullable=False) # en SQLAlchemy no hace flata usar varchar, xq string = varchar
+    username = db.Column(db.String(25), unique=True, nullable=False, primary_key=True)
+    password = db.Column(db.String(30), nullable=False)
     name = db.Column(db.String(15), nullable=False)
     age = db.Column(db.Integer, nullable=False)
     email = db.Column(db.String(100), nullable=False, unique=True)
     gender = db.Column(db.Enum(Genders), nullable=False)
     location = db.Column(db.String(255), nullable=False)
+
+    id_subscription = db.Column(db.Integer, db.ForeignKey('premium_subscription.id'), nullable=True)
+
+    subscription = db.relationship(
+        'PremiumSubscription',
+        backref='user',
+        uselist=False,
+        foreign_keys=[id_subscription]  # 👈 esto resuelve el error
+    )
+
 
 class CouplePreferences(Enum):
     WOMEN = 'women'
@@ -96,6 +105,22 @@ class SwipeMode(Enum):
     FRIEND = "friend"
 
 
+class PremiumSubscription(db.Model):
+    __tablename__ = 'premium_subscription'
+
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(25), db.ForeignKey('user.username'))
+    start_date = db.Column(db.DateTime)
+    end_date = db.Column(db.DateTime)
+
+    user_ref = db.relationship(
+        'User',
+        foreign_keys=[username],  # 👈 aclaramos explícitamente que este es el FK para el usuario dueño de la sub
+        backref='premium_sub_reference',
+        uselist=False
+    )
+
+
 class Swipe(db.Model): # creo la tabla swipes para almacenar quienes ya me aparecieron en mi home para que no me vuelvan a aparecer
     id = db.Column(db.Integer, primary_key=True)
 
@@ -114,4 +139,6 @@ class Swipe(db.Model): # creo la tabla swipes para almacenar quienes ya me apare
         db.UniqueConstraint('swiper_id', 'swiped_id', 'mode', name='unique_swipe_per_mode'),
         # esta linea dice que no vuelva a aparecer en el mismo modo un user que ya aparece en la tabla swipe de ese user
     )
+
+
 

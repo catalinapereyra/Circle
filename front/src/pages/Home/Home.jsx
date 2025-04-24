@@ -10,12 +10,35 @@ function Home() {
     const [profiles, setProfiles] = useState([]);
     const [loading, setLoading] = useState(true);
 
+    // ✅ NUEVO: Estado para suscripción
+    const [isPremium, setIsPremium] = useState(false);
+    const [subMessage, setSubMessage] = useState('');
 
     useEffect(() => {
         AOS.init({
             duration: 800,
             once: true
         });
+    }, []);
+
+    // ✅ NUEVO: Verificar si el usuario es premium
+    useEffect(() => {
+        const token = localStorage.getItem("token");
+        if (token) {
+            fetch('http://localhost:5001/user/me/subscription', {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            })
+                .then(res => res.json())
+                .then(data => {
+                    setIsPremium(data.premium);
+                    setSubMessage(data.message || '');
+                })
+                .catch(err => {
+                    console.error("Error al verificar suscripción:", err);
+                });
+        }
     }, []);
 
     useEffect(() => {
@@ -44,8 +67,20 @@ function Home() {
             <div className="home-header">
                 <div className="home-logo"></div>
                 <h2 className="home-title">
-                    {mode === "couple" ? "Swipe slow… this could get serious" : "Good friends are hard to find… unless you swipe"}
+                    {mode === "couple"
+                        ? "Swipe slow… this could get serious"
+                        : "Good friends are hard to find… unless you swipe"}
                 </h2>
+
+                {/* ✅ NUEVO: Mostrar estado de suscripción */}
+                <div className="subscription-status">
+                    {isPremium ? (
+                        <p className="text-green-400 font-bold">✅ Sos usuario Premium</p>
+                    ) : (
+                        <p className="text-red-400">⚠️ No tenés suscripción activa</p>
+                    )}
+                    {subMessage && <p className="sub-message">{subMessage}</p>}
+                </div>
             </div>
 
             <div className="card-grid">
@@ -53,7 +88,7 @@ function Home() {
                     <div data-aos="fade-up" key={index}>
                         <ProfileCard
                             username={user.username}
-                            age = {user.age}
+                            age={user.age}
                             bio={user.bio}
                             interest={user.interest}
                             profilePicture={`http://localhost:5001/uploads/${mode}_photos/${user.profile_picture}`}

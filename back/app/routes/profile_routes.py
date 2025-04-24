@@ -143,7 +143,8 @@ def get_profiles_by_mode(mode):
                 'bio': p.bio,
                 'interest': p.interest,
                 'profile_picture': p.profile_picture,
-                'photos': [photo.filename for photo in p.photos]
+                'photos': [photo.filename for photo in p.photos],
+
             }
             for p in profiles
         ]

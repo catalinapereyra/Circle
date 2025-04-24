@@ -16,6 +16,8 @@ from app.models.models import User
 from main import db
 from utils.token_utils import generate_token  # asegurate de importar esto
 from flask_jwt_extended import jwt_required, get_jwt_identity
+from datetime import datetime, timedelta
+from app.models.models import PremiumSubscription
 
 
 bp_user = Blueprint('user', __name__, url_prefix='/user') #creo un blueprint 'user'que tiene el prefijo '/user' en la URL
@@ -165,3 +167,63 @@ def get_me():
         }), 200
 
     return jsonify({"error": "User not found"}), 404
+
+
+@bp_user.route('/subscribe', methods=['POST'])
+@jwt_required()
+def subscribe_user():
+    username = get_jwt_identity()
+
+    user = User.query.filter_by(username=username).first()
+    if not user:
+        return jsonify({"error": "User not found"}), 404
+
+    # Crear suscripción válida por 30 días (simulación)
+    start_date = datetime.utcnow()
+    end_date = start_date + timedelta(days=30)
+
+    subscription = PremiumSubscription(
+        username=username,
+        start_date=start_date,
+        end_date=end_date
+    )
+
+    db.session.add(subscription)
+    db.session.flush()  # Para obtener el id antes del commit
+
+    # Asignar la FK en el modelo User
+    user.id_subscription = subscription.id
+
+    db.session.commit()
+
+    return jsonify({
+        "message": "¡Suscripción premium activada!",
+        "start_date": str(start_date),
+        "end_date": str(end_date)
+    }), 200
+
+
+@bp_user.route('/me/subscription', methods=['GET'])
+@jwt_required()
+def get_my_subscription():
+    username = get_jwt_identity()
+    user = User.query.filter_by(username=username).first()
+
+    if not user or not user.subscription:
+        return jsonify({
+            "premium": False,
+            "message": "No active subscription"
+        }), 200
+
+    now = datetime.utcnow()
+    if user.subscription.end_date and user.subscription.end_date > now:
+        return jsonify({
+            "premium": True,
+            "start_date": str(user.subscription.start_date),
+            "end_date": str(user.subscription.end_date)
+        }), 200
+    else:
+        return jsonify({
+            "premium": False,
+            "message": "Subscription expired"
+        }), 200
