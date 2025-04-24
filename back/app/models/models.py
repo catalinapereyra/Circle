@@ -24,13 +24,11 @@ class User(db.Model):
     gender = db.Column(db.Enum(Genders), nullable=False)
     location = db.Column(db.String(255), nullable=False)
 
-    id_subscription = db.Column(db.Integer, db.ForeignKey('premium_subscription.id'), nullable=True)
-
-    subscription = db.relationship(
+    premium_subscription = db.relationship(
         'PremiumSubscription',
         backref='user',
         uselist=False,
-        foreign_keys=[id_subscription]  # 👈 esto resuelve el error
+        cascade='all, delete-orphan'
     )
 
 
@@ -109,16 +107,10 @@ class PremiumSubscription(db.Model):
     __tablename__ = 'premium_subscription'
 
     id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(25), db.ForeignKey('user.username'))
+    user_username = db.Column(db.String(25), db.ForeignKey('user.username'), nullable=False, unique=True)
     start_date = db.Column(db.DateTime)
     end_date = db.Column(db.DateTime)
 
-    user_ref = db.relationship(
-        'User',
-        foreign_keys=[username],  # 👈 aclaramos explícitamente que este es el FK para el usuario dueño de la sub
-        backref='premium_sub_reference',
-        uselist=False
-    )
 
 
 class Swipe(db.Model): # creo la tabla swipes para almacenar quienes ya me aparecieron en mi home para que no me vuelvan a aparecer
