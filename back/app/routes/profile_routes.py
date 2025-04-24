@@ -28,6 +28,12 @@ def create_couple_profile():
     bio = data.get('bio', '')
     interest = data.get('interest', '')
     preferences_str = data.get('preferences', '')
+    age_raw = data.get('age')
+
+    if not age_raw or not age_raw.isdigit():
+        return jsonify({'error': 'Edad inválida'}), 400
+
+    age = int(age_raw)
 
     try:
         preference_enum = CouplePreferences(preferences_str.lower()).value
@@ -47,6 +53,7 @@ def create_couple_profile():
         username=username,
         profile_picture=profile_picture,
         bio=bio,
+        age=age,
         preferences=preference_enum,
         interest=interest
     )
@@ -83,6 +90,11 @@ def create_friendship_profile():
 
     bio = data.get('bio', '')
     interest = data.get('interest', '')
+    age_raw = data.get('age')
+    if not age_raw or not age_raw.isdigit():
+        return jsonify({'error': 'Edad inválida'}), 400
+
+    age = int(age_raw)
 
     profile_picture = None
     if 'profile_picture' in request.files:
@@ -97,6 +109,7 @@ def create_friendship_profile():
         username=username,
         profile_picture=profile_picture,
         bio=bio,
+        age=age,
         interest=interest
     )
 
@@ -140,6 +153,7 @@ def get_profiles_by_mode(mode):
         result = [
             {
                 'username': p.username,
+                'age': p.user.age,
                 'bio': p.bio,
                 'interest': p.interest,
                 'profile_picture': p.profile_picture,
@@ -154,6 +168,7 @@ def get_profiles_by_mode(mode):
         result = [
             {
                 'username': p.username,
+                'age': p.user.age,
                 'bio': p.bio,
                 'interest': p.interest,
                 'profile_picture': p.profile_picture
