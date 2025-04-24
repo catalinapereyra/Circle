@@ -41,3 +41,23 @@
     justify-content: center;
     gap: 1.5rem;
 }
+
+.subscription-status {
+    margin-top: 1rem;
+    padding: 1rem;
+    border: 2px dashed white;
+    border-radius: 10px;
+    background-color: rgba(255, 255, 255, 0.05);
+    text-align: center;
+    color: white;
+}
+
+.subscription-status p {
+    margin: 0;
+    font-size: 1rem;
+}
+
+.sub-message {
+    font-size: 0.8rem;
+    color: #999;
+}
