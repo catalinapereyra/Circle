@@ -128,9 +128,11 @@ def check_profiles(username):
     })
 
 @bp_profile.route('/home/<mode>', methods=['GET'])
+@jwt_required()
 def get_profiles_by_mode(mode):
+    current_user = get_jwt_identity()
     if mode == 'couple':
-        profiles = CoupleMode.query.all()
+        profiles = CoupleMode.query.filter(CoupleMode.username != current_user).all()
         result = [
             {
                 'username': p.username,
@@ -146,7 +148,7 @@ def get_profiles_by_mode(mode):
         return jsonify(result)
 
     elif mode == 'friendship':
-        profiles = FriendshipMode.query.all()
+        profiles = FriendshipMode.query.filter(CoupleMode.username != current_user).all()
         result = [
             {
                 'username': p.username,

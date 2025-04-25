@@ -46,13 +46,25 @@ function Home() {
         if (!mode) return;
 
         const fetchProfiles = async () => {
+            const token = localStorage.getItem("token"); // AGREGADO
+
             try {
-                const response = await fetch(`http://localhost:5001/profile/home/${mode}`);
-                const data = await response.json();
-                setProfiles(data);
-                setLoading(false);
+                const response = await fetch(`http://localhost:5001/profile/home/${mode}`, {
+                    headers: {
+                        Authorization: `Bearer ${token}` // AGREGADO
+                    }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    setProfiles(data);
+                } else {
+                    console.error("Error al obtener perfiles:", response.status);
+                    setProfiles([]); // Previene que profiles sea undefined
+                }
             } catch (error) {
                 console.error("Error fetching profiles:", error);
+            } finally {
                 setLoading(false);
             }
         };
