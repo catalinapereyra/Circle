@@ -71,15 +71,6 @@ function Home() {
                         ? "Swipe slow… this could get serious"
                         : "Good friends are hard to find… unless you swipe"}
                 </h2>
-
-                <div className="subscription-status">
-                    {isPremium ? (
-                        <p className="text-green-400 font-bold">✅ Sos usuario Premium</p>
-                    ) : (
-                        <p className="text-red-400">⚠️ No tenés suscripción activa</p>
-                    )}
-                    {subMessage && <p className="sub-message">{subMessage}</p>}
-                </div>
             </div>
 
             <div className="card-grid">

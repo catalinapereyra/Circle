@@ -84,3 +84,31 @@
     background: gray;
     color: white;
 }
+
+.confirm-popup {
+    background-color: white;
+    border-radius: 10px;
+    padding: 20px;
+    color: black;
+    text-align: center;
+    margin-top: 20px;
+}
+
+.confirm-buttons {
+    margin-top: 15px;
+    display: flex;
+    justify-content: space-around;
+}
+
+.confirm-buttons button {
+    background-color: black;
+    color: white;
+    padding: 5px 15px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.confirm-buttons button:hover {
+    background-color: #444;
+}
