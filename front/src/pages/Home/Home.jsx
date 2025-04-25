@@ -1,8 +1,10 @@
+// src/pages/Home.jsx
 import AOS from 'aos';
 import 'aos/dist/aos.css';
 import { useEffect, useState } from "react";
 import { useUserMode } from "../../contexts/UserModeContext";
 import ProfileCard from "../../components/ProfileCard/ProfileCard";
+import BottomNavBar from "../../components/BottomNavBar/BottomNavBar";
 import "./Home.css";
 
 function Home() {
@@ -10,7 +12,6 @@ function Home() {
     const [profiles, setProfiles] = useState([]);
     const [loading, setLoading] = useState(true);
 
-    // ✅ NUEVO: Estado para suscripción
     const [isPremium, setIsPremium] = useState(false);
     const [subMessage, setSubMessage] = useState('');
 
@@ -21,7 +22,6 @@ function Home() {
         });
     }, []);
 
-    // ✅ NUEVO: Verificar si el usuario es premium
     useEffect(() => {
         const token = localStorage.getItem("token");
         if (token) {
@@ -72,7 +72,6 @@ function Home() {
                         : "Good friends are hard to find… unless you swipe"}
                 </h2>
 
-                {/* ✅ NUEVO: Mostrar estado de suscripción */}
                 <div className="subscription-status">
                     {isPremium ? (
                         <p className="text-green-400 font-bold">✅ Sos usuario Premium</p>
@@ -97,6 +96,8 @@ function Home() {
                     </div>
                 ))}
             </div>
+
+            <BottomNavBar mode={mode} /> {/* ✅ NUEVO: NavBar fija abajo con modo */}
         </div>
     );
 }

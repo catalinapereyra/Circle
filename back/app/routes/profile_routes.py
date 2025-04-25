@@ -18,22 +18,13 @@ def allowed_file(filename):
 @bp_profile.route('/couple-profile', methods=['POST'])
 @jwt_required()
 def create_couple_profile():
-    print("fjfyjfjfjy")
     data = request.form
     print("📥 Form Data recibido:", data)
 
-    username = get_jwt_identity()  # Usamos el username del token
-    print(username)
-
+    username = get_jwt_identity()
     bio = data.get('bio', '')
     interest = data.get('interest', '')
     preferences_str = data.get('preferences', '')
-    age_raw = data.get('age')
-
-    if not age_raw or not age_raw.isdigit():
-        return jsonify({'error': 'Edad inválida'}), 400
-
-    age = int(age_raw)
 
     try:
         preference_enum = CouplePreferences(preferences_str.lower()).value
@@ -53,7 +44,6 @@ def create_couple_profile():
         username=username,
         profile_picture=profile_picture,
         bio=bio,
-        age=age,
         preferences=preference_enum,
         interest=interest
     )
@@ -76,7 +66,6 @@ def create_couple_profile():
             return jsonify({'error': 'Invalid file type'}), 400
 
     db.session.commit()
-
     return jsonify({'message': 'Couple profile created successfully'})
 
 
@@ -86,15 +75,9 @@ def create_friendship_profile():
     data = request.form
     print("📥 Form Data recibido:", data)
 
-    username = get_jwt_identity()  # ✅ Usamos el username del token
-
+    username = get_jwt_identity()
     bio = data.get('bio', '')
     interest = data.get('interest', '')
-    age_raw = data.get('age')
-    if not age_raw or not age_raw.isdigit():
-        return jsonify({'error': 'Edad inválida'}), 400
-
-    age = int(age_raw)
 
     profile_picture = None
     if 'profile_picture' in request.files:
@@ -109,7 +92,6 @@ def create_friendship_profile():
         username=username,
         profile_picture=profile_picture,
         bio=bio,
-        age=age,
         interest=interest
     )
 
@@ -131,7 +113,6 @@ def create_friendship_profile():
             return jsonify({'error': 'Invalid file type'}), 400
 
     db.session.commit()
-
     return jsonify({'message': 'Friendship profile created successfully'})
 
 

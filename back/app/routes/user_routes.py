@@ -17,7 +17,9 @@ from main import db
 from utils.token_utils import generate_token  # asegurate de importar esto
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from datetime import datetime, timedelta
-from app.models.models import PremiumSubscription
+from app.models.models import User, PremiumSubscription
+
+
 
 
 bp_user = Blueprint('user', __name__, url_prefix='/user') #creo un blueprint 'user'que tiene el prefijo '/user' en la URL
@@ -39,6 +41,9 @@ def register_user():
     gender = data.get('gender')
     location = data.get('location')
     #id_subscription = data.get('id_subscription')
+    existing_user = User.query.filter_by(username=username).first()
+    if existing_user:
+        return jsonify({"error": "Username already taken"}), 409  # 409 Conflict
 
     # Crear un nuevo usuario con los datos
     new_user = User(
@@ -183,7 +188,7 @@ def subscribe_user():
     end_date = start_date + timedelta(days=30)
 
     subscription = PremiumSubscription(
-        username=username,
+        user_username=username,  #este es el nombre correcto de la columna
         start_date=start_date,
         end_date=end_date
     )
@@ -209,18 +214,20 @@ def get_my_subscription():
     username = get_jwt_identity()
     user = User.query.filter_by(username=username).first()
 
-    if not user or not user.subscription:
+    if not user or not user.premium_subscription:
         return jsonify({
             "premium": False,
             "message": "No active subscription"
         }), 200
 
+    subscription = user.premium_subscription
     now = datetime.utcnow()
-    if user.subscription.end_date and user.subscription.end_date > now:
+
+    if subscription.end_date and subscription.end_date > now:
         return jsonify({
             "premium": True,
-            "start_date": str(user.subscription.start_date),
-            "end_date": str(user.subscription.end_date)
+            "start_date": str(subscription.start_date),
+            "end_date": str(subscription.end_date)
         }), 200
     else:
         return jsonify({
