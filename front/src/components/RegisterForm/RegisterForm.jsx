@@ -51,7 +51,12 @@ function RegisterForm() {
                 navigate('/choose-profile');
             }
         } catch (error) {
-            setMessage('Fail to register user');
+            if (error.response && error.response.data && error.response.data.error) {
+                // Si el backend envía un mensaje personalizado
+                setMessage(error.response.data.error);
+            } else {
+                setMessage('Fail to register user');
+            }
         }
     };
 
