@@ -1,4 +1,6 @@
-import React from 'react';
+// src/components/BottomNavBar.jsx
+import React, { useState } from 'react';
+import SettingsPanel from "../SettingsPanel/SettingsPanel";
 import './BottomNavBar.css';
 
 const icons = {
@@ -9,15 +11,20 @@ const icons = {
 };
 
 function BottomNavBar({ mode }) {
+    const [showSettings, setShowSettings] = useState(false);
+
     const heartClass = mode === "couple" ? "heart-couple" : "heart-friendship";
 
     return (
-        <div className="bottom-nav">
-            <img src={icons.settings} alt="Settings" className="nav-icon" />
-            <img src={icons.heart} alt="Likes" className={`nav-icon ${heartClass}`} />
-            <img src={icons.chat} alt="Chat" className="nav-icon" />
-            <img src={icons.profile} alt="Profile" className="nav-icon" />
-        </div>
+        <>
+            <div className="bottom-nav">
+                <img src={icons.settings} alt="Settings" className="nav-icon" onClick={() => setShowSettings(true)} />
+                <img src={icons.heart} alt="Likes" className={`nav-icon ${heartClass}`} />
+                <img src={icons.chat} alt="Chat" className="nav-icon" />
+                <img src={icons.profile} alt="Profile" className="nav-icon" />
+            </div>
+            <SettingsPanel isOpen={showSettings} onClose={() => setShowSettings(false)} mode={mode} />
+        </>
     );
 }
 

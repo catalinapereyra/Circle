@@ -1,0 +1,86 @@
+.settings-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    backdrop-filter: blur(5px);
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    z-index: 9999;
+}
+
+.settings-overlay.couple {
+    background-color: rgba(255, 192, 203, 0.5); /* rosa */
+}
+
+.settings-overlay.friendship {
+    background-color: rgba(255, 255, 102, 0.5); /* amarillo */
+}
+
+.settings-panel {
+    background: #2c2c2c;
+    color: white;
+    width: 100%;
+    padding: 20px;
+    border-top-left-radius: 20px;
+    border-top-right-radius: 20px;
+}
+
+.settings-panel ul {
+    list-style: none;
+    padding: 0;
+}
+
+.settings-panel li {
+    padding: 12px 0;
+    border-bottom: 1px solid #444;
+    font-size: 16px;
+}
+
+.close-btn {
+    float: right;
+    background: none;
+    border: none;
+    color: white;
+    font-weight: bold;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.danger-button {
+    background: transparent;
+    border: 2px solid red;
+    color: red;
+    padding: 8px 16px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.confirm-popup {
+    background: #222;
+    color: white;
+    padding: 20px;
+    border-radius: 10px;
+    margin-top: 10px;
+    text-align: center;
+}
+
+.yes-btn, .no-btn {
+    margin: 10px;
+    padding: 6px 12px;
+    border: none;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.yes-btn {
+    background: red;
+    color: white;
+}
+
+.no-btn {
+    background: gray;
+    color: white;
+}

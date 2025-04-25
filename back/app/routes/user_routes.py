@@ -22,6 +22,7 @@ from app.models.models import User, PremiumSubscription
 
 
 
+
 bp_user = Blueprint('user', __name__, url_prefix='/user') #creo un blueprint 'user'que tiene el prefijo '/user' en la URL
 
 @bp_user.route('/register', methods=['GET'])
@@ -234,3 +235,33 @@ def get_my_subscription():
             "premium": False,
             "message": "Subscription expired"
         }), 200
+
+@bp_user.route('/delete', methods=['DELETE'])
+@jwt_required()
+def delete_my_account():
+    username = get_jwt_identity()
+    user = User.query.filter_by(username=username).first()
+
+    if not user:
+        return jsonify({"message": "User not found"}), 404
+
+    # Primero eliminamos las fotos, si existen
+    if user.friendship_mode:
+        for photo in user.friendship_mode.photos:
+            db.session.delete(photo)
+        db.session.delete(user.friendship_mode)
+
+    if user.couple_mode:
+        for photo in user.couple_mode.photos:
+            db.session.delete(photo)
+        db.session.delete(user.couple_mode)
+
+    # Eliminamos la suscripción si existe
+    if user.premium_subscription:
+        db.session.delete(user.premium_subscription)
+
+    # Eliminamos el usuario
+    db.session.delete(user)
+    db.session.commit()
+
+    return jsonify({"message": "User and related data deleted"}), 200
