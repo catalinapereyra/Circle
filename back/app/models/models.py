@@ -100,7 +100,7 @@ class SwipeType(Enum):
 
 class SwipeMode(Enum):
     COUPLE = "couple"
-    FRIEND = "friendship"
+    FRIEND = "friend"
 
 
 class PremiumSubscription(db.Model):
