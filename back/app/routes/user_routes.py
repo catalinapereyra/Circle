@@ -13,15 +13,11 @@
 from flask import Blueprint, request, jsonify
 
 from app.models.models import User
-from main import db
+from app.extensions import db
 from utils.token_utils import generate_token  # asegurate de importar esto
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from datetime import datetime, timedelta
 from app.models.models import User, PremiumSubscription
-
-
-
-
 
 bp_user = Blueprint('user', __name__, url_prefix='/user') #creo un blueprint 'user'que tiene el prefijo '/user' en la URL
 
@@ -38,6 +34,10 @@ def register_user():
     password = data.get('password')
     name = data.get('name')
     age = data.get('age')
+    if not str(age).isdigit():
+        return jsonify({"error": "La edad debe ser un número entero válido"}), 400
+    if int(age) < 18:
+        return jsonify({"error": "You must be 18 to register in the app :("}), 400
     email = data.get('email')
     gender = data.get('gender')
     location = data.get('location')
@@ -51,7 +51,7 @@ def register_user():
         username=username, #seteo los datos en mi tabla user con lo que consegui arriba
         password=password,
         name=name,
-        age=age,
+        age=int(age),
         email=email,
         gender=gender,
         location=location,

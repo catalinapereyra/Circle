@@ -1,11 +1,38 @@
 import React from "react";
 import { useUserMode } from "../../contexts/UserModeContext";
 import "./ProfileCard.css";
+import axios from "axios";
 
 function ProfileCard({ username, age, bio, interest, profilePicture, photos = [] }) {
     const { mode } = useUserMode(); // "couple" o "friendship"
     const cardClass = `profile-card ${mode}`;
     const badgeText = mode === "couple" ? "Perfil Pareja" : "Perfil Amistad";
+    const token = localStorage.getItem("token");
+
+    const handleSwipe = async (type) => {
+        try {
+            console.log("🛰️ Enviando swipe:", {
+                swiped_username: username,
+                type,
+                mode
+            });
+
+            await axios.post("http://localhost:5001/match", {
+                swiped_username: username,
+                type: type, // "like" o "dislike"
+                mode: mode,  // "couple" o "friend"
+            }, {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            });
+
+            console.log(`✅ Swipe ${type} a ${username}`);
+        } catch (error) {
+            console.error("❌ Error en swipe:", error);
+        }
+    };
+
 
     return (
         <div className={cardClass}>
@@ -25,8 +52,13 @@ function ProfileCard({ username, age, bio, interest, profilePicture, photos = []
                 <div className="username">{username.toUpperCase()}</div>
                 <div className="age">{age}</div>
                 <div className="bio">{bio}</div>
-                <div className="badge">{badgeText}</div>
+                <div className="swipe-buttons">
+                    <button onClick={() => handleSwipe("dislike")}>👎</button>
+                    <button onClick={() => handleSwipe("like")}>❤️</button>
+                </div>
             </div>
+
+
 
             {/* Optional carousel */}
             {photos?.length > 0 && (

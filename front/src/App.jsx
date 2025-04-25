@@ -9,6 +9,7 @@ import Home from './pages/Home/Home.jsx';
 import RegisterProfilePage from './pages/RegisterProfilePage';
 import ChooseMood from './components/ChooseMood';
 import { UserModeProvider } from "./contexts/UserModeContext";
+import Matches from "./pages/Matches";
 
 
 function App() {
@@ -24,6 +25,7 @@ function App() {
                     <Route path="/friend-profile" element={<FriendshipProfilePage />} />
                     <Route path="/home" element={<Home />} />
                     <Route path="/choose-mood" element={<ChooseMood />} />
+                    <Route path="/matches" element={<Matches />} />
                 </Routes>
             </Router>
         </UserModeProvider>

@@ -2,7 +2,8 @@ from flask import Blueprint, request, jsonify
 from werkzeug.utils import secure_filename
 
 from app.models.models import CouplePreferences, CoupleMode, User, FriendshipMode, CouplePhoto, FriendshipPhoto
-from main import db
+from app.extensions import db
+from app.models.models import Swipe, SwipeMode
 import os
 from flask_jwt_extended import jwt_required, get_jwt_identity
 
@@ -131,8 +132,10 @@ def check_profiles(username):
 @jwt_required()
 def get_profiles_by_mode(mode):
     current_user = get_jwt_identity()
+
     if mode == 'couple':
-        profiles = CoupleMode.query.filter(CoupleMode.username != current_user).all()
+        swiped_usernames = [s.swiped_id for s in Swipe.query.filter_by(swiper_id=current_user, mode=SwipeMode.COUPLE).all()]
+        profiles = CoupleMode.query.filter(CoupleMode.username != current_user, ~CoupleMode.username.in_(swiped_usernames)).all()
         result = [
             {
                 'username': p.username,
@@ -141,14 +144,14 @@ def get_profiles_by_mode(mode):
                 'interest': p.interest,
                 'profile_picture': p.profile_picture,
                 'photos': [photo.filename for photo in p.photos],
-
             }
             for p in profiles
         ]
         return jsonify(result)
 
     elif mode == 'friendship':
-        profiles = FriendshipMode.query.filter(CoupleMode.username != current_user).all()
+        swiped_usernames = [s.swiped_id for s in Swipe.query.filter_by(swiper_id=current_user, mode=SwipeMode.FRIEND).all()]
+        profiles = FriendshipMode.query.filter(FriendshipMode.username != current_user, ~FriendshipMode.username.in_(swiped_usernames)).all()
         result = [
             {
                 'username': p.username,
@@ -161,5 +164,21 @@ def get_profiles_by_mode(mode):
         ]
         return jsonify(result)
 
-    else:
-        return jsonify({'error': 'Modo inválido'}), 400
+    return jsonify({'error': 'Modo inválido'}), 400
+
+@bp_profile.route('/public/<username>', methods=['GET'])
+def get_public_profile(username):
+    profile = CoupleMode.query.filter_by(username=username).first()
+
+    if not profile:
+        profile = FriendshipMode.query.filter_by(username=username).first()
+
+    if not profile:
+        return jsonify({'error': 'Perfil no encontrado'}), 404
+
+    return jsonify({
+        'username': profile.username,
+        'bio': profile.bio,
+        'interest': profile.interest,
+        'profile_picture': profile.profile_picture
+    })

@@ -2,8 +2,8 @@ from enum import Enum
 
 import sqlalchemy
 
-from main import db
 from datetime import datetime
+from app.extensions import db
 
 metadata = sqlalchemy.MetaData()
 
@@ -100,7 +100,7 @@ class SwipeType(Enum):
 
 class SwipeMode(Enum):
     COUPLE = "couple"
-    FRIEND = "friend"
+    FRIEND = "friendship"
 
 
 class PremiumSubscription(db.Model):

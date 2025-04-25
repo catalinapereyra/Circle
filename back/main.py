@@ -1,15 +1,10 @@
 from datetime import timedelta
 
+from app.extensions import db, migrate
 from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
-from flask_migrate import Migrate
 from flask_jwt_extended import JWTManager
-
-
-db = SQLAlchemy()
-migrate = Migrate()
-
+from app.routes.match_routes import bp_match
 
 
 def create_app():
@@ -39,6 +34,7 @@ def create_app():
     # Registrar blueprints
     app.register_blueprint(bp_user)
     app.register_blueprint(bp_profile, url_prefix="/profile")
+    app.register_blueprint(bp_match)
 
     # Crear las tablas en la base de datos
     with app.app_context():
