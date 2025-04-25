@@ -49,7 +49,7 @@
 
 .interest {
     font-size: 1rem;
-    margin-bottom: 30rem;
+    margin-bottom: 24rem;
     text-align: right;
 }
 
@@ -118,4 +118,29 @@
 
 .profile-card.friendship {
     border: 2px solid #ffdb0a;
+}
+
+.swipe-buttons {
+    margin-top: 10px;
+    margin-bottom: 50px;
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    z-index: 10;
+    position: relative;
+}
+
+.swipe-buttons button {
+    font-size: 24px;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 50px;
+    background-color: white;
+    box-shadow: 0px 4px 10px rgba(0,0,0,0.2);
+    cursor: pointer;
+    transition: transform 0.2s ease;
+}
+
+.swipe-buttons button:hover {
+    transform: scale(1.1);
 }

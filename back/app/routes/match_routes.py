@@ -8,47 +8,46 @@ bp_match = Blueprint('match', __name__, url_prefix='/match')
 @bp_match.route('', methods=['POST'])
 @jwt_required()
 def swipe_user():
-    data = request.get_json()
-    swiper = get_jwt_identity()
-    swiped = data.get('swiped_username')
-    mode = data.get('mode')  # "couple" o "friend"
-    action = data.get('type')  # "like" o "dislike"
+    try:
+        data = request.get_json()
+        print("📥 Datos recibidos en swipe:", data)
 
-    if mode not in ['couple', 'friendship'] or action not in ['like', 'dislike']:
-        return jsonify({'error': 'Invalid swipe data'}), 400
+        swiper = get_jwt_identity()
+        swiped = data.get('swiped_username')
+        mode = data.get('mode')  # "couple" o "friendship"
+        action = data.get('type')  # "like" o "dislike"
 
-    # Verificar si ya existía swipe previo (por seguridad)
-    existing = Swipe.query.filter_by(
-        swiper_id=swiper,
-        swiped_id=swiped,
-        mode=SwipeMode(mode)
-    ).first()
+        if mode not in ['couple', 'friendship'] or action not in ['like', 'dislike']:
+            print("❌ Datos inválidos:", data)
+            return jsonify({'error': 'Invalid swipe data'}), 400
 
-    if existing:
-        return jsonify({'message': 'Already swiped'}), 200
+        mode_enum_value = "friend" if mode == "friendship" else mode
 
-    # Guardar swipe nuevo
-    new_swipe = Swipe(
-        swiper_id=swiper,
-        swiped_id=swiped,
-        type=SwipeType(action),
-        mode=SwipeMode(mode)
-    )
-    db.session.add(new_swipe)
-    db.session.commit()
+        swipe = Swipe(
+            swiper_id=swiper,
+            swiped_id=swiped,
+            type=SwipeType(action),
+            mode=SwipeMode(mode_enum_value)
+        )
 
-    # Verificar si hay match (el otro usuario ya había dado LIKE a este)
-    reciprocal = Swipe.query.filter_by(
-        swiper_id=swiped,
-        swiped_id=swiper,
-        type=SwipeType.LIKE,
-        mode=SwipeMode(mode)
-    ).first()
+        db.session.add(swipe)
+        db.session.commit()
 
-    if reciprocal and action == 'like':
-        return jsonify({'match': True, 'message': 'It\'s a match! 💘'}), 200
+        reciprocal = Swipe.query.filter_by(
+            swiper_id=swiped,
+            swiped_id=swiper,
+            type=SwipeType.LIKE,
+            mode=SwipeMode(mode_enum_value)
+        ).first()
 
-    return jsonify({'match': False, 'message': 'Swipe saved'}), 200
+        if reciprocal and action == 'like':
+            return jsonify({'match': True, 'message': 'It\'s a match! 💘'}), 200
+
+        return jsonify({'match': False, 'message': 'Swipe saved'}), 200
+
+    except Exception as e:
+        print("💥 ERROR en swipe_user:", str(e))
+        return jsonify({'error': 'Internal server error'}), 500
 
 
 @bp_match.route('/my-matches', methods=['GET'])
