@@ -98,20 +98,22 @@ function CoupleProfileForm() {
             <h2 className="form-title">create couple profile</h2>
 
             <form onSubmit={handleSubmit} className="form-wrapper">
-                <label className="upload-profile-photo">
-                    <div className="photo-circle">
-                        <span>UPLOAD<br />PROFILE<br />PHOTO</span>
+                <label className="upload-photo">
+                    <div
+                        className="photo-circle"
+                        style={{ backgroundImage: preview ? `url(${preview})` : 'none' }}
+                    >
+                        {!preview && <span>UPLOAD<br />PHOTO</span>}
                     </div>
                     <input
                         type="file"
                         name="profile_picture"
                         accept="image/*"
-                        onChange={handleChange}
                         className="hidden-file"
+                        onChange={handleChange}
                     />
                 </label>
 
-                <label className="form-label">WRITE YOUR BIO</label>
                 <textarea
                     name="bio"
                     placeholder="Write your bio"
@@ -120,6 +122,7 @@ function CoupleProfileForm() {
                     required
                     className="form-textarea"
                 />
+
 
                 <label className="form-label">WHO CATCHES YOUR EYE...</label>
                 <select

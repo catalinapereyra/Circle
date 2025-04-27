@@ -99,12 +99,12 @@ function FriendshipProfileForm() {
 
             <form className="form-wrapper" onSubmit={handleSubmit}>
                 <label className="upload-photo">
-                    <div
+                    <div2
                         className="photo-circle"
                         style={{ backgroundImage: preview ? `url(${preview})` : 'none' }}
                     >
                         {!preview && <span>UPLOAD<br />PHOTO</span>}
-                    </div>
+                    </div2>
                     <input
                         type="file"
                         name="profile_picture"

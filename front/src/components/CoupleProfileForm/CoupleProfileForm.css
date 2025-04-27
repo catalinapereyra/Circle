@@ -9,34 +9,54 @@
     align-items: center;
 }
 
-.couple .couple-form {
+
+.couple .form-wrapper {
     display: flex;
     flex-direction: column;
     align-items: center;
-    width: 90%;
-    max-width: 400px;
-    gap: 1.5rem;
+    gap: 20px;
+    width: 100%;
+    max-width: 320px;
 }
 
-.couple .upload-profile-photo {
-    border: 6px solid #c51d86;
-    border-radius: 50%;
+.couple .upload-photo {
+    cursor: pointer;
+}
+
+.couple .photo-circle {
     width: 180px;
     height: 180px;
+    border: 6px solid #c51d86;
+    border-radius: 50%;
     display: flex;
-    justify-content: center;
     align-items: center;
-    font-weight: bold;
+    justify-content: center;
     text-align: center;
-    font-size: 1rem;
-    cursor: pointer;
-    position: relative;
+    font-weight: bold;
+    font-size: 1.2rem;
+    color: #c51d86;
+    margin-bottom: 1rem;
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
     overflow: hidden;
+    position: relative;
 }
 
-.couple .upload-photo input {
+.couple .photo-preview {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    border-radius: 50%;
+}
+
+.couple .hidden-file {
     display: none;
 }
+
 
 .couple input[type="text"],
 .couple textarea,
@@ -54,7 +74,7 @@
 
 .couple textarea {
     resize: none;
-    min-height: 60px;
+    min-height: 30px;
 }
 
 .couple .select-wrapper {
