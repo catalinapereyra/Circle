@@ -1,8 +1,7 @@
-// src/pages/LikesReceived.jsx
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axiosInstance from '../api/axiosInstance';
-import { useUserMode } from '../contexts/UserModeContext'; // importamos el contexto
+import { useUserMode } from '../contexts/UserModeContext'; // contexto global
 
 function LikesReceived() {
     const [likes, setLikes] = useState([]);
@@ -10,15 +9,16 @@ function LikesReceived() {
     const [premiumError, setPremiumError] = useState(false);
 
     const navigate = useNavigate();
-    const { mode, isPremium } = useUserMode(); // sacamos si el usuario es premium
+    const { mode, isPremium } = useUserMode(); // traer mode y premium del contexto
 
     const fetchLikes = async () => {
-        if (!mode) return; // si todavía no cargó el modo, no busco
+        if (!mode) return; // si no hay modo, no hago nada
         setLoading(true);
         try {
-            const apiMode = mode === 'friendship' ? 'friend' : mode;
+            const apiMode = mode === 'friendship' ? 'friend' : mode; // corregir naming
             const response = await axiosInstance.get(`/profile/likes-received?mode=${apiMode}`);
             setLikes(response.data);
+            setPremiumError(false); // Si pudo traer likes, reseteo error de premium
         } catch (error) {
             if (error.response && error.response.status === 403) {
                 setPremiumError(true);
@@ -30,21 +30,24 @@ function LikesReceived() {
         }
     };
 
-
-    // ⚡ Cada vez que esta página se monta → traemos los likes
+    // 1. Cada vez que cambia el modo (al entrar o cambiar modo), busco los likes
     useEffect(() => {
         const token = localStorage.getItem('token');
         if (!token) {
             navigate('/login');
             return;
         }
-        fetchLikes();
+        (async () => {
+            await fetchLikes();
+        })();
     }, [mode]);
 
-    // cada vez que el usuario vuelve a esta página → refrescamos
+    // 2. Cada vez que vuelve el foco a la página, refresco los likes
     useEffect(() => {
         const handleFocus = () => {
-            fetchLikes();
+            (async () => {
+                await fetchLikes();
+            })();
         };
 
         window.addEventListener('focus', handleFocus);
@@ -52,6 +55,15 @@ function LikesReceived() {
             window.removeEventListener('focus', handleFocus);
         };
     }, [mode]);
+
+    // 3. Si me hago premium estando en la página, busco likes inmediatamente
+    useEffect(() => {
+        if (isPremium) {
+            (async () => {
+                await fetchLikes();
+            })();
+        }
+    }, [isPremium]);
 
     if (loading) return <p>Loading...</p>;
 
