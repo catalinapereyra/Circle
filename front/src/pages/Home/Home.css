@@ -42,22 +42,37 @@
     gap: 1.5rem;
 }
 
-.subscription-status {
-    margin-top: 1rem;
-    padding: 1rem;
-    border: 2px dashed white;
-    border-radius: 10px;
-    background-color: rgba(255, 255, 255, 0.05);
-    text-align: center;
+.home-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+    margin: 20px 0;
+}
+
+.like-button, .dislike-button {
+    width: 60px; /* ancho fijo para que sea un círculo */
+    height: 60px; /* alto igual que ancho */
+    font-size: 24px;
+    border-radius: 50%; /* círculo perfecto */
+    border: none;
+    cursor: pointer;
+    display: flex; /* para centrar el emoji */
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.2s;
+}
+
+.like-button {
+    background-color: #ff7aa2;
     color: white;
 }
 
-.subscription-status p {
-    margin: 0;
-    font-size: 1rem;
+.dislike-button {
+    background-color: #ffcccc;
+    color: black;
 }
 
-.sub-message {
-    font-size: 0.8rem;
-    color: #999;
+/* Hover efecto */
+.like-button:hover, .dislike-button:hover {
+    transform: scale(1.1);
 }
