@@ -10,6 +10,7 @@ import RegisterProfilePage from './pages/RegisterProfilePage';
 import ChooseMood from './components/ChooseMood';
 import { UserModeProvider } from "./contexts/UserModeContext";
 import Matches from "./pages/Matches";
+import LikesReceived from './pages/LikesReceived';
 
 
 function App() {
@@ -26,6 +27,7 @@ function App() {
                     <Route path="/home" element={<Home />} />
                     <Route path="/choose-mood" element={<ChooseMood />} />
                     <Route path="/matches" element={<Matches />} />
+                    <Route path="/likes-received" element={<LikesReceived />} />
                 </Routes>
             </Router>
         </UserModeProvider>

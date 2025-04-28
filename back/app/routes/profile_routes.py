@@ -4,6 +4,7 @@ from werkzeug.utils import secure_filename
 from app.models.models import CouplePreferences, CoupleMode, User, FriendshipMode, CouplePhoto, FriendshipPhoto
 from app.extensions import db
 from app.models.models import Swipe, SwipeMode
+from app.models.models import Swipe, SwipeType, User
 import os
 from flask_jwt_extended import jwt_required, get_jwt_identity
 
@@ -182,3 +183,36 @@ def get_public_profile(username):
         'interest': profile.interest,
         'profile_picture': profile.profile_picture
     })
+
+@bp_profile.route('/likes-received', methods=['GET'])
+@jwt_required()
+def likes_received():
+    username = get_jwt_identity()
+
+    # Traer usuarios que me dieron like
+    likes = Swipe.query.filter_by(swiped_id=username, type=SwipeType.LIKE).all()
+
+    liked_by_usernames = [like.swiper_id for like in likes]
+
+    # De esos, filtrar los que NO son match
+    matches = Swipe.query.filter(Swipe.swiper_id==username, Swipe.swiped_id.in_(liked_by_usernames), Swipe.type==SwipeType.LIKE).all()
+    matched_usernames = [match.swiped_id for match in matches]
+
+    # Usuarios que me dieron like pero todavía no es match
+    pending_usernames = set(liked_by_usernames) - set(matched_usernames)
+
+    # Ahora busco sus datos
+    users = User.query.filter(User.username.in_(pending_usernames)).all()
+
+    result = []
+    for user in users:
+        result.append({
+            'username': user.username,
+            'age': user.age,
+            'name': user.name,
+            'email': user.email,
+            # podés agregar más si querés
+        })
+
+    return jsonify(result), 200
+
