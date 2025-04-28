@@ -2,11 +2,12 @@
 import React, { useState, useEffect } from 'react';
 import './SettingsPanel.css';
 import axiosInstance from "../../api/axiosInstance";
+import { useUserMode } from "../../contexts/UserModeContext"; // usar contexto global
 
 function SettingsPanel({ isOpen, onClose, mode }) {
+    const { isPremium, setIsPremium } = useUserMode(); // traer el estado global de premium
     const [showConfirm, setShowConfirm] = useState(false);
     const [hoverDelete, setHoverDelete] = useState(false);
-    const [isPremium, setIsPremium] = useState(false);
     const [showSubPopup, setShowSubPopup] = useState(false);
     const [showWelcome, setShowWelcome] = useState(false);
 
@@ -21,16 +22,17 @@ function SettingsPanel({ isOpen, onClose, mode }) {
         };
 
         checkSubscription();
-    }, []);
+    }, [setIsPremium]);
+
     if (!isOpen) return null;
 
     const handleDelete = async () => {
         try {
             const res = await axiosInstance.delete("/user/delete");
-
             if (res.status === 200) {
                 alert(res.data.message);
                 localStorage.removeItem("token");
+                localStorage.removeItem("username");
                 window.location.href = "/";
             } else {
                 console.error("Error deleting account");
@@ -43,9 +45,8 @@ function SettingsPanel({ isOpen, onClose, mode }) {
     const handleSubscribe = async () => {
         try {
             const res = await axiosInstance.post("/user/subscribe");
-
             if (res.status === 200) {
-                setIsPremium(true);
+                setIsPremium(true); // 💥 Cambiar a premium globalmente
                 setShowSubPopup(false);
                 setShowWelcome(true);
             } else {
@@ -58,6 +59,7 @@ function SettingsPanel({ isOpen, onClose, mode }) {
 
     const handleLogout = () => {
         localStorage.removeItem("token");
+        localStorage.removeItem("username");
         window.location.href = "/login";
     };
 
@@ -81,7 +83,11 @@ function SettingsPanel({ isOpen, onClose, mode }) {
                     </li>
 
                     <li>🔥 MATCHES</li>
-                    <li onClick={() => window.location.href = "/choose-mood"}>🔄 CHANGE MODE</li>
+
+                    <li onClick={() => window.location.href = "/choose-mood"}>
+                        🔄 CHANGE MODE
+                    </li>
+
                     <li onClick={handleLogout}>↩️ LOG OUT</li>
                 </ul>
 

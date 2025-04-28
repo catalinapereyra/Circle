@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import SettingsPanel from "../SettingsPanel/SettingsPanel";
 import './BottomNavBar.css';
 import { Link } from 'react-router-dom';
+import { useUserMode } from "../../contexts/UserModeContext"; // 👈 Importante: usar el hook
 
 const icons = {
     settings: "https://png.pngtree.com/png-clipart/20230428/original/pngtree-settings-line-icon-png-image_9118646.png",
@@ -12,6 +13,7 @@ const icons = {
 };
 
 function BottomNavBar({ mode }) {
+    const { isPremium } = useUserMode(); //treaer si el usuario es premium
     const [showSettings, setShowSettings] = useState(false);
 
     const heartClass = mode === "couple" ? "heart-couple" : "heart-friendship";
@@ -20,14 +22,19 @@ function BottomNavBar({ mode }) {
         <>
             <div className="bottom-nav">
                 <img src={icons.settings} alt="Settings" className="nav-icon" onClick={() => setShowSettings(true)} />
-                <Link to="/likes-received">
-                    <img src={icons.heart} alt="Likes Received" className="nav-icon" />
-                </Link>
-                <img src={icons.home} alt="Likes" className={`nav-icon ${heartClass}`} />
+
+                {/* Solo mostrar el corazón si el user es premium */}
+                {isPremium && (
+                    <Link to="/likes-received">
+                        <img src={icons.heart} alt="Likes Received" className="nav-icon" />
+                    </Link>
+                )}
+
+                <img src={icons.home} alt="Home" className={`nav-icon ${heartClass}`} />
                 <img src={icons.chat} alt="Chat" className="nav-icon" />
                 <img src={icons.profile} alt="Profile" className="nav-icon" />
-
             </div>
+
             <SettingsPanel isOpen={showSettings} onClose={() => setShowSettings(false)} mode={mode} />
         </>
     );

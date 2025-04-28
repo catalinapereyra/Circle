@@ -193,9 +193,25 @@ def get_public_profile(username):
 def likes_received():
     username = get_jwt_identity()
 
-    # Traer usuarios que me dieron like
-    likes = Swipe.query.filter_by(swiped_id=username, type=SwipeType.LIKE).all()
+    user = User.query.filter_by(username=username).first()
 
+    if not user:
+        return jsonify({"error": "User not found"}), 404
+
+    # Si no tiene suscripción premium, no puede ver
+    if not user.premium_subscription:
+        return jsonify({"error": "Premium subscription required"}), 403
+
+    mode_param = request.args.get('mode')
+    if not mode_param:
+        return jsonify({"error": "Mode required"}), 400
+
+    # Traer usuarios que me dieron like
+    likes = Swipe.query.filter_by(
+        swiped_id=user.username,
+        type=SwipeType.LIKE,
+        mode=SwipeMode[mode_param.upper()]  # mode debe ser "COUPLE" o "FRIEND"
+    ).all()
     liked_by_usernames = [like.swiper_id for like in likes]
 
     # De esos, filtrar los que NO son match
@@ -209,13 +225,13 @@ def likes_received():
     users = User.query.filter(User.username.in_(pending_usernames)).all()
 
     result = []
-    for user in users:
+    for u in users:
         result.append({
-            'username': user.username,
-            'age': user.age,
-            'name': user.name,
-            'email': user.email,
-            # podés agregar más si querés
+            'username': u.username,
+            'age': u.age,
+            'name': u.name,
+            'email': u.email,
+            # agrewgar mas si queremos
         })
 
     return jsonify(result), 200
