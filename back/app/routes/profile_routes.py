@@ -194,11 +194,10 @@ def likes_received():
     username = get_jwt_identity()
 
     user = User.query.filter_by(username=username).first()
-
     if not user:
         return jsonify({"error": "User not found"}), 404
 
-    # Si no tiene suscripción premium, no puede ver
+    # Verificar suscripción premium
     if not user.premium_subscription:
         return jsonify({"error": "Premium subscription required"}), 403
 
@@ -206,33 +205,44 @@ def likes_received():
     if not mode_param:
         return jsonify({"error": "Mode required"}), 400
 
-    # Traer usuarios que me dieron like
-    likes = Swipe.query.filter_by(
-        swiped_id=user.username,
+    try:
+        swipe_mode = SwipeMode[mode_param.upper()]  # Convertir el string a enum
+    except KeyError:
+        return jsonify({"error": "Invalid mode"}), 400
+
+    # 🔵 Traer likes recibidos
+    received_likes = Swipe.query.filter_by(
+        swiped_id=username,
         type=SwipeType.LIKE,
-        mode=SwipeMode[mode_param.upper()]  # mode debe ser "COUPLE" o "FRIEND"
+        mode=swipe_mode
     ).all()
-    liked_by_usernames = [like.swiper_id for like in likes]
+    liked_by_usernames = [like.swiper_id for like in received_likes]
 
-    # De esos, filtrar los que NO son match
-    matches = Swipe.query.filter(Swipe.swiper_id==username, Swipe.swiped_id.in_(liked_by_usernames), Swipe.type==SwipeType.LIKE).all()
-    matched_usernames = [match.swiped_id for match in matches]
+    # 🟢 Buscar mis likes de vuelta (para saber si hay match)
+    my_likes = Swipe.query.filter(
+        Swipe.swiper_id == username,
+        Swipe.swiped_id.in_(liked_by_usernames),
+        Swipe.type == SwipeType.LIKE,
+        Swipe.mode == swipe_mode
+    ).all()
+    matched_usernames = {like.swiped_id for like in my_likes}
 
-    # Usuarios que me dieron like pero todavía no es match
-    pending_usernames = set(liked_by_usernames) - set(matched_usernames)
+    # 🔴 Likes pendientes: gente que me likearon pero yo no likée todavía
+    pending_usernames = set(liked_by_usernames) - matched_usernames
 
-    # Ahora busco sus datos
-    users = User.query.filter(User.username.in_(pending_usernames)).all()
+    # 🔵 Buscar en base de datos los usuarios pendientes
+    pending_users = User.query.filter(User.username.in_(pending_usernames)).all()
 
-    result = []
-    for u in users:
-        result.append({
-            'username': u.username,
-            'age': u.age,
-            'name': u.name,
-            'email': u.email,
-            # agrewgar mas si queremos
-        })
+    # Formatear la respuesta
+    result = [
+        {
+            "username": u.username,
+            "age": u.age,
+            "name": u.name,
+            "email": u.email
+            # Podés agregar más campos si querés
+        }
+        for u in pending_users
+    ]
 
     return jsonify(result), 200
-

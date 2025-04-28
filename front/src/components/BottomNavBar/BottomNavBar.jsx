@@ -18,6 +18,8 @@ function BottomNavBar({ mode }) {
 
     const heartClass = mode === "couple" ? "heart-couple" : "heart-friendship";
 
+
+
     return (
         <>
             <div className="bottom-nav">

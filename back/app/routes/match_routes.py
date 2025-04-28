@@ -7,6 +7,13 @@ bp_match = Blueprint('match', __name__, url_prefix='/match')
 
 from app.models.models import Swipe, SwipeType, SwipeMode, User, Match, MatchMode
 
+from flask import Blueprint, request, jsonify
+from flask_jwt_extended import jwt_required, get_jwt_identity
+from app.models.models import Swipe, SwipeType, SwipeMode, User, Match, MatchMode
+from app.extensions import db
+
+bp_match = Blueprint('match', __name__, url_prefix='/match')
+
 @bp_match.route('', methods=['POST'])
 @jwt_required()
 def swipe_user():
@@ -23,33 +30,42 @@ def swipe_user():
             print("Datos inválidos:", data)
             return jsonify({'error': 'Invalid swipe data'}), 400
 
-        # Crear Swipe
-        swipe = Swipe(
+        swipe_mode = SwipeMode.COUPLE if mode == "couple" else SwipeMode.FRIEND
+
+        # Verificar si ya existe el swipe
+        existing_swipe = Swipe.query.filter_by(
             swiper_id=swiper,
             swiped_id=swiped,
-            type=SwipeType(action),
-            mode=SwipeMode(mode if mode == "couple" else "friend")
-        )
-        db.session.add(swipe)
+            mode=swipe_mode
+        ).first()
 
-        # Guardamos swipe primero
-        db.session.commit()
+        if existing_swipe:
+            print(f"⚠️ Swipe ya existente de {swiper} a {swiped} en modo {mode}. No se crea otro.")
+        else:
+            # Crear nuevo Swipe
+            swipe = Swipe(
+                swiper_id=swiper,
+                swiped_id=swiped,
+                type=SwipeType(action),
+                mode=swipe_mode
+            )
+            db.session.add(swipe)
+            db.session.commit()
 
-        # Si es un like, buscamos si hay like recíproco
+        # Si es un like, chequeamos match
         if action == 'like':
             reciprocal = Swipe.query.filter_by(
                 swiper_id=swiped,
                 swiped_id=swiper,
                 type=SwipeType.LIKE,
-                mode=SwipeMode(mode if mode == "couple" else "friend")
+                mode=swipe_mode
             ).first()
 
             if reciprocal:
-                # Es match => crear Match en base
                 new_match = Match(
                     user1=swiper,
                     user2=swiped,
-                    mode=MatchMode(mode.upper())
+                    mode=MatchMode.COUPLE if mode == "couple" else MatchMode.FRIENDSHIP
                 )
                 db.session.add(new_match)
                 db.session.commit()
@@ -64,25 +80,37 @@ def swipe_user():
 
     except Exception as e:
         print("ERROR en swipe_user:", str(e))
-        return jsonify({'error': 'Internal server error'}), 500
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
 
 
-@bp_match.route('/my-matches', methods=['GET'])
+@bp_match.route('/mine', methods=['GET'])
 @jwt_required()
 def get_my_matches():
-    current_username = get_jwt_identity()
+    try:
+        username = get_jwt_identity()
 
-    # Buscar matches donde yo soy user1 o user2
-    matches = Match.query.filter(
-        ((Match.user1 == current_username) | (Match.user2 == current_username))
-    ).all()
+        # Buscamos los matches donde el usuario sea user1 o user2
+        matches = Match.query.filter(
+            (Match.user1 == username) | (Match.user2 == username)
+        ).all()
 
-    # Listar el "otro" username en el match
-    match_usernames = []
-    for match in matches:
-        if match.user1 == current_username:
-            match_usernames.append(match.user2)
-        else:
-            match_usernames.append(match.user1)
+        matches_list = []
+        for match in matches:
+            # Determinar cuál es el "otro" usuario
+            other_user = match.user2 if match.user1 == username else match.user1
 
-    return jsonify({'matches': match_usernames})
+            matches_list.append({
+                'username': other_user,
+                'mode': match.mode.value,  # devuelve "friendship" o "couple"
+                'created_at': match.created_at.strftime('%Y-%m-%d %H:%M:%S')
+            })
+
+        return jsonify(matches_list), 200
+
+    except Exception as e:
+        print("ERROR en get_my_matches:", str(e))
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import axiosInstance from "../api/axiosInstance"; // ✅
+import axiosInstance from "../api/axiosInstance";
 
 function Matches() {
     const [matches, setMatches] = useState([]);
@@ -8,13 +8,12 @@ function Matches() {
     useEffect(() => {
         const fetchMatches = async () => {
             try {
-                const res = await axiosInstance.get("/match/my-matches");
+                const res = await axiosInstance.get("/match/mine");
 
-                const usernames = res.data.matches;
+                const matchUsers = res.data; // viene como lista directa
 
-                // pido los perfiles publicos de cada username
-                const profilePromises = usernames.map((username) =>
-                    axiosInstance.get(`/profile/public/${username}`)
+                const profilePromises = matchUsers.map((match) =>
+                    axiosInstance.get(`/profile/public/${match.username}`)
                 );
 
                 const profileResponses = await Promise.all(profilePromises);
@@ -39,14 +38,20 @@ function Matches() {
             {matches.length === 0 ? (
                 <p>No tenés matches aún.</p>
             ) : (
-                matches.map((match) => (
-                    <div key={match.username} className="match-card">
-                        <img src={`/uploads/couple_photos/${match.profile_picture}`} alt={match.username} width="100" />
-                        <p><strong>{match.username}</strong></p>
-                        <p>{match.bio}</p>
-                        <p>📍 {match.interest}</p>
-                    </div>
-                ))
+                matches.map((match) => {
+                    const photoPath = match.mode === "couple"
+                        ? `/uploads/couple_photos/${match.profile_picture}`
+                        : `/uploads/friendship_photos/${match.profile_picture}`;
+
+                    return (
+                        <div key={match.username} className="match-card">
+                            <img src={photoPath} alt={match.username} width="100" />
+                            <p><strong>{match.username}</strong></p>
+                            <p>{match.bio}</p>
+                            <p>📍 {match.interest}</p>
+                        </div>
+                    );
+                })
             )}
         </div>
     );

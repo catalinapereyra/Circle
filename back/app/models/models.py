@@ -132,5 +132,21 @@ class Swipe(db.Model): # creo la tabla swipes para almacenar quienes ya me apare
         # esta linea dice que no vuelva a aparecer en el mismo modo un user que ya aparece en la tabla swipe de ese user
     )
 
+class MatchMode(Enum):
+    FRIENDSHIP = "friendship"
+    COUPLE = "couple"
+
+class Match(db.Model):
+    __tablename__ = 'match'
+
+    id = db.Column(db.Integer, primary_key=True)
+    user1 = db.Column(db.String(25), db.ForeignKey('user.username'), nullable=False)
+    user2 = db.Column(db.String(25), db.ForeignKey('user.username'), nullable=False)
+    mode = db.Column(db.Enum(MatchMode), nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    __table_args__ = (
+        db.UniqueConstraint('user1', 'user2', 'mode', name='unique_match'),
+    )
 
 

@@ -7,12 +7,15 @@ import ProfileCard from "../../components/ProfileCard/ProfileCard";
 import BottomNavBar from "../../components/BottomNavBar/BottomNavBar";
 import "./Home.css";
 import axiosInstance from "../../api/axiosInstance";
+import MatchModal from "../../components/MatchModal.jsx";
 
 function Home() {
     const { mode } = useUserMode(); // "couple" o "friendship"
     const [profiles, setProfiles] = useState([]);
     const [loading, setLoading] = useState(true);
     const [isPremium, setIsPremium] = useState(false);
+    const [matchUsername, setMatchUsername] = useState(null);
+
 
     useEffect(() => {
         AOS.init({
@@ -57,16 +60,27 @@ function Home() {
         if (!currentProfile) return;
 
         try {
-            await axiosInstance.post('/match', {
+            const response = await axiosInstance.post('/match', {
                 swiped_username: currentProfile.username,
                 type: 'like',
                 mode: mode,
             });
-            setProfiles(prev => prev.slice(1)); // saco el primer perfil
+
+            if (response.data.match) {
+                setMatchUsername(response.data.username); // mostramos el match
+                // ⏳ cerrarlo automáticamente después de 2 segundos
+                setTimeout(() => {
+                    setMatchUsername(null);
+                }, 2000);
+            }
         } catch (err) {
-            console.error(err);
+            console.error("Error al hacer like:", err);
+        } finally {
+            setProfiles(prev => prev.slice(1)); // pase lo que pase, saco el primer perfil
         }
     };
+
+
 
     const handleDislike = async () => {
         const currentProfile = profiles[0];
@@ -78,11 +92,14 @@ function Home() {
                 type: 'dislike',
                 mode: mode,
             });
-            setProfiles(prev => prev.slice(1)); // saco el primer perfil
         } catch (err) {
-            console.error(err);
+            console.error("Error al hacer dislike:", err);
+            // Aunque falle el post, seguimos igual
+        } finally {
+            setProfiles(prev => prev.slice(1)); // pase lo que pase, saco el primer perfil
         }
     };
+
 
     if (loading) return <div className="home-title">Cargando perfiles...</div>;
 
@@ -125,6 +142,8 @@ function Home() {
                 <button onClick={handleDislike} className="dislike-button">👎</button>
                 <button onClick={handleLike} className="like-button">❤️</button>
             </div>
+
+            {matchUsername && <MatchModal username={matchUsername} onClose={() => setMatchUsername(null)} />}
 
             <BottomNavBar mode={mode}/>
         </div>
