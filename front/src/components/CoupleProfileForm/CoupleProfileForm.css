@@ -1,24 +1,66 @@
-/* === COUPLE PROFILE STYLES (rosa fuerte) === */
+/* === FONDO === */
 .couple .form-container {
-    background-color: black;
-    color: #c51d86;
-    font-family: 'Arial Black', sans-serif;
-    min-height: 100vh;
+    width: 100vw;
+    height: 100vh;
+    background-image: url('../../assets/backgroundRegister.jpeg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed; /* 🔥 Esto fija la imagen y evita repetición */
+    position: relative;
+    overflow: hidden;
     display: flex;
     justify-content: center;
     align-items: center;
 }
 
+/* === OVERLAY GLASSMORPHISM === */
+.couple .overlay {
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(2px);
+    -webkit-backdrop-filter: blur(2px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
 
+/* === FORMULARIO TARJETA === */
 .couple .form-wrapper {
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
+    padding: 30px 20px;
+    width: 90%;
+    max-width: 370px;
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 20px;
-    width: 100%;
-    max-width: 320px;
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    z-index: 1;
 }
 
+/* === INPUTS === */
+.couple input[type="text"],
+.couple textarea,
+.couple select {
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid #c51d86;
+    font-size: 1rem;
+    padding: 0.5rem 0;
+    width: 100%;
+    outline: none;
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    color: grey;
+}
+
+/* === FOTO PRINCIPAL === */
 .couple .upload-photo {
     cursor: pointer;
 }
@@ -31,78 +73,78 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    text-align: center;
     font-weight: bold;
     font-size: 1.2rem;
     color: #c51d86;
     margin-bottom: 1rem;
-    background-position: center;
     background-size: cover;
-    background-repeat: no-repeat;
+    background-position: center;
     overflow: hidden;
     position: relative;
 }
 
-.couple .photo-preview {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    border-radius: 50%;
-}
-
-.couple .hidden-file {
+/* === EXTRAS === */
+.hidden-file {
     display: none;
 }
 
-
-.couple input[type="text"],
-.couple textarea,
-.couple select {
-    background: transparent;
-    border: none;
-    border-bottom: 2px solid #c51d86;
-    color: #c51d86;
-    font-size: 1rem;
-    padding: 0.5rem;
-    width: 100%;
-    outline: none;
-    font-family: inherit;
-}
-
-.couple textarea {
-    resize: none;
-    min-height: 30px;
-}
-
-.couple .select-wrapper {
-    width: 100%;
-}
-
-.couple .button-row {
+/* === BOTONES === */
+.form-buttons {
     display: flex;
     justify-content: space-between;
     width: 100%;
-    font-weight: bold;
-    font-size: 1rem;
-    margin-top: 1.5rem;
 }
 
-.couple .button-row button {
+.back-button, .submit-button {
     background: none;
-    border: none;
+    border: 2px solid #c51d86;
     color: #c51d86;
+    padding: 8px 16px;
+    font-weight: bold;
     cursor: pointer;
+    border-radius: 8px;
+    transition: all 0.3s ease;
 }
 
-.couple .photo-preview {
-    position: absolute;
+.back-button:hover, .submit-button:hover {
+    background: #c51d86;
+    color: white;
+}
+
+.form-message {
+    margin-top: 10px;
+    font-size: 0.9rem;
+    color: white;
+}
+
+/* === GRID DE FOTOS === */
+.extra-photos-preview {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); /* 3 columnas */
+    gap: 10px;
     width: 100%;
-    height: 100%;
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    border-radius: 50%;
+    margin-top: 10px;
+    justify-items: center;
+}
+
+.preview-img,
+.photo-square {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    border: 2px solid #c51d86;
+    border-radius: 8px;
+}
+
+/* === BOTÓN + === */
+.photo-square {
+    background: transparent;
+    border: 2px dashed #c51d86;
+    color: #c51d86;
+    font-weight: bold;
+    font-size: 2rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
 }
