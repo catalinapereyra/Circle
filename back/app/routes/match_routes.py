@@ -10,7 +10,7 @@ bp_match = Blueprint('match', __name__, url_prefix='/match')
 def swipe_user():
     try:
         data = request.get_json()
-        print("📥 Datos recibidos en swipe:", data)
+        print("Datos recibidos en swipe:", data)
 
         swiper = get_jwt_identity()
         swiped = data.get('swiped_username')
@@ -18,7 +18,7 @@ def swipe_user():
         action = data.get('type')  # "like" o "dislike"
 
         if mode not in ['couple', 'friendship'] or action not in ['like', 'dislike']:
-            print("❌ Datos inválidos:", data)
+            print("Datos inválidos:", data)
             return jsonify({'error': 'Invalid swipe data'}), 400
 
         mode_enum_value = "friend" if mode == "friendship" else mode

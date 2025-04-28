@@ -12,13 +12,13 @@ def create_app():
     app = Flask(__name__)
     app.config.from_object('config.Config')  # Configuración de la app
     # Configurar JWT
-    app.config["JWT_SECRET_KEY"] = "deligo-mili-pili"
+    app.config["JWT_SECRET_KEY"] = "circle-cata-rochi"
     app.config['JWT_TOKEN_LOCATION'] = ['headers']
     app.config['JWT_HEADER_NAME'] = 'Authorization'
     app.config['JWT_HEADER_TYPE'] = 'Bearer'
     app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=1)
     JWTManager(app)
-    CORS(app, expose_headers=["Authorization"])  # para que React se conecte
+    CORS(app, supports_credentials=True, expose_headers=["Authorization"]) # para que React se conecte
 
 
     # Importaciones de modelos y rutas dentro del contexto de la app

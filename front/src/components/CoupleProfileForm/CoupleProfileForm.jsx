@@ -4,6 +4,7 @@ import axios from 'axios';
 import './CoupleProfileForm.css';
 import backgroundRegister from '../../assets/backgroundRegister.jpeg';
 import { useUserMode } from "../../contexts/UserModeContext.jsx";
+import axiosInstance from '../../api/axiosInstance';
 
 function CoupleProfileForm() {
     const navigate = useNavigate();
@@ -56,9 +57,9 @@ function CoupleProfileForm() {
         }
 
         try {
-            const token = localStorage.getItem("token");
-            await axios.post('http://localhost:5001/profile/couple-profile', data, {
-                headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'multipart/form-data' }
+            // uso axiosInstance que ya manda el token solo
+            await axiosInstance.post('/profile/couple-profile', data, {
+                headers: { 'Content-Type': 'multipart/form-data' }
             });
 
             setMessage('Perfil creado exitosamente');

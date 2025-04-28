@@ -1,6 +1,8 @@
 // src/pages/LikesReceived.jsx
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import axiosInstance from '../api/axiosInstance';
+
 
 function LikesReceived() {
     const [likes, setLikes] = useState([]);
@@ -9,12 +11,8 @@ function LikesReceived() {
     useEffect(() => {
         const fetchLikes = async () => {
             try {
-                const token = localStorage.getItem('token');
-                const response = await axios.get('http://localhost:5001/user/likes-received', {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
-                });
+                const response = await axiosInstance.get('/user/likes-received');
+
                 setLikes(response.data);
             } catch (error) {
                 console.error("Error fetching likes received:", error);

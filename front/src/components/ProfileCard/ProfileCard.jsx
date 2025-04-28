@@ -2,6 +2,7 @@ import React from "react";
 import { useUserMode } from "../../contexts/UserModeContext";
 import "./ProfileCard.css";
 import axios from "axios";
+import axiosInstance from "../../api/axiosInstance";
 
 function ProfileCard({ username, age, bio, interest, profilePicture, photos = [] }) {
     const { mode } = useUserMode(); // "couple" o "friendship"
@@ -11,20 +12,16 @@ function ProfileCard({ username, age, bio, interest, profilePicture, photos = []
 
     const handleSwipe = async (type) => {
         try {
-            console.log("🛰️ Enviando swipe:", {
+            console.log("Enviando swipe:", {
                 swiped_username: username,
                 type,
                 mode
             });
 
-            await axios.post("http://localhost:5001/match", {
+            await axiosInstance.post("/match", {
                 swiped_username: username,
                 type: type, // "like" o "dislike"
                 mode: mode,  // "couple" o "friend"
-            }, {
-                headers: {
-                    Authorization: `Bearer ${token}`
-                }
             });
 
             console.log(`✅ Swipe ${type} a ${username}`);
@@ -32,6 +29,7 @@ function ProfileCard({ username, age, bio, interest, profilePicture, photos = []
             console.error("❌ Error en swipe:", error);
         }
     };
+
 
 
     return (

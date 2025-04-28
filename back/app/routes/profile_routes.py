@@ -118,9 +118,12 @@ def create_friendship_profile():
     return jsonify({'message': 'Friendship profile created successfully'})
 
 
-@bp_profile.route('/check-profiles/<username>', methods=['GET'])
-def check_profiles(username):
-    # Buscar perfiles del usuario
+@bp_profile.route('/check-profiles', methods=['GET'])
+@jwt_required()
+def check_profiles():
+    username = get_jwt_identity()
+
+    # buscar perfiles del usuario
     couple_profile = CoupleMode.query.filter_by(username=username).first()
     friendship_profile = FriendshipMode.query.filter_by(username=username).first()
 
@@ -128,6 +131,7 @@ def check_profiles(username):
         'has_couple_profile': couple_profile is not None,
         'has_friendship_profile': friendship_profile is not None
     })
+
 
 @bp_profile.route('/home/<mode>', methods=['GET'])
 @jwt_required()

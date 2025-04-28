@@ -37,11 +37,11 @@ function RegisterForm() {
             setMessage(response.data.message);
 
             if (response.status === 201) {
-                const token = response.data.token;
+                const token = response.data.access_token;
                 localStorage.setItem('token', token);
                 localStorage.setItem('username', formData.username);
 
-                // ✅ Si seleccionó Premium, creamos la suscripción
+                // si puso Premium creo la suscripcion
                 if (wantsPremium) {
                     await axios.post('http://localhost:5001/user/subscribe', null, {
                         headers: { Authorization: `Bearer ${token}` }
@@ -52,7 +52,6 @@ function RegisterForm() {
             }
         } catch (error) {
             if (error.response && error.response.data && error.response.data.error) {
-                // Si el backend envía un mensaje personalizado
                 setMessage(error.response.data.error);
             } else {
                 setMessage('Fail to register user');

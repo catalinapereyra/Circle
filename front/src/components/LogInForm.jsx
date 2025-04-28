@@ -28,7 +28,7 @@ function LogInForm() {
             const response = await axios.post('http://localhost:5001/user/login', formData);
 
             if (response.status === 200) {
-                localStorage.setItem('token', response.data.token);  // GUARDAMOS EL TOKEN
+                localStorage.setItem('token', response.data.access_token);   // GUARDAMOS EL TOKEN
                 localStorage.setItem('username', formData.username); //
                 navigate('/choose-mood');
             }

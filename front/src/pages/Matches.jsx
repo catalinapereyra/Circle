@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import axiosInstance from "../api/axiosInstance"; // ✅
 
 function Matches() {
     const [matches, setMatches] = useState([]);
@@ -7,20 +7,14 @@ function Matches() {
 
     useEffect(() => {
         const fetchMatches = async () => {
-            const token = localStorage.getItem("token");
-
             try {
-                const res = await axios.get("http://localhost:5001/match/my-matches", {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
-                });
+                const res = await axiosInstance.get("/match/my-matches");
 
                 const usernames = res.data.matches;
 
-                // Ahora pedimos más datos de cada match (por ejemplo, su perfil)
+                // pido los perfiles publicos de cada username
                 const profilePromises = usernames.map((username) =>
-                    axios.get(`http://localhost:5001/profile/public/${username}`)
+                    axiosInstance.get(`/profile/public/${username}`)
                 );
 
                 const profileResponses = await Promise.all(profilePromises);

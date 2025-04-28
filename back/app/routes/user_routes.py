@@ -1,5 +1,6 @@
 # usamos blueprint para evitar que este init se vuelva muy largo
 # en este file estan todas las rutas que TIENEN QUE VER CON EL USER
+from os import access
 
 # Una ruta /endpoint es una URL que la web usa paa recibir y mandar solicitudes / respuestas.
 # cada ruta esta asociada a una funcion. POST GET
@@ -14,7 +15,7 @@ from flask import Blueprint, request, jsonify
 
 from app.models.models import User
 from app.extensions import db
-from utils.token_utils import generate_token  # asegurate de importar esto
+from flask_jwt_extended import create_access_token
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from datetime import datetime, timedelta
 from app.models.models import User, PremiumSubscription
@@ -62,12 +63,11 @@ def register_user():
     db.session.add(new_user)
     db.session.commit()
 
-    token = generate_token(username)
+    access_token = create_access_token(identity=new_user.username)
 
-    # 🔥 Devolver también el token
     return jsonify({
         "message": "User registered successfully!",
-        "token": token
+        "access_token": access_token
     }), 201
 
 # LOG IN
@@ -82,10 +82,10 @@ def login_user():
 
 
     if user and user.password == password:
-        token = generate_token(user.username)
+        access_token = create_access_token(identity=user.username)
         return jsonify({
             "message": "Login successful!",
-            "token": token
+            "access_token": access_token
         }), 200
 
         #creo que hay que haer una session para que pueda 'entrar' a la web y no sea solo el print.... check
@@ -112,32 +112,39 @@ def get_all_users():
 
 # PUT - Actualizar un usuario
 @bp_user.route('/<username>', methods=['PUT'])
+@jwt_required()
 def update_user(username):
-    user = User.query.filter_by(username=username) #busco en la base de datos la user con ese username
-    # user.query accede a la tabla user, depsues con filter by filtra segun el username = username
+    token_username = get_jwt_identity()
+    if token_username != username:
+        return jsonify({"message": "Unauthorized"}), 403  # No te podés modificar a otro
+
+    user = User.query.filter_by(username=username).first()
     if not user:
-        return jsonify({"message": "User not found"}), 404 # si no encuentra al user, tira error
+        return jsonify({"message": "User not found"}), 404
 
-    data = request.get_json() #busca la data que se pone en la pagina web
+    data = request.get_json()
 
-    # Actualizamos solo si mandan ese dato
     if 'username' in data:
-        user.email = data['username']
+        user.username = data['username']
     if 'password' in data:
-        user.email = data['password']
+        user.password = data['password']
     if 'email' in data:
         user.email = data['email']
     if 'location' in data:
         user.location = data['location']
-    # hay que fijarse tema subscription
 
-    db.session.commit() # SQLAlchemy, nada se guarda de verdad hasta que hacés db.session.commit()
+    db.session.commit()
     return jsonify({"message": "User updated successfully!"})
 
 
 # DELETE - Eliminar un usuario
 @bp_user.route('/<username>', methods=['DELETE'])
+@jwt_required()
 def delete_user(username):
+    token_username = get_jwt_identity()
+    if token_username != username:
+        return jsonify({"message": "Unauthorized"}), 403
+
     user = User.query.filter_by(username=username).first()
     # busco en la base de datos la user con ese username
     # user.query accede a la tabla user, depsues con filter by filtra segun el username = username
@@ -265,3 +272,8 @@ def delete_my_account():
     db.session.commit()
 
     return jsonify({"message": "User and related data deleted"}), 200
+
+@bp_user.route('/validate-token', methods=['GET'])
+@jwt_required()
+def validate_token():
+    return jsonify({"message": "Token válido"}), 200

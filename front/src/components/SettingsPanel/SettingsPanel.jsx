@@ -1,6 +1,7 @@
 // src/components/SettingsPanel.jsx
 import React, { useState, useEffect } from 'react';
 import './SettingsPanel.css';
+import axiosInstance from "../../api/axiosInstance";
 
 function SettingsPanel({ isOpen, onClose, mode }) {
     const [showConfirm, setShowConfirm] = useState(false);
@@ -10,37 +11,25 @@ function SettingsPanel({ isOpen, onClose, mode }) {
     const [showWelcome, setShowWelcome] = useState(false);
 
     useEffect(() => {
-        const token = localStorage.getItem("token");
-        if (token) {
-            fetch("http://localhost:5001/user/me/subscription", {
-                headers: {
-                    Authorization: `Bearer ${token}`
-                }
-            })
-                .then(res => res.json())
-                .then(data => {
-                    setIsPremium(data.premium);
-                })
-                .catch(err => console.error("Error checking subscription:", err));
-        }
-    }, []);
+        const checkSubscription = async () => {
+            try {
+                const res = await axiosInstance.get("/user/me/subscription");
+                setIsPremium(res.data.premium);
+            } catch (err) {
+                console.error("Error checking subscription:", err);
+            }
+        };
 
+        checkSubscription();
+    }, []);
     if (!isOpen) return null;
 
     const handleDelete = async () => {
-        const token = localStorage.getItem("token");
         try {
-            const res = await fetch("http://localhost:5001/user/delete", {
-                method: "DELETE",
-                headers: {
-                    Authorization: `Bearer ${token}`
-                }
-            });
+            const res = await axiosInstance.delete("/user/delete");
 
-            const data = await res.json();
-
-            if (res.ok) {
-                alert(data.message);
+            if (res.status === 200) {
+                alert(res.data.message);
                 localStorage.removeItem("token");
                 window.location.href = "/";
             } else {
@@ -52,23 +41,15 @@ function SettingsPanel({ isOpen, onClose, mode }) {
     };
 
     const handleSubscribe = async () => {
-        const token = localStorage.getItem("token");
         try {
-            const res = await fetch("http://localhost:5001/user/subscribe", {
-                method: "POST",
-                headers: {
-                    Authorization: `Bearer ${token}`
-                }
-            });
+            const res = await axiosInstance.post("/user/subscribe");
 
-            const data = await res.json();
-
-            if (res.ok) {
+            if (res.status === 200) {
                 setIsPremium(true);
                 setShowSubPopup(false);
                 setShowWelcome(true);
             } else {
-                console.error("Error activating subscription:", data);
+                console.error("Error activating subscription:", res.data);
             }
         } catch (err) {
             console.error("Error:", err);

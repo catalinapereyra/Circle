@@ -3,6 +3,8 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useUserMode } from "../contexts/UserModeContext";
+import axiosInstance from '../api/axiosInstance';
+
 
 function ChooseMood() {
     const { setMode } = useUserMode(); // usar hook
@@ -17,21 +19,27 @@ function ChooseMood() {
     const username = localStorage.getItem('username');
 
     useEffect(() => {
-        // Verificar si el usuario ya tiene perfiles
-        if (username) {
-            // Asegúrate de usar la URL correcta (puerto 5001)
-            axios.get(`http://localhost:5001/profile/check-profiles/${username}`)
-                .then(response => {
-                    console.log("Perfiles del usuario:", response.data);
-                    setProfiles(response.data);
-                    setLoading(false);
-                })
-                .catch(error => {
-                    console.error('Error checking profiles:', error);
-                    setLoading(false);
-                });
-        }
-    }, [username]);
+        const fetchProfiles = async () => {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                console.log("No hay token, no busco perfiles");
+                return;
+            }
+
+            try {
+                const response = await axiosInstance.get('/profile/check-profiles');
+                setProfiles(response.data);
+            } catch (error) {
+                console.error('Error checking profiles:', error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchProfiles();
+    }, []);
+
+
 
     const handleCoupleModeClick = () => {
         setMode("couple"); // guardo modo elijido

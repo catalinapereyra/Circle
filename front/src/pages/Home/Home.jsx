@@ -6,6 +6,7 @@ import { useUserMode } from "../../contexts/UserModeContext";
 import ProfileCard from "../../components/ProfileCard/ProfileCard";
 import BottomNavBar from "../../components/BottomNavBar/BottomNavBar";
 import "./Home.css";
+import axiosInstance from "../../api/axiosInstance";
 
 function Home() {
     const { mode } = useUserMode(); // "couple" o "friendship"
@@ -23,47 +24,31 @@ function Home() {
     }, []);
 
     useEffect(() => {
-        const token = localStorage.getItem("token");
-        if (token) {
-            fetch('http://localhost:5001/user/me/subscription', {
-                headers: {
-                    Authorization: `Bearer ${token}`
-                }
-            })
-                .then(res => res.json())
-                .then(data => {
-                    setIsPremium(data.premium);
-                    setSubMessage(data.message || '');
-                })
-                .catch(err => {
-                    console.error("Error al verificar suscripción:", err);
-                });
-        }
+        const checkSubscription = async () => {
+            try {
+                const res = await axiosInstance.get('/user/me/subscription');
+                setIsPremium(res.data.premium);
+                setSubMessage(res.data.message || '');
+            } catch (err) {
+                console.error("Error al verificar suscripción:", err);
+            }
+        };
+
+        checkSubscription();
     }, []);
 
+
+
     useEffect(() => {
-        console.log("🏷️ Modo actual:", mode);
         if (!mode) return;
 
         const fetchProfiles = async () => {
-            const token = localStorage.getItem("token"); // AGREGADO
-
             try {
-                const response = await fetch(`http://localhost:5001/profile/home/${mode}`, {
-                    headers: {
-                        Authorization: `Bearer ${token}` // AGREGADO
-                    }
-                });
-
-                if (response.ok) {
-                    const data = await response.json();
-                    setProfiles(data);
-                } else {
-                    console.error("Error al obtener perfiles:", response.status);
-                    setProfiles([]); // Previene que profiles sea undefined
-                }
+                const res = await axiosInstance.get(`/profile/home/${mode}`);
+                setProfiles(res.data);
             } catch (error) {
                 console.error("Error fetching profiles:", error);
+                setProfiles([]);
             } finally {
                 setLoading(false);
             }
@@ -71,6 +56,7 @@ function Home() {
 
         fetchProfiles();
     }, [mode]);
+
 
     if (loading) return <div className="home-title">Cargando perfiles...</div>;
 

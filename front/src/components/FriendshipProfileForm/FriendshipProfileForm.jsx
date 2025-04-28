@@ -4,6 +4,8 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { useUserMode } from "../../contexts/UserModeContext.jsx";
 import backgroundFriendship from '../../assets/backgroundRegister.jpeg';
 import './FriendshipProfileForm.css';
+import axiosInstance from '../../api/axiosInstance';
+
 
 function FriendshipProfileForm() {
     const location = useLocation();
@@ -54,20 +56,17 @@ function FriendshipProfileForm() {
         }
 
         try {
-            const token = localStorage.getItem('token');
-            await axios.post('http://localhost:5001/profile/friendship-profile', data, {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                    'Content-Type': 'multipart/form-data'
-                }
+            await axiosInstance.post('/profile/friendship-profile', data, {
+                headers: { 'Content-Type': 'multipart/form-data' } // solo content-type
             });
+
             setMessage('Perfil creado exitosamente');
             setMode('friendship');
 
             navigate(then ?? '/choose-mood');
         } catch (err) {
             setMessage('Error al crear perfil');
-            console.error("📛 Error:", err.response?.data);
+            console.error("Error:", err.response?.data);
         }
     };
 
