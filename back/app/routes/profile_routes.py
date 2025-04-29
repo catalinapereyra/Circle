@@ -246,3 +246,38 @@ def likes_received():
     ]
 
     return jsonify(result), 200
+
+
+@bp_profile.route('/my-couple-profile', methods=['GET'])
+@jwt_required()
+def get_my_couple_profile():
+    username = get_jwt_identity()
+    profile = CoupleMode.query.filter_by(username=username).first()
+
+    if not profile:
+        return jsonify({'error': 'No tenés un perfil de pareja'}), 404
+
+    return jsonify({
+        'username': profile.username,
+        'bio': profile.bio,
+        'interest': profile.interest,
+        'profile_picture': profile.profile_picture,
+        'photos': [photo.filename for photo in profile.photos]
+    }), 200
+
+@bp_profile.route('/my-friendship-profile', methods=['GET'])
+@jwt_required()
+def get_my_friendship_profile():
+    username = get_jwt_identity()
+    profile = FriendshipMode.query.filter_by(username=username).first()
+
+    if not profile:
+        return jsonify({'error': 'No tenés un perfil de amistad'}), 404
+
+    return jsonify({
+        'username': profile.username,
+        'bio': profile.bio,
+        'interest': profile.interest,
+        'profile_picture': profile.profile_picture,
+        'photos': [photo.filename for photo in profile.photos]
+    }), 200

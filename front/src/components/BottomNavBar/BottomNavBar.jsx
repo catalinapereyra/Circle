@@ -24,6 +24,15 @@ function BottomNavBar({ mode }) {
     };
 
 
+    const handleProfileClick = () => {
+        if (mode === "couple") {
+            navigate("/my-couple-profile");
+        } else if (mode === "friendship") {
+            navigate("/my-friendship-profile");
+        }
+    };
+
+
     return (
         <>
             <div className="bottom-nav">
@@ -38,7 +47,7 @@ function BottomNavBar({ mode }) {
 
                 <img src={icons.home} alt="Home" className={`nav-icon ${heartClass}`}/>
                 <img src={icons.chat} alt="Chat" className="nav-icon" onClick={handleChatClick}/>
-                <img src={icons.profile} alt="Profile" className="nav-icon"/>
+                <img src={icons.profile} alt="Profile" className="nav-icon" onClick={handleProfileClick}/>
             </div>
 
             <SettingsPanel isOpen={showSettings} onClose={() => setShowSettings(false)} mode={mode} />

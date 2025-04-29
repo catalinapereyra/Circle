@@ -1,5 +1,6 @@
 // src/App.jsx
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import MyProfilePage from './pages/MyProfilePage';
 import Landing from './pages/Landing/Landing.jsx';
 import Register from './pages/Register';
 import Login from './pages/LogIn';
@@ -32,6 +33,8 @@ function App() {
                     <Route path="/choose-mood" element={<ProtectedRoute><ChooseMood /></ProtectedRoute>} />
                     <Route path="/matches" element={<ProtectedRoute><Matches /></ProtectedRoute>} />
                     <Route path="/likes-received" element={<ProtectedRoute><LikesReceived /></ProtectedRoute>} />
+                    <Route path="/my-couple-profile" element={<ProtectedRoute><MyProfilePage /></ProtectedRoute>} />
+                    <Route path="/my-friendship-profile" element={<ProtectedRoute><MyProfilePage /></ProtectedRoute>} />
                 </Routes>
             </Router>
         </UserModeProvider>
