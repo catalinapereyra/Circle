@@ -60,7 +60,7 @@ function SettingsPanel({ isOpen, onClose, mode }) {
     const handleLogout = () => {
         localStorage.removeItem("token");
         localStorage.removeItem("username");
-        window.location.href = "/login";
+        window.location.href = "/";
     };
 
     return (
