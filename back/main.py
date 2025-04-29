@@ -1,7 +1,7 @@
 from datetime import timedelta
 
 from app.extensions import db, migrate
-from flask import Flask
+from flask import Flask, request
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager
 from app.routes.match_routes import bp_match
@@ -18,8 +18,19 @@ def create_app():
     app.config['JWT_HEADER_TYPE'] = 'Bearer'
     app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=1)
     JWTManager(app)
+
     CORS(app, supports_credentials=True, expose_headers=["Authorization"]) # para que React se conecte
 
+    @app.before_request
+    def handle_preflight():
+        if request.method == 'OPTIONS':
+            response = app.make_response('')
+            response.headers['Access-Control-Allow-Origin'] = 'http://localhost:5173'
+            response.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization'
+            response.headers['Access-Control-Allow-Methods'] = 'GET, POST, OPTIONS, PUT'  # Agregado PUT
+            response.headers['Access-Control-Allow-Credentials'] = 'true'
+            response.status_code = 204
+            return response
 
     # Importaciones de modelos y rutas dentro del contexto de la app
     from app.routes.user_routes import bp_user

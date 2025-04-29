@@ -318,16 +318,16 @@ def get_my_friendship_profile():
         'photos': [photo.filename for photo in profile.photos]
     }), 200
 
+
 @bp_profile.route('/update-profile', methods=['PUT'])
 @jwt_required()
 def update_profile():
-    data = request.form
+    data = request.get_json()
 
+    # Obtener el username desde el JWT
     username = get_jwt_identity()
     bio = data.get('bio', '')
     interest = data.get('interest', '')
-    new_email = data.get('email', '')
-    new_password = data.get('password', '')
     mode = data.get('mode', '')  # 'couple' o 'friendship'
 
     if mode not in ['couple', 'friendship']:
@@ -342,23 +342,20 @@ def update_profile():
         profile = FriendshipMode.query.filter_by(username=username).first()
 
     if not profile:
-        return jsonify({'error': f'{mode.capitalize()} profile not found'}), 404
+        return jsonify({'error': f'{mode.capitalize()} profile not found for user {username}'}), 404
 
-    # Actualizar los datos del perfil
-    profile.bio = bio
-    profile.interest = interest
+    # Actualizar los datos del perfil (solo bio e interest)
+    if bio:
+        profile.bio = bio
+    if interest:
+        profile.interest = interest
 
-    # Actualizar el email si se proporciona
-    if new_email:
-        user = User.query.filter_by(username=username).first()
-        if user:
-            user.email = new_email
+    try:
+        db.session.commit()
+    except Exception as e:
+        # Si hay un error al guardar en la base de datos, devolver un mensaje detallado
+        db.session.rollback()
+        return jsonify({'error': f'Error al guardar los cambios: {str(e)}'}), 500
 
-    # Actualizar la contraseña si se proporciona
-    if new_password:
-        user = User.query.filter_by(username=username).first()
-        if user:
-            user.password = new_password
-
-    db.session.commit()
-    return jsonify({'message': f'{mode.capitalize()} profile updated successfully'})
+    # Devolver una respuesta exitosa
+    return jsonify({'message': 'profile updated successfully'}), 200
