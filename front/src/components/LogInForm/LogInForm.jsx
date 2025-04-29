@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import './LogInForm.css'
 
 function LogInForm() {
     const [formData, setFormData] = useState({
@@ -41,12 +42,11 @@ function LogInForm() {
 
     return (
         <div className="login-form-container">
-            <h2>Iniciar Sesión</h2>
             {error && <div className="error-message">{error}</div>}
 
             <form onSubmit={handleSubmit}>
                 <div className="form-group">
-                    <label htmlFor="username">Nombre de usuario</label>
+                    <label htmlFor="username">Username</label>
                     <input
                         type="text"
                         id="username"
@@ -58,7 +58,7 @@ function LogInForm() {
                 </div>
 
                 <div className="form-group">
-                    <label htmlFor="password">Contraseña</label>
+                    <label htmlFor="password">Password</label>
                     <input
                         type="password"
                         id="password"
@@ -69,7 +69,7 @@ function LogInForm() {
                     />
                 </div>
 
-                <button type="submit" className="submit-button">Iniciar Sesión</button>
+                <button type="submit" className="submit-button">Log IN</button>
             </form>
         </div>
     );

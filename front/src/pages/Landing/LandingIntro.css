@@ -1,21 +1,28 @@
+/* Loader Container */
 .loader-container {
     display: flex;
     justify-content: center;
     align-items: center;
     height: 100vh;
     background: #111;
+    padding: 0 20px; /* Prevent content from touching the edges */
+    box-sizing: border-box;
+    overflow: hidden;
+    flex-direction: column; /* Make sure the items stack vertically */
 }
 
+/* Intro Circle */
 .intro-circle {
     width: 180px;
     height: 180px;
     border-radius: 50%;
     position: relative;
     transform: scale(0);
-    animation: circleScale 0.5s ease-out forwards, disappear 0.8s ease-in-out 4.2s forwards;
+    animation: circleScale 0.8s ease-out forwards, disappear 0.8s ease-in-out 4.2s forwards;
+    margin-bottom: 30px; /* Add space below the circle */
 }
 
-/* El círculo visual de borde animado */
+/* Intro Circle Border Animation */
 .intro-circle::before {
     content: '';
     position: absolute;
@@ -23,12 +30,12 @@
     border-radius: 50%;
     border: 14px solid transparent;
     background: conic-gradient(#c51d86 0deg, #c51d86 0deg);
-    animation: fillCircle 4s ease-in-out forwards;
+    animation: fillCircle 4.5s ease-in-out forwards;
     box-shadow: 0 0 20px #c51d86;
     z-index: 1;
 }
 
-/* Centro del círculo (hueco) */
+/* Center of the Circle */
 .intro-circle::after {
     content: '';
     position: absolute;
@@ -38,14 +45,14 @@
     z-index: 2;
 }
 
-/* Animar escala de entrada */
+/* Circle Scaling Animation */
 @keyframes circleScale {
     to {
         transform: scale(1);
     }
 }
 
-/* Animación de "llenado" y cambio de color */
+/* Circle Fill Animation */
 @keyframes fillCircle {
     0% {
         background: conic-gradient(#c51d86 0deg, #c51d86 0deg);
@@ -55,28 +62,72 @@
         background: conic-gradient(#c51d86 0deg, #c51d86 120deg);
         box-shadow: 0 0 20px #c51d86;
     }
-    35% {
+    40% {
         background: conic-gradient(#ffdb0a 0deg, #ffdb0a 240deg);
-        box-shadow: 0 0 20px #ffdb0a;
+        box-shadow: 0 0 25px #ffdb0a;
     }
     55% {
         background: conic-gradient(#00d9ff 0deg, #00d9ff 360deg);
-        box-shadow: 0 0 25px #00d9ff;
+        box-shadow: 0 0 30px #00d9ff;
     }
     75% {
         background: conic-gradient(white 0deg, white 360deg);
-        box-shadow: 0 0 30px white;
+        box-shadow: 0 0 35px white;
     }
     100% {
         background: conic-gradient(white 0deg, white 360deg);
-        box-shadow: 0 0 30px white;
+        box-shadow: 0 0 35px white;
     }
 }
 
-/* Achicar y desvanecer al final */
+/* Circle Disappearance Animation */
 @keyframes disappear {
     to {
         transform: scale(0);
         opacity: 0;
     }
+}
+
+/* Buttons Container */
+.mood-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    flex-direction: column; /* Stack buttons vertically */
+}
+
+/* General Button Styling */
+button {
+    padding: 15px 30px;
+    font-size: 1.2rem;
+    background: linear-gradient(45deg, #c51d86, #ffdb0a);
+    border: none;
+    border-radius: 30px;
+    color: white;
+    cursor: pointer;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    transition: transform 0.2s, box-shadow 0.3s;
+    font-weight: 500;
+    min-width: 200px; /* Uniform width */
+    text-align: center;
+    margin-top: 10px; /* Add space above each button */
+}
+
+/* Button Hover Effect */
+button:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+    background: linear-gradient(45deg, #ffdb0a, #c51d86);
+}
+
+/* Active Button */
+button:active {
+    transform: translateY(0);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+/* Button Focus Effect */
+button:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(255, 219, 10, 0.4);
 }

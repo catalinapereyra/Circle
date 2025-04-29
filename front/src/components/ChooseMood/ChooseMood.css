@@ -1,0 +1,99 @@
+/* === FONDO === */
+.choose-mood-container {
+    width: 100vw;
+    height: 100vh;
+    background-image: url('../../assets/backgroundRegister.jpeg'); /* Usa la misma imagen de fondo */
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 0; /* Fondo debajo del formulario */
+}
+
+/* === OVERLAY GLASSMORPHISM === */
+.choose-mood-overlay {
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    -webkit-backdrop-filter: blur(8px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1; /* Overlay encima del fondo */
+}
+
+/* === TITULO === */
+.choose-mood-container h2 {
+    font-family: 'Anton', sans-serif; /* Fuente moderna para el título */
+    font-size: 32px;
+    color: #fff;  /* Blanco */
+    margin-bottom: 30px;
+    text-align: center;
+}
+
+/* === BOTONES === */
+.mood-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    align-items: center;
+}
+
+.mood-buttons button {
+    background: none;
+    border: 2px solid #c51d86; /* Borde rosa */
+    color: #c51d86;
+    padding: 14px 28px;
+    font-weight: bold;
+    font-size: 18px;
+    cursor: pointer;
+    border-radius: 30px;
+    width: 250px;
+    text-align: center;
+    transition: all 0.3s ease;
+    font-family: 'Inter', sans-serif;
+}
+
+.mood-buttons button:hover {
+    background: #c51d86;
+    color: white; /* Cambio a color blanco al hacer hover */
+    transform: scale(1.05); /* Agranda el botón */
+}
+
+.mood-buttons button:focus {
+    outline: none;
+    border-color: #ff66b2; /* Resalta el borde cuando el botón es presionado */
+    box-shadow: 0 0 5px 2px rgba(255, 102, 178, 0.7); /* Efecto de sombra */
+}
+
+/* === BOTONES CON ESTILO DE CREAR PERFIL === */
+.couple-button, .friendship-button {
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-size: 16px;
+    padding: 14px 32px;
+}
+
+/* === MENSAJE DE CARGA === */
+.choose-mood-container .loading {
+    font-size: 24px;
+    font-family: 'Inter', sans-serif;
+    color: #fff;
+    font-weight: bold;
+}
+
+/* === ESTILO PARA MÓVILES === */
+@media (max-width: 600px) {
+    .choose-mood-container h2 {
+        font-size: 24px;  /* Tamaño de fuente más pequeño en móviles */
+    }
+
+    .mood-buttons button {
+        width: 200px; /* Botones más pequeños */
+    }
+}

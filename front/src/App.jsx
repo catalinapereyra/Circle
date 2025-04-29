@@ -13,7 +13,7 @@ import CoupleProfilePage from './pages/CoupleProfilePage';
 import FriendshipProfilePage from './pages/FriendshipProfilePage';
 import Home from './pages/Home/Home.jsx';
 import RegisterProfilePage from './pages/RegisterProfilePage';
-import ChooseMood from './components/ChooseMood';
+import ChooseMood from './components/ChooseMood/ChooseMood.jsx';
 import Matches from "./pages/Matches";
 import LikesReceived from './pages/LikesReceived';
 

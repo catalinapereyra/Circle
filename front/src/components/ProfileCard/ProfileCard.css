@@ -40,17 +40,19 @@
 
 .username {
     font-family: 'Anton', sans-serif;
-    font-size: 2.5rem;
+    font-size: 2rem;
     font-weight: 900;
-    margin-top: 0.5rem;
+    margin-top: 7rem;
     text-transform: uppercase;
     text-align: left;
+    margin-left: 20px;
 }
 
 .interest {
     font-size: 1rem;
     margin-bottom: 24rem;
     text-align: right;
+    margin-right: 15px;
 }
 
 .interest-label {
@@ -72,12 +74,14 @@
     font-size: 1rem;
     color: #ffffff;
     margin-bottom: 1rem;
+    margin-left: 20px;
 }
 
 .bio {
     font-size: 1rem;
     color: #eee;
-    margin-bottom: 1rem;
+    margin-bottom: 5rem;
+    margin-left: 20px;
 }
 
 /* Badge retained */

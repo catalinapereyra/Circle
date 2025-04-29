@@ -19,6 +19,9 @@ from flask_jwt_extended import create_access_token
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from datetime import datetime, timedelta
 from app.models.models import User, PremiumSubscription
+from app.models.models import Swipe
+from app.models.models import Match
+
 
 bp_user = Blueprint('user', __name__, url_prefix='/user') #creo un blueprint 'user'que tiene el prefijo '/user' en la URL
 
@@ -252,7 +255,7 @@ def delete_my_account():
     if not user:
         return jsonify({"message": "User not found"}), 404
 
-    # Primero eliminamos las fotos, si existen
+    # Primero eliminamos las fotos y perfiles
     if user.friendship_mode:
         for photo in user.friendship_mode.photos:
             db.session.delete(photo)
@@ -263,15 +266,22 @@ def delete_my_account():
             db.session.delete(photo)
         db.session.delete(user.couple_mode)
 
+    # Eliminamos todos los swipes
+    Swipe.query.filter((Swipe.swiper_id == username) | (Swipe.swiped_id == username)).delete(synchronize_session=False)
+
+    # Eliminamos todos los matches donde esté como user1 o user2
+    Match.query.filter((Match.user1 == username) | (Match.user2 == username)).delete(synchronize_session=False)
+
     # Eliminamos la suscripción si existe
     if user.premium_subscription:
         db.session.delete(user.premium_subscription)
 
-    # Eliminamos el usuario
+    # Finalmente eliminamos el usuario
     db.session.delete(user)
     db.session.commit()
 
     return jsonify({"message": "User and related data deleted"}), 200
+
 
 @bp_user.route('/validate-token', methods=['GET'])
 @jwt_required()

@@ -2,8 +2,9 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { useUserMode } from "../contexts/UserModeContext";
-import axiosInstance from '../api/axiosInstance';
+import { useUserMode } from "../../contexts/UserModeContext.jsx";
+import axiosInstance from '../../api/axiosInstance.js';
+import './ChooseMood.css'
 
 
 function ChooseMood() {
@@ -22,7 +23,7 @@ function ChooseMood() {
         const fetchProfiles = async () => {
             const token = localStorage.getItem('token');
             if (!token) {
-                console.log("No hay token, no busco perfiles");
+                console.log("no token");
                 return;
             }
 
@@ -45,11 +46,11 @@ function ChooseMood() {
         setMode("couple"); // guardo modo elijido
         if (profiles.has_couple_profile) {
             // Si ya tiene perfil de pareja, llevarlo al home
-            console.log("Usuario ya tiene perfil de pareja, redirigiendo a home");
+            console.log("user already has couple profile, go to home");
             navigate('/home');
         } else {
             // Si no tiene perfil, llevarlo a crear uno
-            console.log("Usuario no tiene perfil de pareja, redirigiendo a creación");
+            console.log("user doesnt have couple mode, going to create one");
             navigate('/couple-profile');
         }
     };
@@ -58,11 +59,11 @@ function ChooseMood() {
         setMode("friendship");
         if (profiles.has_friendship_profile) {
             // Si ya tiene perfil de amistad, llevarlo al home
-            console.log("Usuario ya tiene perfil de amistad, redirigiendo a home");
+            console.log("user already has friendship profile, go to home");
             navigate('/home');
         } else {
             // Si no tiene perfil, llevarlo a crear uno
-            console.log("Usuario no tiene perfil de amistad, redirigiendo a creación");
+            console.log("user doesnt have friendship mode, going to create one");
             navigate('/friend-profile');
         }
     };
@@ -73,15 +74,15 @@ function ChooseMood() {
 
     return (
         <div className="choose-mood-container">
-            <h2>¿Cómo quieres usar CIRCLE hoy?</h2>
+            <h2>¿What's your mood with CIRCLE today?</h2>
 
             <div className="mood-buttons">
                 <button onClick={handleCoupleModeClick} className="couple-button">
-                    {profiles.has_couple_profile ? 'Entrar en Modo Pareja' : 'Crear Perfil de Pareja'}
+                    {profiles.has_couple_profile ? 'Cupid Mood: ON' : 'Create couple profile'}
                 </button>
 
                 <button onClick={handleFriendshipModeClick} className="friendship-button">
-                    {profiles.has_friendship_profile ? 'Entrar en Modo Amistad' : 'Crear Perfil de Amistad'}
+                    {profiles.has_friendship_profile ? 'Friend Zone Mood' : 'Create friendship profile'}
                 </button>
             </div>
         </div>
