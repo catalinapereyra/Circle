@@ -131,8 +131,8 @@ def update_user(username):
         user.username = data['username']
     if 'password' in data:
         user.password = data['password']
-    if 'email' in data:
-        user.email = data['email']
+    if 'mail' in data:
+        user.mail = data['email']
     if 'location' in data:
         user.location = data['location']
 
@@ -176,7 +176,7 @@ def get_me():
         return jsonify({
             "username": user.username,
             "name": user.name,
-            "email": user.email,
+            "mail": user.mail,
             "age": user.age,
             "gender": user.gender.name,
             "location": user.location

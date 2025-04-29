@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from "react";
-import axiosInstance from "../api/axiosInstance";
+import axiosInstance from "../../api/axiosInstance.js";
 import { useNavigate } from "react-router-dom";
-import { useUserMode } from "../contexts/UserModeContext";
+import { useUserMode } from "../../contexts/UserModeContext.jsx";
+import './Matches.css'
+
 
 function Matches() {
     const [matches, setMatches] = useState([]);
@@ -43,7 +45,7 @@ function Matches() {
     const filteredMatches = matches.filter((match) => match.mode === mode);
 
     return (
-        <div>
+        <div className="matches-container">
             <button
                 onClick={() => navigate(`/${mode === "couple" ? "home" : "home"}`)}
                 style={{
@@ -59,12 +61,12 @@ function Matches() {
                 ✖
             </button>
 
-            <h2>💘 Tus matches</h2>
+            <h2>Your Matches</h2>
             {filteredMatches.length === 0 ? (
                 mode === "couple" ? (
-                    <p>No tenés matches aún en Couple Mode 💔</p>
+                    <p>No matches in couple mode yet..</p>
                 ) : (
-                    <p>No tenés matches aún en Friendship Mode 🤝</p>
+                    <p>No matches in friendship mode yet..</p>
                 )
             ) : (
                 filteredMatches.map((match, index) => {

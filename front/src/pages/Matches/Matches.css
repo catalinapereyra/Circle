@@ -1,0 +1,129 @@
+/* Contenedor principal específico para la página de Matches */
+.matches-container {
+    position: relative;
+    padding: 40px;
+    max-width: 900px;
+    margin: 0 auto;
+    background-color: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+/* Botón de cerrar específico para Matches */
+.matches-container button {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    position: absolute;
+    top: 1rem;
+    left: 1rem;
+    color: #333;
+    transition: color 0.3s;
+}
+
+.matches-container button:hover {
+    color: #e74c3c;
+}
+
+/* Título */
+.matches-container h2 {
+    font-size: 2rem;
+    text-align: center;
+    margin-bottom: 20px;
+    color: #333;
+}
+
+/* Mensaje sin matches */
+.matches-container p {
+    text-align: center;
+    font-size: 1.3rem;
+    color: #555;
+    font-weight: 500;
+    margin-top: 20px;
+}
+
+/* Tarjetas de los matches */
+.matches-container .match-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    padding: 15px;
+    background-color: #f9f9f9;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    text-align: left;
+}
+
+.matches-container .match-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.matches-container .match-card img {
+    border-radius: 50%;
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    margin-right: 20px;
+}
+
+.matches-container .match-card p {
+    margin: 0;
+    font-size: 1rem;
+    color: #333;
+}
+
+.matches-container .match-card p strong {
+    font-size: 1.2rem;
+    color: #3498db;
+}
+
+/* Animación de los matches */
+.matches-container [data-aos="fade-down"] {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+.matches-container [data-aos="fade-down"].aos-animate {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.matches-container [data-aos-duration="800"] {
+    transition-duration: 800ms;
+}
+
+/* Estilos adicionales */
+.matches-container .match-card p:last-child {
+    font-style: italic;
+    color: #888;
+}
+
+/* Estilos para el filtro de los matches según el modo */
+.matches-container .message {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin: 30px auto;
+    padding: 20px;
+    background-color: #e74c3c;
+    color: white;
+    border-radius: 10px;
+    width: 60%;
+    max-width: 500px;
+    text-align: center;
+}
+
+/* Estilos para el mensaje de no matches en Couple Mode */
+.matches-container .message-couple {
+    background-color: #e74c3c; /* Color rojo */
+}
+
+/* Estilos para el mensaje de no matches en Friendship Mode */
+.matches-container .message-friendship {
+    background-color: #3498db; /* Color azul */
+}

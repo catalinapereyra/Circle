@@ -52,7 +52,7 @@ function MyProfilePage() {
                     Edit profile
                 </button>
                 <button onClick={() => navigate('/')} className="back-button">
-                    Volver
+                    Back
                 </button>
             </div>
         </div>

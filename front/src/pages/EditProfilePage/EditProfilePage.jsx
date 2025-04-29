@@ -103,7 +103,7 @@ function EditProfilePage() {
                 </button>
 
                 <button className="back-button" onClick={handleBackClick}>
-                    Volver a Mi Perfil
+                    Back to profile
                 </button>
             </form>
         </div>

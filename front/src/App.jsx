@@ -14,7 +14,7 @@ import FriendshipProfilePage from './pages/FriendshipProfilePage';
 import Home from './pages/Home/Home.jsx';
 import RegisterProfilePage from './pages/RegisterProfilePage';
 import ChooseMood from './components/ChooseMood/ChooseMood.jsx';
-import Matches from "./pages/Matches";
+import Matches from "./pages/Matches/Matches.jsx";
 import LikesReceived from './pages/LikesReceived';
 import EditProfilePage from "./pages/EditProfilePage/EditProfilePage.jsx";
 
