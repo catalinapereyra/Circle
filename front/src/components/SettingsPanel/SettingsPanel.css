@@ -1,114 +1,179 @@
+/* Fondo de la superposición */
 .settings-overlay {
     position: fixed;
     top: 0;
     left: 0;
     height: 100%;
     width: 100%;
-    backdrop-filter: blur(5px);
+    backdrop-filter: blur(12px);
     display: flex;
     justify-content: center;
     align-items: flex-end;
     z-index: 9999;
+    transition: all 0.3s ease;
 }
 
+/* Estilos para el modo "couple" */
 .settings-overlay.couple {
-    background-color: rgba(255, 192, 203, 0.5); /* rosa */
+    background-color: rgba(255, 192, 203, 0.8); /* Rosa suave */
+    transition: background-color 0.3s ease;
 }
 
+/* Estilos para el modo "friendship" */
 .settings-overlay.friendship {
-    background-color: rgba(255, 255, 102, 0.5); /* amarillo */
+    background-color: rgba(255, 255, 102, 0.8); /* Amarillo suave */
+    transition: background-color 0.3s ease;
 }
 
+/* Panel de configuración */
 .settings-panel {
     background: #2c2c2c;
     color: white;
     width: 100%;
-    padding: 20px;
-    border-top-left-radius: 20px;
-    border-top-right-radius: 20px;
+    padding: 40px;
+    border-top-left-radius: 25px;
+    border-top-right-radius: 25px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
+    transition: all 0.3s ease;
 }
 
+/* Estilo para listas en el panel */
 .settings-panel ul {
     list-style: none;
     padding: 0;
 }
 
 .settings-panel li {
-    padding: 12px 0;
+    padding: 18px 0;
     border-bottom: 1px solid #444;
     font-size: 16px;
+    font-weight: 600;
+    text-align: left;
+    transition: background-color 0.3s ease, padding-left 0.3s ease;
 }
 
+.settings-panel li:hover {
+    background-color: #444;
+    padding-left: 20px; /* Efecto de deslizamiento */
+}
+
+/* Botón de cerrar */
 .close-btn {
     float: right;
     background: none;
     border: none;
     color: white;
     font-weight: bold;
-    font-size: 14px;
+    font-size: 16px;
     cursor: pointer;
+    transition: color 0.3s ease, transform 0.2s ease;
 }
 
+.close-btn:hover {
+    color: #ff69b4; /* Rosa brillante */
+    transform: scale(1.2); /* Efecto de ampliación */
+}
+
+/* Botón de peligro */
 .danger-button {
     background: transparent;
-    border: 2px solid red;
-    color: red;
-    padding: 8px 16px;
+    border: 2px solid #ff4040;
+    color: #ff4040;
+    padding: 12px 24px;
     cursor: pointer;
     font-weight: bold;
+    border-radius: 8px;
+    transition: background-color 0.3s ease, color 0.3s ease, transform 0.3s ease;
 }
 
+.danger-button:hover {
+    background-color: #ff4040;
+    color: white;
+    transform: scale(1.05);
+}
+
+/* Popup de confirmación */
 .confirm-popup {
     background: #222;
     color: white;
-    padding: 20px;
-    border-radius: 10px;
-    margin-top: 10px;
+    padding: 25px;
+    border-radius: 12px;
+    margin-top: 30px;
     text-align: center;
-}
-
-.yes-btn, .no-btn {
-    margin: 10px;
-    padding: 6px 12px;
-    border: none;
-    font-weight: bold;
-    cursor: pointer;
-}
-
-.yes-btn {
-    background: red;
-    color: white;
-}
-
-.no-btn {
-    background: gray;
-    color: white;
-}
-
-.confirm-popup {
-    background-color: white;
-    border-radius: 10px;
-    padding: 20px;
-    color: black;
-    text-align: center;
-    margin-top: 20px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
 }
 
 .confirm-buttons {
-    margin-top: 15px;
+    margin-top: 20px;
     display: flex;
     justify-content: space-around;
 }
 
+/* Estilo de botones dentro del popup */
 .confirm-buttons button {
-    background-color: black;
+    background-color: #333;
     color: white;
-    padding: 5px 15px;
+    padding: 14px 35px;
     border: none;
-    border-radius: 6px;
+    border-radius: 8px;
     cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s ease, transform 0.2s ease;
 }
 
 .confirm-buttons button:hover {
-    background-color: #444;
+    background-color: #555;
+    transform: scale(1.05); /* Efecto de ampliación */
+}
+
+/* Botones de "Sí" y "No" */
+.yes-btn, .no-btn {
+    margin: 15px;
+    padding: 12px 28px;
+    border: none;
+    font-weight: bold;
+    cursor: pointer;
+    border-radius: 6px;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+/* Estilo para el botón de "Sí" */
+.yes-btn {
+    background: #e63946; /* Rojo vibrante */
+    color: white;
+}
+
+.yes-btn:hover {
+    background: #d62828; /* Rojo oscuro */
+    transform: scale(1.1);
+}
+
+/* Estilo para el botón de "No" */
+.no-btn {
+    background: #757575; /* Gris suave */
+    color: white;
+}
+
+.no-btn:hover {
+    background: #595959; /* Gris oscuro */
+    transform: scale(1.1);
+}
+
+/* Añadir efecto de sombra a los botones */
+button, .danger-button {
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    transition: box-shadow 0.3s ease;
+}
+
+button:hover, .danger-button:hover {
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+}
+
+/* Efecto de transición general en paneles */
+.settings-panel, .confirm-popup {
+    transition: transform 0.3s ease;
+}
+
+.settings-panel:hover, .confirm-popup:hover {
+    transform: translateY(-5px);
 }

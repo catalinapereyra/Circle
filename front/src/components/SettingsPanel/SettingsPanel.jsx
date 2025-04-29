@@ -74,21 +74,19 @@ function SettingsPanel({ isOpen, onClose, mode }) {
                         onMouseLeave={() => setHoverDelete(false)}
                         onClick={() => setShowConfirm(true)}
                     >
-                        {hoverDelete ? "Are you sure?" : "❌ DELETE ACCOUNT"}
+                        {hoverDelete ? "Are you sure?" : "Delete Account"}
                     </li>
 
                     <li onClick={() => !isPremium && setShowSubPopup(true)}>
-                        ⭐ SUBSCRIPTION
-                        {isPremium && <span className="premium-badge">✔️ Premium</span>}
+                        Subscription
+                        {isPremium && <span className="premium-badge"> :Premium</span>}
                     </li>
-
-                    <li>🔥 MATCHES</li>
 
                     <li onClick={() => window.location.href = "/choose-mood"}>
-                        🔄 CHANGE MODE
+                        Change Mode
                     </li>
 
-                    <li onClick={handleLogout}>↩️ LOG OUT</li>
+                    <li onClick={handleLogout}>Log Out</li>
                 </ul>
 
                 {showConfirm && (
