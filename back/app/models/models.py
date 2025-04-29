@@ -48,7 +48,7 @@ class CouplePhoto(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     couple_id = db.Column(db.Integer, db.ForeignKey('couple_mode.id'), nullable=False)
-    filename = db.Column(db.String(255), nullable=False)
+    filename = db.Column(db.Text, nullable=False)
 
     couple = db.relationship('CoupleMode', backref='photos') # para poder acceder de una foto al perfil y del perfil a la foto
 
@@ -58,7 +58,7 @@ class CoupleMode(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(25), db.ForeignKey('user.username'), nullable=False)
 
-    profile_picture = db.Column(db.String(255))
+    profile_picture = db.Column(db.Text, nullable=False)
     bio = db.Column(db.Text)
     preferences = db.Column(db.String(50), nullable=False)
     active = db.Column(db.Boolean, default=True)
@@ -75,7 +75,7 @@ class FriendshipPhoto(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     friendship_id = db.Column(db.Integer, db.ForeignKey('friendship_mode.id'), nullable=False)
-    filename = db.Column(db.String(255), nullable=False)
+    filename = db.Column(db.Text, nullable=False)
 
     friendship = db.relationship('FriendshipMode', backref='photos') # para poder acceder de una foto al perfil y del perfil a la foto
 
@@ -86,7 +86,7 @@ class FriendshipMode(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(25), db.ForeignKey('user.username'), nullable=False)
 
-    profile_picture = db.Column(db.String(255))
+    profile_picture = db.Column(db.Text, nullable=False)
     bio = db.Column(db.Text)
     active = db.Column(db.Boolean, default=True)
     interest = db.Column(db.String(255))

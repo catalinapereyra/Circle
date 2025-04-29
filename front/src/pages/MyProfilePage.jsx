@@ -29,14 +29,10 @@ function MyProfilePage() {
 
     if (!profile) return <p>No se encontró tu perfil.</p>;
 
-    const photoPath = mode === "couple"
-        ? `/uploads/couple_photos/${profile.profile_picture}`
-        : `/uploads/friendship_photos/${profile.profile_picture}`;
-
     return (
         <div>
             <h2>Mi Perfil ({mode === "couple" ? "Couple" : "Friendship"})</h2>
-            <img src={photoPath} alt="Foto de perfil" width="120" />
+            <img src={`data:image/jpeg;base64,${profile.profile_picture}`} alt="Foto de perfil" width="120" />
             <p><strong>@{profile.username}</strong></p>
             <p>📝 {profile.bio}</p>
             <p>🎯 {profile.interest}</p>
