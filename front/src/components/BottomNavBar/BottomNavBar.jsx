@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import SettingsPanel from "../SettingsPanel/SettingsPanel";
 import './BottomNavBar.css';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useUserMode } from "../../contexts/UserModeContext"; // 👈 Importante: usar el hook
 
 const icons = {
@@ -15,26 +15,30 @@ const icons = {
 function BottomNavBar({ mode }) {
     const { isPremium } = useUserMode(); //treaer si el usuario es premium
     const [showSettings, setShowSettings] = useState(false);
+    const navigate = useNavigate();
 
     const heartClass = mode === "couple" ? "heart-couple" : "heart-friendship";
 
+    const handleChatClick = () => {
+        navigate('/matches'); // navegar a matches
+    };
 
 
     return (
         <>
             <div className="bottom-nav">
-                <img src={icons.settings} alt="Settings" className="nav-icon" onClick={() => setShowSettings(true)} />
+                <img src={icons.settings} alt="Settings" className="nav-icon" onClick={() => setShowSettings(true)}/>
 
                 {/* Solo mostrar el corazón si el user es premium */}
                 {isPremium && (
                     <Link to="/likes-received">
-                        <img src={icons.heart} alt="Likes Received" className="nav-icon" />
+                        <img src={icons.heart} alt="Likes Received" className="nav-icon"/>
                     </Link>
                 )}
 
-                <img src={icons.home} alt="Home" className={`nav-icon ${heartClass}`} />
-                <img src={icons.chat} alt="Chat" className="nav-icon" />
-                <img src={icons.profile} alt="Profile" className="nav-icon" />
+                <img src={icons.home} alt="Home" className={`nav-icon ${heartClass}`}/>
+                <img src={icons.chat} alt="Chat" className="nav-icon" onClick={handleChatClick}/>
+                <img src={icons.profile} alt="Profile" className="nav-icon"/>
             </div>
 
             <SettingsPanel isOpen={showSettings} onClose={() => setShowSettings(false)} mode={mode} />
