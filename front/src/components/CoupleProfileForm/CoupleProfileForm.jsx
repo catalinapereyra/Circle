@@ -65,7 +65,7 @@ function CoupleProfileForm() {
             setMessage('Perfil creado exitosamente');
             setMode('couple');
             if (formData.preferences === 'both') {
-                navigate('/create-friend', { state: { then: '/choose-mood' } });
+                navigate('/choose-mood', { state: { then: '/choose-mood' } });
             } else {
                 navigate(then ? then : '/home');
             }

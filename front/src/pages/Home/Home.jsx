@@ -67,18 +67,23 @@ function Home() {
             });
 
             if (response.data.match) {
-                setMatchUsername(response.data.username); // mostramos el match
-                // ⏳ cerrarlo automáticamente después de 2 segundos
+                setMatchUsername(response.data.username); // mostramos el modal
+
+                // 💬 Nuevo: Esperamos 6s para sacar el perfil, después de mostrar modal
                 setTimeout(() => {
+                    setProfiles(prev => prev.slice(1));
                     setMatchUsername(null);
-                }, 2000);
+                }, 6000);
+            } else {
+                // Si no hay match, saco inmediatamente
+                setProfiles(prev => prev.slice(1));
             }
         } catch (err) {
             console.error("Error al hacer like:", err);
-        } finally {
-            setProfiles(prev => prev.slice(1)); // pase lo que pase, saco el primer perfil
+            setProfiles(prev => prev.slice(1));
         }
     };
+
 
 
 
