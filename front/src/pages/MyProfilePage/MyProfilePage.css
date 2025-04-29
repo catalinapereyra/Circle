@@ -57,6 +57,15 @@
     border: 5px solid #fff;
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
     transition: transform 0.3s ease-in-out;
+    width: 100px;  /* Tamaño de la imagen fijo */
+    height: 100px; /* Asegura que la imagen sea un círculo */
+    object-fit: cover; /* Ajusta la imagen para que se recorte proporcionalmente */
+}
+
+/* Ajustar tamaño de la imagen en Friendship Mode si es necesario */
+.matches-container .friendship-mode .profile-img {
+    width: 80px;  /* Reduce el tamaño de la imagen en Friendship Mode */
+    height: 80px; /* Reduce el tamaño de la imagen en Friendship Mode */
 }
 
 /* Efecto hover sobre la imagen */
