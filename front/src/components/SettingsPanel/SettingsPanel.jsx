@@ -122,5 +122,4 @@ function SettingsPanel({ isOpen, onClose, mode }) {
         </div>
     );
 }
-
 export default SettingsPanel;
