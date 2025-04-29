@@ -140,7 +140,38 @@ def get_profiles_by_mode(mode):
 
     if mode == 'couple':
         swiped_usernames = [s.swiped_id for s in Swipe.query.filter_by(swiper_id=current_user, mode=SwipeMode.COUPLE).all()]
-        profiles = CoupleMode.query.filter(CoupleMode.username != current_user, ~CoupleMode.username.in_(swiped_usernames)).all()
+        user = User.query.filter_by(username=current_user).first()
+        my_profile = CoupleMode.query.filter_by(username=current_user).first()
+
+        if not user or not my_profile:
+            return jsonify({"error": "Profile or user not found"}), 404
+
+        # Determinar qué géneros mostrar según preferencias
+        pref = my_profile.preferences.lower()
+
+        if pref == 'men':
+            gender_filter = ['MALE']
+        elif pref == 'women':
+            gender_filter = ['FEMALE']
+        elif pref == 'both':
+            gender_filter = ['MALE', 'FEMALE']
+        elif pref == 'all':
+            gender_filter = ['MALE', 'FEMALE', 'OTHER']
+        else:
+            gender_filter = []
+
+        # Join con User para filtrar por género
+        profiles = (
+            CoupleMode.query
+            .join(User, CoupleMode.username == User.username)
+            .filter(
+                CoupleMode.username != current_user,
+                ~CoupleMode.username.in_(swiped_usernames),
+                User.gender.in_(gender_filter)
+            )
+            .all()
+        )
+
         result = [
             {
                 'username': p.username,
@@ -156,7 +187,11 @@ def get_profiles_by_mode(mode):
 
     elif mode == 'friendship':
         swiped_usernames = [s.swiped_id for s in Swipe.query.filter_by(swiper_id=current_user, mode=SwipeMode.FRIEND).all()]
-        profiles = FriendshipMode.query.filter(FriendshipMode.username != current_user, ~FriendshipMode.username.in_(swiped_usernames)).all()
+        profiles = FriendshipMode.query.filter(
+            FriendshipMode.username != current_user,
+            ~FriendshipMode.username.in_(swiped_usernames)
+        ).all()
+
         result = [
             {
                 'username': p.username,
@@ -170,6 +205,7 @@ def get_profiles_by_mode(mode):
         return jsonify(result)
 
     return jsonify({'error': 'Modo inválido'}), 400
+
 
 @bp_profile.route('/public/<username>', methods=['GET'])
 def get_public_profile(username):
