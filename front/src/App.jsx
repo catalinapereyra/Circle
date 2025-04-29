@@ -4,7 +4,7 @@ import PublicRoute from './components/PublicRoute';
 import ProtectedRoute from './components/ProtectedRoute';
 import { UserModeProvider } from "./contexts/UserModeContext"; // este va más abajo pero igual está bien
 
-import MyProfilePage from './pages/MyProfilePage';
+import MyProfilePage from './pages/MyProfilePage/MyProfilePage.jsx';
 import Landing from './pages/Landing/Landing.jsx';
 import Register from './pages/Register';
 import Login from './pages/LogIn';
@@ -16,6 +16,7 @@ import RegisterProfilePage from './pages/RegisterProfilePage';
 import ChooseMood from './components/ChooseMood/ChooseMood.jsx';
 import Matches from "./pages/Matches";
 import LikesReceived from './pages/LikesReceived';
+import EditProfilePage from "./pages/EditProfilePage/EditProfilePage.jsx";
 
 
 
@@ -39,6 +40,8 @@ function App() {
                     <Route path="/likes-received" element={<ProtectedRoute><LikesReceived /></ProtectedRoute>} />
                     <Route path="/my-couple-profile" element={<ProtectedRoute><MyProfilePage /></ProtectedRoute>} />
                     <Route path="/my-friendship-profile" element={<ProtectedRoute><MyProfilePage /></ProtectedRoute>} />
+                    <Route path="/my-profile" element={<MyProfilePage />} />
+                    <Route path="/edit-profile/:mode" element={<EditProfilePage />} />
                 </Routes>
             </Router>
         </UserModeProvider>

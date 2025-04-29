@@ -1,0 +1,129 @@
+/* MyProfilePage.css */
+@import url('https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;600&family=Playfair+Display:ital,wght@1,400&display=swap');
+
+/* Fondo con gradiente y efectos */
+.profile-container {
+    font-family: 'Inter', sans-serif;
+    background: linear-gradient(to right, #3498db, #8e44ad); /* Fondo degradado dinámico */
+    padding: 40px;
+    border-radius: 20px;
+    width: 90%;
+    max-width: 650px;
+    margin: 50px auto;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+    transition: all 0.3s ease-in-out;
+    background-size: 400% 400%; /* Efecto de animación del fondo */
+    animation: gradientAnimation 5s ease infinite; /* Efecto de animación del fondo */
+}
+
+/* Animación del fondo */
+@keyframes gradientAnimation {
+    0% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+.profile-container:hover {
+    transform: scale(1.03); /* Aumento leve de tamaño al pasar el ratón */
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+}
+
+.profile-header {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.profile-header h2 {
+    font-family: 'Anton', sans-serif;
+    color: white;
+    font-size: 2.5rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin-bottom: 10px;
+}
+
+/* Imagen del perfil */
+.profile-img {
+    display: block;
+    margin: 0 auto;
+    border-radius: 50%;
+    border: 5px solid #fff;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+    transition: transform 0.3s ease-in-out;
+}
+
+/* Efecto hover sobre la imagen */
+.profile-img:hover {
+    transform: scale(1.08);
+}
+
+.profile-info {
+    margin-top: 30px;
+    text-align: center;
+}
+
+.profile-info p {
+    font-size: 1.2rem;
+    color: #ecf0f1;
+    margin: 15px 0;
+    line-height: 1.5;
+}
+
+.profile-info strong {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.6rem;
+    color: #f39c12;
+    font-style: italic;
+}
+
+/* Botones */
+.profile-buttons {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 30px;
+    gap: 20px;
+}
+
+.profile-buttons button {
+    padding: 12px 30px;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+/* Botón de editar perfil */
+.profile-buttons button:first-child {
+    background-color: #e74c3c;
+    color: white;
+    font-weight: bold;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
+}
+
+/* Efecto hover sobre el botón de editar */
+.profile-buttons button:first-child:hover {
+    background-color: #c0392b;
+    transform: translateY(-3px); /* Subir el botón ligeramente */
+}
+
+/* Botón de volver */
+.profile-buttons button:last-child {
+    background-color: #f0f0f0;
+    color: #333;
+    border: 1px solid #ccc;
+    font-weight: 500;
+}
+
+/* Efecto hover sobre el botón de volver */
+.profile-buttons button:last-child:hover {
+    background-color: #ecf0f1;
+    transform: translateY(-3px); /* Subir el botón ligeramente */
+}

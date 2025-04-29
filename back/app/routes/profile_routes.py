@@ -317,3 +317,48 @@ def get_my_friendship_profile():
         'profile_picture': profile.profile_picture,
         'photos': [photo.filename for photo in profile.photos]
     }), 200
+
+@bp_profile.route('/update-profile', methods=['PUT'])
+@jwt_required()
+def update_profile():
+    data = request.form
+
+    username = get_jwt_identity()
+    bio = data.get('bio', '')
+    interest = data.get('interest', '')
+    new_email = data.get('email', '')
+    new_password = data.get('password', '')
+    mode = data.get('mode', '')  # 'couple' o 'friendship'
+
+    if mode not in ['couple', 'friendship']:
+        return jsonify({'error': 'Invalid mode, must be "couple" or "friendship"'}), 400
+
+    profile = None
+
+    # Buscar el perfil dependiendo del modo seleccionado
+    if mode == 'couple':
+        profile = CoupleMode.query.filter_by(username=username).first()
+    elif mode == 'friendship':
+        profile = FriendshipMode.query.filter_by(username=username).first()
+
+    if not profile:
+        return jsonify({'error': f'{mode.capitalize()} profile not found'}), 404
+
+    # Actualizar los datos del perfil
+    profile.bio = bio
+    profile.interest = interest
+
+    # Actualizar el email si se proporciona
+    if new_email:
+        user = User.query.filter_by(username=username).first()
+        if user:
+            user.email = new_email
+
+    # Actualizar la contraseña si se proporciona
+    if new_password:
+        user = User.query.filter_by(username=username).first()
+        if user:
+            user.password = new_password
+
+    db.session.commit()
+    return jsonify({'message': f'{mode.capitalize()} profile updated successfully'})
