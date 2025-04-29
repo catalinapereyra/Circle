@@ -1,3 +1,5 @@
+import base64
+
 from flask import Blueprint, request, jsonify
 from werkzeug.utils import secure_filename
 
@@ -33,10 +35,11 @@ def create_couple_profile():
     except ValueError:
         return jsonify({'error': f'Invalid preference: {preferences_str}'}), 400
 
-    profile_picture = None
+    profile_picture_base64 = None
     if 'profile_picture' in request.files:
-        image_file = request.files['profile_picture']
-        profile_picture = image_file.filename
+        profile_picture_file = request.files['profile_picture']
+        profile_picture_bytes = profile_picture_file.read()
+        profile_picture_base64 = base64.b64encode(profile_picture_bytes).decode('utf-8')
 
     extra_photos = request.files.getlist('extra_photos')
     if len(extra_photos) < 3 or len(extra_photos) > 10:
@@ -44,7 +47,7 @@ def create_couple_profile():
 
     new_profile = CoupleMode(
         username=username,
-        profile_picture=profile_picture,
+        profile_picture=profile_picture_base64,
         bio=bio,
         preferences=preference_enum,
         interest=interest
@@ -81,10 +84,11 @@ def create_friendship_profile():
     bio = data.get('bio', '')
     interest = data.get('interest', '')
 
-    profile_picture = None
+    profile_picture_base64 = None
     if 'profile_picture' in request.files:
-        image_file = request.files['profile_picture']
-        profile_picture = image_file.filename
+        profile_picture_file = request.files['profile_picture']
+        profile_picture_bytes = profile_picture_file.read()
+        profile_picture_base64 = base64.b64encode(profile_picture_bytes).decode('utf-8')
 
     extra_photos = request.files.getlist('extra_photos')
     if len(extra_photos) < 3 or len(extra_photos) > 10:
@@ -92,7 +96,7 @@ def create_friendship_profile():
 
     new_profile = FriendshipMode(
         username=username,
-        profile_picture=profile_picture,
+        profile_picture=profile_picture_base64,
         bio=bio,
         interest=interest
     )

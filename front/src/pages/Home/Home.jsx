@@ -138,7 +138,7 @@ function Home() {
                     age={currentProfile.age}
                     bio={currentProfile.bio}
                     interest={currentProfile.interest}
-                    profilePicture={`http://localhost:5001/uploads/${mode}_photos/${currentProfile.profile_picture}`}
+                    profilePicture={`data:image/jpeg;base64,${currentProfile.profile_picture}`}
                     photos={currentProfile.photos?.map(photo => `http://localhost:5001/uploads/${mode}_photos/${photo}`)}
                 />
             </div>
