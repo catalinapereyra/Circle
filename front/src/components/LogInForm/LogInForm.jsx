@@ -70,6 +70,7 @@ function LogInForm() {
                 </div>
 
                 <button type="submit" className="submit-button">Log IN</button>
+                <button className="back-button" type="button" onClick={() => navigate(-1)}>BACK</button>
             </form>
         </div>
     );
