@@ -21,7 +21,8 @@ def handle_socket_connect(auth):
         username = decoded["sub"]
         request.environ['username'] = username # si es valido lo guarda
         online_users.add(username) # agrego username a online set
-        socketio.emit("user_disconnected",
+        print('online_users', online_users)
+        socketio.emit("user_connected",
                       {"username": username})  # para no tener que refrescar y cambie el estado del user
         print(f"Usuario {username} conectado por WebSocket")
     except Exception as e:

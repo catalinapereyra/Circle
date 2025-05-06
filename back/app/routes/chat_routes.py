@@ -23,6 +23,7 @@ def handle_join(data):
 
         if is_there_a_match(username, target_user):
             room = get_room_name(username, target_user)
+            print('joining room', room)
             join_room(room) #agrego current user al room
             send(f"{username} joined the chat.", to=room)
         else:
