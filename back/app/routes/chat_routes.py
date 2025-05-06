@@ -34,13 +34,17 @@ def handle_join(data):
         send("An error occurred when joining chat", to=request.sid)
         # request.sid permite enviar mensajes sólo al cliente actual, por mas q no está en un room
 
-@socketio.on('private_message')
+@socketio.on("private_message")
 def handle_private_message(data):
-    sender = data['sender']
-    recipient = data['recipient']
-    message = data['message']
+    sender = request.environ.get("username")
+    recipient = data["recipient"]
+    message = data["message"]
+
     room = get_room_name(sender, recipient)
-    send(f"{sender}: {message}", to=room)
+    socketio.emit("new_message", {
+        "sender": sender,
+        "message": message
+    }, to=room)
 
 def get_room_name(user1, user2):
     return "_".join(sorted([user1, user2]))

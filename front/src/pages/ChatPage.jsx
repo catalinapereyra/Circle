@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useEffect, useState, useRef } from "react";
+import {Navigate, useParams} from "react-router-dom";
 import { io } from "socket.io-client";
 
 let socket;
@@ -8,36 +8,48 @@ export default function ChatPage() {
     const { username: targetUser } = useParams();
     const [messages, setMessages] = useState([]);
     const [input, setInput] = useState("");
+    const socketRef = useRef(null);
+
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+        return <Navigate to="/login" />;
+    }
 
     // Conexión inicial con token
     useEffect(() => {
-        const token = localStorage.getItem("token");
-
-        socket = io("http://localhost:5001", {
-            auth: { token }
+        const socketInstance = io("http://localhost:5001", {
+            auth: {
+                token: localStorage.getItem("token")
+            }
         });
 
-        socket.on("connect", () => {
-            console.log("Connecting to WebSocket");
-            socket.emit("join", { target_user: targetUser });
+        // Guardamos el socket en el ref
+        socketRef.current = socketInstance;
+
+        socketInstance.on("connect", () => {
+            console.log("🔌 Connecting to WebSocket");
+            socketInstance.emit("join", { target_user: targetUser });
         });
 
-        socket.on("message", (msg) => {
-            setMessages((prev) => [...prev, msg]);
+        socketInstance.on("new_message", (data) => {
+            setMessages((prev) => [...prev, `${data.sender}: ${data.message}`]);
         });
 
         return () => {
-            socket.disconnect();
+            socketInstance.disconnect();
         };
-    }, [targetUser]);
+    }, [targetUser, token]);
 
     const sendMessage = () => {
-        socket.emit("private_message", {
-            recipient: targetUser,
-            message: input
-        });
-        setMessages((prev) => [...prev, `Tú: ${input}`]);
-        setInput("");
+        debugger
+        if (socketRef.current) {
+            socketRef.current.emit("private_message", {
+                recipient: targetUser,
+                message: input
+            });
+            setInput("");
+        }
     };
 
     return (

@@ -1,5 +1,4 @@
 from datetime import timedelta
-from socket import SocketIO
 
 from app.extensions import db, migrate, socketio
 from flask import Flask, request
@@ -8,6 +7,7 @@ from flask_jwt_extended import JWTManager
 
 from app.routes.chat_routes import chat_bp
 from app.routes.match_routes import bp_match
+from app.events import socket_handlers
 
 
 def create_app():

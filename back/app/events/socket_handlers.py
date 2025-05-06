@@ -5,6 +5,7 @@ from app.extensions import socketio
 
 @socketio.on("connect")
 def handle_socket_connect(auth):
+    # print("auth recibido en connect:", auth)
     token = auth.get("token") if auth else None #recibe el token desde react
 
     if not token:
