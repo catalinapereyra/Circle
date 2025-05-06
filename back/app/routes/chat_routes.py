@@ -1,7 +1,7 @@
-import socketio
+from app.extensions import socketio
 from flask import Blueprint, render_template, request
 from flask_socketio import join_room, leave_room, send
-from match_routes import is_there_a_match
+from app.routes.match_routes import is_there_a_match
 
 
 chat_bp = Blueprint('chat', __name__)

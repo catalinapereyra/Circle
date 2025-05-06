@@ -86,6 +86,21 @@ function Matches() {
                             <p><strong>{match.username}</strong></p>
                             <p>{match.bio}</p>
                             <p>📚🍔🐾 {match.interest}</p>
+                            <button
+                                onClick={() => navigate(`/chat/${match.username}`)}
+                                className="chat-button"
+                                style={{
+                                    marginTop: "0.5rem",
+                                    padding: "0.5rem 1rem",
+                                    borderRadius: "8px",
+                                    backgroundColor: "#9370DB",
+                                    color: "white",
+                                    border: "none",
+                                    cursor: "pointer"
+                                }}
+                            >
+                                Chat 💬
+                            </button>
                         </div>
                     );
                 })
@@ -93,5 +108,7 @@ function Matches() {
         </div>
     );
 }
+
+// agregar boton de ir al chat
 
 export default Matches;

@@ -1,9 +1,12 @@
 from datetime import timedelta
+from socket import SocketIO
 
-from app.extensions import db, migrate
+from app.extensions import db, migrate, socketio
 from flask import Flask, request
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager
+
+from app.routes.chat_routes import chat_bp
 from app.routes.match_routes import bp_match
 
 
@@ -40,12 +43,14 @@ def create_app():
 
     db.init_app(app)
     migrate.init_app(app, db)
+    socketio.init_app(app, cors_allowed_origins="*")
 
 
     # Registrar blueprints
     app.register_blueprint(bp_user)
     app.register_blueprint(bp_profile, url_prefix="/profile")
     app.register_blueprint(bp_match)
+    app.register_blueprint(chat_bp)
 
     # Crear las tablas en la base de datos
     with app.app_context():

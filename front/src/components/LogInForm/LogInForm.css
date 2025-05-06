@@ -104,6 +104,22 @@
     text-transform: uppercase; /* Letras en mayúsculas para un estilo más llamativo */
 }
 
+.back-button {
+    background: none;
+    border: 2px solid #ffffff;  /* Borde rosa claro */
+    color: #ffffff;
+    padding: 12px 24px;
+    font-weight: bold;
+    cursor: pointer;
+    margin-bottom: 5px;
+    margin-top: 30px;
+    border-radius: 30px;  /* Bordes más redondeados para un estilo moderno */
+    transition: all 0.3s ease;
+    width: 100%;
+    font-size: 18px;
+    text-transform: uppercase; /* Letras en mayúsculas para un estilo más llamativo */
+}
+
 .submit-button:hover {
     background: #ffffff;
     color: white;
