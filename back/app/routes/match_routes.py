@@ -114,3 +114,9 @@ def get_my_matches():
         import traceback
         traceback.print_exc()
         return jsonify({'error': str(e)}), 500
+
+def is_there_a_match(user1, user2):
+    first = Match.query.filter_by(user1=user1, user2=user2).first()
+    second = Match.query.filter_by(user1=user2, user2=user1).first()
+    if first is None and second is None: return False
+    return True
