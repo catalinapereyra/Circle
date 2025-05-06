@@ -8,7 +8,10 @@ export default function ChatPage() {
     const { username: targetUser } = useParams();
     const [messages, setMessages] = useState([]);
     const [input, setInput] = useState("");
+    const myUsername = localStorage.getItem("username");
+    const [isOnline, setIsOnline] = useState(false);
     const socketRef = useRef(null);
+
 
     const token = localStorage.getItem("token");
 
@@ -33,13 +36,41 @@ export default function ChatPage() {
         });
 
         socketInstance.on("new_message", (data) => {
-            setMessages((prev) => [...prev, `${data.sender}: ${data.message}`]);
+            const isMine = data.sender === myUsername;
+            const displayMessage = isMine
+                ? data.message
+                : `${data.sender}: ${data.message}`;
+
+            setMessages((prev) => [...prev, displayMessage]);
         });
+
+        socketInstance.on("user_connected", (data) => {
+            if (data.username === targetUser) {
+                setIsOnline(true);
+            }
+        });
+
+        socketInstance.on("user_disconnected", (data) => {
+            if (data.username === targetUser) {
+                setIsOnline(false);
+            }
+        });
+
 
         return () => {
             socketInstance.disconnect();
         };
     }, [targetUser, token]);
+
+    useEffect(() => {
+        if (socketRef.current) {
+            socketRef.current.emit("is_user_online", { username: targetUser });
+
+            socketRef.current.on("user_status", (data) => {
+                setIsOnline(data.online);
+            });
+        }
+    }, [targetUser]);
 
     const sendMessage = () => {
         debugger
@@ -54,7 +85,9 @@ export default function ChatPage() {
 
     return (
         <div>
-            <h2>Chat with {targetUser}</h2>
+            <h2>
+                Chat with {targetUser} {isOnline ? "🟢 online" : "⚪️ offline"}
+            </h2>
             <div>
                 {messages.map((m, i) => (
                     <p key={i}>{m}</p>

@@ -17,6 +17,8 @@ import ChooseMood from './components/ChooseMood/ChooseMood.jsx';
 import Matches from "./pages/Matches/Matches.jsx";
 import LikesReceived from './pages/LikesReceived';
 import EditProfilePage from "./pages/EditProfilePage/EditProfilePage.jsx";
+import ChatPage from "./pages/ChatPage.jsx";
+
 
 
 
@@ -42,6 +44,8 @@ function App() {
                     <Route path="/my-friendship-profile" element={<ProtectedRoute><MyProfilePage /></ProtectedRoute>} />
                     <Route path="/my-profile" element={<MyProfilePage />} />
                     <Route path="/edit-profile/:mode" element={<EditProfilePage />} />
+                    <Route path="/matches" element={<Matches />} />
+                    <Route path="/chat/:username" element={<ChatPage />} />
                 </Routes>
             </Router>
         </UserModeProvider>
