@@ -149,12 +149,27 @@ def get_chat_messages(username):
     # trae los mensajes de ese chat
     messages = Message.query.filter_by(chat_id=chat.id).order_by(Message.timestamp.asc()).all()
 
+    #marcar msjs como vistos
+    for msg in messages:
+        sender_username = get_username_from_profile(msg.sender_profile_id, msg.sender_mode)
+        if sender_username != current_user and not msg.seen:
+            msg.seen = True
+
+    db.session.commit()
+
+    # Emitir evento a la otra persona notificando que sus mensajes fueron vistos
+    room = get_room_name(current_user, username)
+    socketio.emit("messages_seen", {
+        "by": current_user
+    }, to=room)
+
     # transforma a json
     return jsonify([
         {
             "sender": get_username_from_profile(m.sender_profile_id, m.sender_mode),
             "message": m.content,
-            "timestamp": m.timestamp.isoformat()
+            "timestamp": m.timestamp.isoformat(),
+            "seen": m.seen
         } for m in messages
     ])
 

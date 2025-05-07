@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from "react";
-import {Navigate, useParams} from "react-router-dom";
+import { Navigate, useParams } from "react-router-dom";
 import { io } from "socket.io-client";
 
 let socket;
@@ -11,23 +11,45 @@ export default function ChatPage() {
     const myUsername = localStorage.getItem("username");
     const [isOnline, setIsOnline] = useState(false);
     const socketRef = useRef(null);
-
-
     const token = localStorage.getItem("token");
 
     if (!token) {
         return <Navigate to="/login" />;
     }
 
-    // Conexión inicial con token
+    // 🔁 FUNCION GLOBAL (la movimos acá arriba)
+    const fetchMessages = async () => {
+        try {
+            const res = await fetch(`http://localhost:5001/chat/${targetUser}`, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+            const data = await res.json();
+
+            const formatted = data.map((msg) => {
+                const isMine = msg.sender === myUsername;
+                return isMine
+                    ? msg.seen
+                        ? `${msg.message} ✅`
+                        : msg.message
+                    : `${msg.sender}: ${msg.message}`;
+            });
+
+            setMessages(formatted);
+        } catch (err) {
+            console.error("Error fetching chat history", err);
+        }
+    };
+
+    // 🔌 WebSocket setup
     useEffect(() => {
         const socketInstance = io("http://localhost:5001", {
             auth: {
-                token: localStorage.getItem("token")
-            }
+                token,
+            },
         });
 
-        // Guardamos el socket en el ref
         socketRef.current = socketInstance;
 
         socketInstance.on("connect", () => {
@@ -40,7 +62,6 @@ export default function ChatPage() {
             const displayMessage = isMine
                 ? data.message
                 : `${data.sender}: ${data.message}`;
-
             setMessages((prev) => [...prev, displayMessage]);
         });
 
@@ -56,11 +77,18 @@ export default function ChatPage() {
             }
         });
 
+        // 👁️ Evento de mensajes vistos
+        socketInstance.on("messages_seen", (data) => {
+            console.log("👁️ Mensajes vistos por", data.by);
+            fetchMessages(); // ✅ usamos la función global
+        });
+
         return () => {
             socketInstance.disconnect();
         };
     }, [targetUser, token]);
 
+    // 🔄 Chequear estado online
     useEffect(() => {
         if (socketRef.current) {
             socketRef.current.emit("is_user_online", { username: targetUser });
@@ -71,41 +99,17 @@ export default function ChatPage() {
         }
     }, [targetUser]);
 
+    // 📥 Al montar el componente, traer mensajes
     useEffect(() => {
-        const fetchMessages = async () => {
-            try {
-                const res = await fetch(`http://localhost:5001/chat/${targetUser}`, { //Llama al endpoint /chat/:username
-                    headers: {
-                        Authorization: `Bearer ${token}` //Le pasa el token del user como autorizacion
-                    }
-                });
-                const data = await res.json();
-
-                //Recibe una lista de mensajes ya guardados entre el user este y targetUser
-                //Los formatea: si el mensaje lo mando "yo" → solo el texto
-                // pero si lo mando el otro → muestra nombre: mensaje
-
-                const formatted = data.map((msg) => {
-                    const isMine = msg.sender === myUsername;
-                    return isMine ? msg.message : `${msg.sender}: ${msg.message}`;
-                });
-
-                setMessages(formatted); //Los guarda en el state (setMessages) para renderizarlos
-            } catch (err) {
-                console.error("Error fetching chat history", err);
-            }
-        };
-
         fetchMessages();
     }, [targetUser, token]);
 
-
+    // 📤 Enviar mensaje
     const sendMessage = () => {
-        debugger
         if (socketRef.current) {
             socketRef.current.emit("private_message", {
                 recipient: targetUser,
-                message: input
+                message: input,
             });
             setInput("");
         }
