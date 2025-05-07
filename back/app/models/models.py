@@ -150,3 +150,33 @@ class Match(db.Model):
     )
 
 
+class Chat(db.Model):
+    __tablename__ = 'chat'
+
+    id = db.Column(db.Integer, primary_key=True)
+    match_id = db.Column(db.Integer, db.ForeignKey('match.id'), nullable=False, unique=True)
+    started_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    # Relaciones
+    match = db.relationship('Match', backref=db.backref('chat', uselist=False))
+    messages = db.relationship('Message', backref='chat', cascade='all, delete-orphan')
+
+
+class Message(db.Model):
+    __tablename__ = 'message'
+
+    id = db.Column(db.Integer, primary_key=True)
+
+    chat_id = db.Column(db.Integer, db.ForeignKey('chat.id'), nullable=False)
+
+    sender_profile_id = db.Column(db.Integer, nullable=False)
+    sender_mode = db.Column(db.Enum(MatchMode), nullable=False)  # "couple" o "friendship"
+
+    content = db.Column(db.Text, nullable=False)
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+
+    is_esphimeral = db.Column(db.Boolean, default=False)
+    seen = db.Column(db.Boolean, default=False)
+
+    # No se define ForeignKey directa a CoupleMode o FriendshipMode por ser dinámica
+
