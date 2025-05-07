@@ -71,6 +71,35 @@ export default function ChatPage() {
         }
     }, [targetUser]);
 
+    useEffect(() => {
+        const fetchMessages = async () => {
+            try {
+                const res = await fetch(`http://localhost:5001/chat/${targetUser}`, { //Llama al endpoint /chat/:username
+                    headers: {
+                        Authorization: `Bearer ${token}` //Le pasa el token del user como autorizacion
+                    }
+                });
+                const data = await res.json();
+
+                //Recibe una lista de mensajes ya guardados entre el user este y targetUser
+                //Los formatea: si el mensaje lo mando "yo" → solo el texto
+                // pero si lo mando el otro → muestra nombre: mensaje
+
+                const formatted = data.map((msg) => {
+                    const isMine = msg.sender === myUsername;
+                    return isMine ? msg.message : `${msg.sender}: ${msg.message}`;
+                });
+
+                setMessages(formatted); //Los guarda en el state (setMessages) para renderizarlos
+            } catch (err) {
+                console.error("Error fetching chat history", err);
+            }
+        };
+
+        fetchMessages();
+    }, [targetUser, token]);
+
+
     const sendMessage = () => {
         debugger
         if (socketRef.current) {
