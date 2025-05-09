@@ -2,7 +2,6 @@ import { useEffect, useState, useRef } from "react";
 import { Navigate, useParams } from "react-router-dom";
 import { io } from "socket.io-client";
 
-let socket;
 
 export default function ChatPage() {
     const { username: targetUser } = useParams();
@@ -12,6 +11,7 @@ export default function ChatPage() {
     const [isOnline, setIsOnline] = useState(false);
     const socketRef = useRef(null);
     const token = localStorage.getItem("token");
+    const [streak, setStreak] = useState(0);
 
     if (!token) {
         return <Navigate to="/login" />;
@@ -27,7 +27,7 @@ export default function ChatPage() {
             });
             const data = await res.json();
 
-            const formatted = data.map((msg) => {
+            const formatted = data.messages.map((msg) => {
                 const isMine = msg.sender === myUsername;
                 return isMine
                     ? msg.seen
@@ -37,6 +37,7 @@ export default function ChatPage() {
             });
 
             setMessages(formatted);
+            setStreak(data.streak);
         } catch (err) {
             console.error("Error fetching chat history", err);
         }
@@ -83,6 +84,10 @@ export default function ChatPage() {
             fetchMessages(); // ✅ usamos la función global
         });
 
+        socketInstance.on("streak_updated", (data) => {
+            setStreak(data.new_streak);
+        });
+
         return () => {
             socketInstance.disconnect();
         };
@@ -120,6 +125,7 @@ export default function ChatPage() {
             <h2>
                 Chat with {targetUser} {isOnline ? "🟢 online" : "⚪️ offline"}
             </h2>
+            <h3>🔥 Streak: {streak}</h3>
             <div>
                 {messages.map((m, i) => (
                     <p key={i}>{m}</p>

@@ -101,6 +101,7 @@ def handle_private_message(data):
         )
         db.session.add(new_message)
         db.session.commit()
+        streaks(chat.id)
 
         #emite el mensaje a todos los usuarios en el room
         room = get_room_name(sender, recipient)
@@ -164,15 +165,19 @@ def get_chat_messages(username):
         "by": current_user
     }, to=room)
 
-    # transforma a json
-    return jsonify([
-        {
-            "sender": get_username_from_profile(m.sender_profile_id, m.sender_mode),
-            "message": m.content,
-            "timestamp": m.timestamp.isoformat(),
-            "seen": m.seen
-        } for m in messages
-    ])
+    current_streak = streaks(chat.id)
+
+    return jsonify({
+        "messages": [
+            {
+                "sender": get_username_from_profile(m.sender_profile_id, m.sender_mode),
+                "message": m.content,
+                "timestamp": m.timestamp.isoformat(),
+                "seen": m.seen
+            } for m in messages
+        ],
+        "streak": current_streak
+    })
 
 
 @socketio.on("connect")
@@ -197,7 +202,7 @@ def handle_connect(auth):
 
 
 def streaks(chat_id):
-    chat = Chat.query.filter_by(chat_id=chat_id).first()
+    chat = Chat.query.get(chat_id)
 
     if not chat:
         return 0  # o podrías crear uno nuevo
@@ -205,8 +210,8 @@ def streaks(chat_id):
     now = datetime.utcnow()
 
     # Solo actualizamos si pasaron 10 minutos desde la última vez
-    if chat.last_streak_time is None or now - chat.last_streak_time >= timedelta(minutes=10):
-        ten_minutes_ago = now - timedelta(minutes=10)
+    if chat.last_streak_time is None or now - chat.last_streak_time >= timedelta(minutes=1):
+        ten_minutes_ago = now - timedelta(minutes=1)
 
         last_messages = Message.query.filter(
             Message.chat_id == chat_id,
@@ -222,5 +227,12 @@ def streaks(chat_id):
 
         chat.last_streak_time = now # seteo el nuevo last check
         db.session.commit()
+
+        match = chat.match  # accede al match de este chat
+        room = get_room_name(match.user1, match.user2)  # usa los usernames reales
+        socketio.emit("streak_updated", {
+            "chat_id": chat.id,
+            "new_streak": chat.streaks
+        }, to=room)
 
     return chat.streaks
