@@ -161,6 +161,9 @@ class Chat(db.Model):
     match = db.relationship('Match', backref=db.backref('chat', uselist=False))
     messages = db.relationship('Message', backref='chat', cascade='all, delete-orphan')
 
+    streaks = db.Column(db.int, default = 0)
+    last_streak_time = db.Column(db.DateTime)
+
 
 class Message(db.Model):
     __tablename__ = 'message'

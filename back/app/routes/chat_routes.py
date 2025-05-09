@@ -7,6 +7,7 @@ from app.models.models import Message, MatchMode, Chat, db, CoupleMode, Friendsh
 from flask_jwt_extended import verify_jwt_in_request
 from flask_socketio import disconnect
 from flask_jwt_extended import decode_token
+from datetime import datetime, timedelta
 
 
 
@@ -192,3 +193,34 @@ def handle_connect(auth):
     except Exception as e:
         print("❌ Error al conectar WebSocket:", e)
         disconnect()
+
+
+
+def streaks(chat_id):
+    chat = Chat.query.filter_by(chat_id=chat_id).first()
+
+    if not chat:
+        return 0  # o podrías crear uno nuevo
+
+    now = datetime.utcnow()
+
+    # Solo actualizamos si pasaron 10 minutos desde la última vez
+    if chat.last_streak_time is None or now - chat.last_streak_time >= timedelta(minutes=10):
+        ten_minutes_ago = now - timedelta(minutes=10)
+
+        last_messages = Message.query.filter(
+            Message.chat_id == chat_id,
+            Message.timestamp >= ten_minutes_ago
+        ).order_by(Message.timestamp.desc()).all()
+
+        users = {message.sender_profile_id for message in last_messages}
+
+        if len(users) == 2:
+            chat.streaks += 1
+        else:
+            chat.streaks = 0
+
+        chat.last_streak_time = now # seteo el nuevo last check
+        db.session.commit()
+
+    return chat.streaks
