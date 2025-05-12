@@ -1,6 +1,6 @@
 from app.extensions import socketio
 from flask import Blueprint, render_template, request, jsonify
-from flask_socketio import join_room, leave_room, send
+from flask_socketio import join_room, leave_room, send, emit
 from app.routes.match_routes import is_there_a_match
 from flask_jwt_extended import get_jwt_identity, jwt_required
 from app.models.models import Message, MatchMode, Chat, db, CoupleMode, FriendshipMode
@@ -8,8 +8,7 @@ from flask_jwt_extended import verify_jwt_in_request
 from flask_socketio import disconnect
 from flask_jwt_extended import decode_token
 from datetime import datetime, timedelta
-
-
+from sqlalchemy import or_, not_, and_
 
 chat_bp = Blueprint('chat', __name__)
 
@@ -72,6 +71,7 @@ def handle_private_message(data):
         sender = request.environ.get("username")
         recipient = data["recipient"]
         message_text = data["message"]
+        ephemeral = data.get("ephemeral", False)
 
         # verificas que haya un match
         if not is_there_a_match(sender, recipient):
@@ -97,7 +97,9 @@ def handle_private_message(data):
             chat_id=chat.id,
             sender_profile_id=sender_profile.id,
             sender_mode=match.mode,
-            content=message_text
+            content=message_text,
+            ephemeral = ephemeral,
+            seen = False,
         )
         db.session.add(new_message)
         db.session.commit()
@@ -107,7 +109,10 @@ def handle_private_message(data):
         room = get_room_name(sender, recipient)
         socketio.emit("new_message", {
             "sender": sender,
-            "message": message_text
+            "message": message_text,
+            "ephemeral": ephemeral,
+            "seen": False,
+            "id": new_message.id
         }, to=room)
 
     except Exception as e:
@@ -149,7 +154,17 @@ def get_chat_messages(username):
         return jsonify([])
 
     # trae los mensajes de ese chat
-    messages = Message.query.filter_by(chat_id=chat.id).order_by(Message.timestamp.asc()).all()
+    # messages = Message.query.filter_by(chat_id=chat.id).order_by(Message.timestamp.asc()).all()
+
+
+    messages = Message.query.filter(
+        Message.chat_id == chat.id,
+        or_(
+            Message.ephemeral == False, # todos los mensajes no efimeros
+            and_(Message.ephemeral == True, Message.seen == False) # o
+        )
+    ).order_by(Message.timestamp.asc()).all()
+
 
     #marcar msjs como vistos
     for msg in messages:
@@ -173,7 +188,9 @@ def get_chat_messages(username):
                 "sender": get_username_from_profile(m.sender_profile_id, m.sender_mode),
                 "message": m.content,
                 "timestamp": m.timestamp.isoformat(),
-                "seen": m.seen
+                "seen": m.seen,
+                "ephemeral": m.ephemeral,
+                "id": m.id,
             } for m in messages
         ],
         "streak": current_streak
@@ -236,3 +253,34 @@ def streaks(chat_id):
         }, to=room)
 
     return chat.streaks
+
+
+
+@socketio.on("message_seen")
+def handle_message_seen(data):
+    message = Message.query.get(data["messageId"])
+    if message and not message.seen:
+        message.seen = True
+        db.session.commit()
+
+        emit("messages_seen", {
+            "messageId": message.id,
+            "by": get_jwt_identity()
+        }, to=str(message.sender_profile_id))
+
+@socketio.on("leave")
+@jwt_required()
+def handle_leave(data):
+    current_user = get_jwt_identity()
+    target = data.get("target_user")
+
+    # Borrar solo efímeros ya vistos entre ambos usuarios
+    messages = Message.query.filter_by(
+        sender=current_user,
+        recipient=target,
+        ephemeral=True,
+        seen=True
+    ).all()
+    for m in messages:
+        db.session.delete(m)
+    db.session.commit()
