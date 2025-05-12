@@ -183,8 +183,13 @@ export default function ChatPage() {
                 {isEphemeralMode ? "Ir a modo Normal" : "Ir a modo Efímero"}
             </button>
             <div>
+                {/*{allMessages.map((m, i) => (*/}
+                {/*    <p key={i}>{m.display}</p>*/}
+                {/*))}*/}
                 {allMessages.map((m, i) => (
-                    <p key={i}>{m.display}</p>
+                    <p key={i}>
+                        [{m.ephemeral ? "⏱ efímero" : "💬 normal"}] {m.sender}: {m.message} {m.seen ? "✅" : "⏳"}
+                    </p>
                 ))}
             </div>
             <input

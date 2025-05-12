@@ -178,7 +178,7 @@ class Message(db.Model):
     content = db.Column(db.Text, nullable=False)
     timestamp = db.Column(db.DateTime, default=datetime.utcnow)
 
-    is_esphimeral = db.Column(db.Boolean, default=False)
+    ephemeral = db.Column(db.Boolean, default=False)
     seen = db.Column(db.Boolean, default=False)
 
     # No se define ForeignKey directa a CoupleMode o FriendshipMode por ser dinámica
