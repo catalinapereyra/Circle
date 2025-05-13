@@ -2,202 +2,165 @@ import { useEffect, useState, useRef } from "react";
 import { Navigate, useParams } from "react-router-dom";
 import { io } from "socket.io-client";
 
-
 export default function ChatPage() {
     const { username: targetUser } = useParams();
-    const [messages, setMessages] = useState([]);
-    const [input, setInput] = useState("");
     const myUsername = localStorage.getItem("username");
-    const [isOnline, setIsOnline] = useState(false);
-    const socketRef = useRef(null);
     const token = localStorage.getItem("token");
-    const [streak, setStreak] = useState(0);
+
+    const [messages, setMessages] = useState([]);
+    const [pendingEphemerals, setPendingEphemerals] = useState([]);
+    const [input, setInput] = useState("");
     const [isEphemeralMode, setIsEphemeralMode] = useState(false);
-    const [ephemeralMessages, setEphemeralMessages] = useState([]);
+    const [isOnline, setIsOnline] = useState(false);
+    const [streak, setStreak] = useState(0);
 
-    if (!token) {
-        return <Navigate to="/login" />;
-    }
+    const socketRef = useRef(null);
 
-    const allMessages = isEphemeralMode
-        ? [...messages, ...ephemeralMessages]
-        : messages;
+    if (!token) return <Navigate to="/login" />;
 
+    const currentMode = isEphemeralMode ? "ephemeral" : "normal";
 
-    // 🔁 FUNCION GLOBAL (la movimos acá arriba)
-    const fetchMessages = async () => {
-        try {
-            const res = await fetch(`http://localhost:5001/chat/${targetUser}`, {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            });
-            const data = await res.json();
-
-            const normalMessages = [];
-            const ephemeralMsgs = [];
-
-            data.messages.forEach((msg) => {
-                const isMine = msg.sender === myUsername;
-                const text = isMine
-                    ? msg.seen
-                        ? `${msg.message} ✅`
-                        : `${msg.message} ⏳`
-                    : `${msg.sender}: ${msg.message}`;
-
-                if (msg.ephemeral && msg.seen) {
-                    console.log("msg recibido:", msg);
-                    return;
-                }
-
-                if (msg.ephemeral) {
-                    ephemeralMsgs.push({ ...msg, display: text });
-                } else {
-                    normalMessages.push({ ...msg, display: text });
-                }
-            });
-
-            setMessages(normalMessages);
-            setEphemeralMessages(ephemeralMsgs);
-            setStreak(data.streak);
-
-        } catch (err) {
-            console.error("Error fetching chat history", err);
-        }
-    };
-
-    // para avisarle al back que el mensaje fue visto
+    // 🔁 Fetch de mensajes según el modo
     useEffect(() => {
-        allMessages.forEach((msg) => {
-            if (!msg.seen && msg.sender !== myUsername) {
-                socketRef.current?.emit("message_seen", { messageId: msg.id });
-            }
-        });
-    }, [allMessages]);
+        fetch(`http://localhost:5001/chat/${targetUser}?mode=${currentMode}`, {
+            headers: { Authorization: `Bearer ${token}` },
+        })
+            .then((res) => res.json())
+            .then((data) => {
+                const formatted = data.messages.map((msg) => ({
+                    ...msg,
+                    isMine: msg.sender === myUsername,
+                    display: msg.sender === myUsername
+                        ? `${msg.message} ${msg.seen ? "✅" : "⏳"}`
+                        : `${msg.sender}: ${msg.message}`,
+                }));
 
+                if (currentMode === "ephemeral") {
+                    setPendingEphemerals(formatted);
+                    setMessages([]); // mostrar solo cuando se active
+                } else {
+                    setMessages(formatted);
+                }
+
+                setStreak(data.streak);
+            });
+    }, [targetUser, currentMode]);
+
+    // ✅ Cuando se entra a modo efímero, se muestran y se marcan como vistos
+    useEffect(() => {
+        if (isEphemeralMode && pendingEphemerals.length > 0) {
+            pendingEphemerals.forEach((msg) => {
+                socketRef.current?.emit("mark_seen", { id: msg.id });
+            });
+            setMessages(pendingEphemerals);
+            setPendingEphemerals([]);
+        }
+    }, [isEphemeralMode]);
 
     // 🔌 WebSocket setup
     useEffect(() => {
-        const socketInstance = io("http://localhost:5001", {
-            auth: {
-                token,
-            },
+        const socket = io("http://localhost:5001", { auth: { token } });
+        socketRef.current = socket;
+
+        socket.on("connect", () => {
+            socket.emit("join", { target_user: targetUser });
         });
 
-        socketRef.current = socketInstance;
-
-        socketInstance.on("connect", () => {
-            console.log("🔌 Connecting to WebSocket");
-            socketInstance.emit("join", { target_user: targetUser });
-        });
-
-        socketInstance.on("new_message", (data) => {
+        socket.on("new_message", (data) => {
             const isMine = data.sender === myUsername;
-            const text = isMine
-                ? `${data.message} ⏳`
-                : `${data.sender}: ${data.message}`;
-
             const messageObj = {
-                id: data.id,
-                sender: data.sender,
-                message: data.message,
-                seen: data.seen,
-                ephemeral: data.ephemeral,
-                display: text
+                ...data,
+                isMine,
+                display: isMine
+                    ? `${data.message} ${data.seen ? "✅" : "⏳"}`
+                    : `${data.sender}: ${data.message}`,
             };
 
-            if (data.ephemeral) {
-                setEphemeralMessages((prev) => [...prev, messageObj]);
-            } else {
-                setMessages((prev) => [...prev, messageObj]);
+            // Mostrar solo si el mensaje pertenece al modo actual
+            if (data.ephemeral && currentMode !== "ephemeral") return;
+            if (!data.ephemeral && currentMode !== "normal") return;
+
+            // Si es efímero no visto y yo soy el receptor
+            if (data.ephemeral && !data.seen && !isMine) {
+                setPendingEphemerals((prev) => [...prev, messageObj]);
+                return;
             }
+
+            setMessages((prev) => [...prev, messageObj]);
         });
 
-        socketInstance.on("user_connected", (data) => {
-            if (data.username === targetUser) {
-                setIsOnline(true);
-            }
+        socket.on("user_connected", (data) => {
+            if (data.username === targetUser) setIsOnline(true);
         });
 
-        socketInstance.on("user_disconnected", (data) => {
-            if (data.username === targetUser) {
-                setIsOnline(false);
-            }
+        socket.on("user_disconnected", (data) => {
+            if (data.username === targetUser) setIsOnline(false);
         });
 
-        socketInstance.on("messages_seen", (data) => {
-            fetchMessages(); // ✅ usamos la función global
+        socket.on("messages_seen", () => {
+            fetchMessages(); // opcional: refresca visto/⏳
         });
 
-        socketInstance.on("streak_updated", (data) => {
+        socket.on("streak_updated", (data) => {
             setStreak(data.new_streak);
         });
 
         return () => {
-            socketInstance.disconnect();
+            socket.disconnect();
         };
-    }, [targetUser, token]);
+    }, [targetUser, token, currentMode]);
 
-    // 🔄 Chequear estado online
-    useEffect(() => {
-        if (socketRef.current) {
-            socketRef.current.emit("is_user_online", { username: targetUser });
-
-            socketRef.current.on("user_status", (data) => {
-                setIsOnline(data.online);
-            });
-        }
-    }, [targetUser]);
-
-    // 📥 Al montar el componente, traer mensajes
-    useEffect(() => {
-        fetchMessages();
-    }, [targetUser, token]);
-
-    // 📤 Enviar mensaje
     const sendMessage = () => {
-        if (socketRef.current) {
-            socketRef.current.emit("private_message", {
-                recipient: targetUser,
-                message: input,
-                ephemeral: isEphemeralMode,
-            });
-            setInput("");
-        }
+        if (!input.trim()) return;
+        socketRef.current.emit("private_message", {
+            recipient: targetUser,
+            message: input,
+            ephemeral: isEphemeralMode,
+        });
+        setInput("");
     };
 
-    useEffect(() => {
-        return () => {
-            console.log("🧹 Limpiando efímeros al desmontar...");
-            setEphemeralMessages([]);
-        };
-    }, []);
+    const fetchMessages = () => {
+        fetch(`http://localhost:5001/chat/${targetUser}?mode=${currentMode}`, {
+            headers: { Authorization: `Bearer ${token}` },
+        })
+            .then((res) => res.json())
+            .then((data) => {
+                const formatted = data.messages.map((msg) => ({
+                    ...msg,
+                    isMine: msg.sender === myUsername,
+                    display: msg.sender === myUsername
+                        ? `${msg.message} ${msg.seen ? "✅" : "⏳"}`
+                        : `${msg.sender}: ${msg.message}`,
+                }));
+                setMessages(formatted);
+                setStreak(data.streak);
+            });
+    };
 
     return (
         <div>
-            <h2>
-                Chat with {targetUser} {isOnline ? "🟢 online" : "⚪️ offline"}
-            </h2>
+            <h2>Chat with {targetUser} {isOnline ? "🟢" : "⚪️"}</h2>
             <h3>🔥 Streak: {streak}</h3>
-            <button onClick={() => setIsEphemeralMode(prev => !prev)}>
-                {isEphemeralMode ? "Ir a modo Normal" : "Ir a modo Efímero"}
+
+            <button onClick={() => setIsEphemeralMode((prev) => !prev)}>
+                {isEphemeralMode ? "Modo normal" : "Modo efímero"}
             </button>
+
             <div>
-                {/*{allMessages.map((m, i) => (*/}
-                {/*    <p key={i}>{m.display}</p>*/}
-                {/*))}*/}
-                {allMessages.map((m, i) => (
+                {messages.map((m, i) => (
                     <p key={i}>
-                        [{m.ephemeral ? "⏱ efímero" : "💬 normal"}] {m.sender}: {m.message} {m.seen ? "✅" : "⏳"}
+                        [{m.ephemeral ? "⏱ efímero" : "💬 normal"}] {m.display}
                     </p>
                 ))}
             </div>
+
             <input
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
-                placeholder="Write your message"
+                placeholder="Escribí tu mensaje..."
             />
-            <button onClick={sendMessage}>Send</button>
+            <button onClick={sendMessage}>Enviar</button>
         </div>
     );
 }

@@ -11,6 +11,7 @@ from datetime import datetime, timedelta
 from sqlalchemy import or_, not_, and_
 
 chat_bp = Blueprint('chat', __name__)
+connected_users = {}
 
 @chat_bp.route('/chat')
 def chat():
@@ -105,19 +106,41 @@ def handle_private_message(data):
         db.session.commit()
         streaks(chat.id)
 
-        #emite el mensaje a todos los usuarios en el room
-        room = get_room_name(sender, recipient)
+        recipient_sid = get_sid_by_username(recipient)
+        if recipient_sid:
+            socketio.emit("new_message", {
+                "sender": sender,
+                "message": message_text,
+                "ephemeral": False,
+                "seen": False,  # receptor no lo vio
+                "id": new_message.id
+            }, to=recipient_sid)
+
         socketio.emit("new_message", {
             "sender": sender,
             "message": message_text,
-            "ephemeral": ephemeral,
-            "seen": False,
+            "ephemeral": False,
+            "seen": True,
             "id": new_message.id
-        }, to=room)
+        }, to=request.sid)
+
+        #emite el mensaje a todos los usuarios en el room
+        # room = get_room_name(sender, recipient)
+        #
+        # socketio.emit("new_message", {
+        #     "sender": sender,
+        #     "message": message_text,
+        #     "ephemeral": ephemeral,
+        #     "seen": False,
+        #     "id": new_message.id
+        # }, to=room)
 
     except Exception as e:
         print("Error saving message:", e)
         send("Error processing message", to=request.sid)
+
+def get_sid_by_username(username):
+    return connected_users.get(username)
 
 # genera un nombre de sala ordenando alfabeticamente los usernames
 def get_room_name(user1, user2):
@@ -142,6 +165,7 @@ def get_username_from_profile(profile_id, mode):
 @jwt_required()
 def get_chat_messages(username):
     current_user = get_jwt_identity()
+    message_mode = request.args.get("mode", "normal")
 
     # busca el match
     match = get_match_instance(current_user, username)
@@ -156,21 +180,25 @@ def get_chat_messages(username):
     # trae los mensajes de ese chat
     # messages = Message.query.filter_by(chat_id=chat.id).order_by(Message.timestamp.asc()).all()
 
+    # filyto los mensajes dependiendo el modo para que solo me muestre los de ese modo
+    if message_mode == "normal":
+        messages = Message.query.filter(
+            Message.chat_id == chat.id,
+            Message.ephemeral == False
+        ).order_by(Message.timestamp.asc()).all()
+    elif message_mode == "ephemeral":
+        messages = Message.query.filter(
+            Message.chat_id == chat.id,
+            Message.ephemeral == True,
+            Message.seen == False  # solo mostrar efímeros NO vistos
+        ).order_by(Message.timestamp.asc()).all()
+    else:
+        return jsonify([])  # modo inválido
 
-    messages = Message.query.filter(
-        Message.chat_id == chat.id,
-        or_(
-            Message.ephemeral == False, # todos los mensajes no efimeros
-            and_(Message.ephemeral == True, Message.seen == False) # o
-        )
-    ).order_by(Message.timestamp.asc()).all()
-
-
-    #marcar msjs como vistos
     for msg in messages:
         sender_username = get_username_from_profile(msg.sender_profile_id, msg.sender_mode)
         if sender_username != current_user and not msg.seen:
-            msg.seen = True
+            msg.seen = True  # solo los del modo actual
 
     db.session.commit()
 
@@ -210,6 +238,7 @@ def handle_connect(auth):
         username = decoded["sub"]  # el username lo tenés como 'identity' al hacer create_access_token(identity=username)
 
         request.environ["username"] = username
+        connected_users[username] = request.sid
         print(f"✅ Usuario {username} conectado por WebSocket")
 
     except Exception as e:
@@ -254,8 +283,6 @@ def streaks(chat_id):
 
     return chat.streaks
 
-
-
 @socketio.on("message_seen")
 def handle_message_seen(data):
     message = Message.query.get(data["messageId"])
@@ -269,18 +296,39 @@ def handle_message_seen(data):
         }, to=str(message.sender_profile_id))
 
 @socketio.on("leave")
-@jwt_required()
-def handle_leave(data):
-    current_user = get_jwt_identity()
-    target = data.get("target_user")
+def handle_leave():
+    sid = request.sid
 
-    # Borrar solo efímeros ya vistos entre ambos usuarios
+    # Buscar el usuario desconectado y borrarlo del mapa
+    disconnected_user = None
+    for username, stored_sid in list(connected_users.items()):
+        if stored_sid == sid:
+            disconnected_user = username
+            del connected_users[username]
+            print(f"👋 Usuario {username} desconectado del WebSocket")
+            break
+
+    if not disconnected_user:
+        return
+
+    # Borrar mensajes efímeros ya vistos enviados por este usuario
     messages = Message.query.filter_by(
-        sender=current_user,
-        recipient=target,
+        sender=disconnected_user,
         ephemeral=True,
         seen=True
     ).all()
+
     for m in messages:
         db.session.delete(m)
+
     db.session.commit()
+
+@socketio.on("mark_seen")
+def handle_mark_seen(data):
+    try:
+        msg = Message.query.get(data["id"])
+        if msg and msg.ephemeral and not msg.seen:
+            msg.seen = True
+            db.session.commit()
+    except Exception as e:
+        print("Error updating seen = true:", e)
