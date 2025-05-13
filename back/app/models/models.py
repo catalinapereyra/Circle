@@ -183,3 +183,15 @@ class Message(db.Model):
 
     # No se define ForeignKey directa a CoupleMode o FriendshipMode por ser dinámica
 
+class RandomQuestionGame(db.Model):
+    __tablename__ = 'random_question_game'
+
+    question_id = db.Column(db.Integer, primary_key=True)
+    question_text = db.Column(db.Text, nullable=False)
+
+class ChatQuestion(db.Model):
+    __tablename__ = 'random_questions_already_used'
+
+    id = db.Column(db.Integer, primary_key=True)
+    question_id = db.Column(db.Integer, db.ForeignKey('random_question_game.id'), nullable=False)
+    chat_id = db.Column(db.Integer, db.ForeignKey('chat.id'), nullable=False)

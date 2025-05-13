@@ -103,3 +103,4 @@ Usar el /me para todo lo que sea PRIVADO o personal (datos sensibles, configurac
 
 Usar el  /user/<username> para mostrar datos visibles de otros usuarios (como en un match o en un swipe)
 
+python main.py

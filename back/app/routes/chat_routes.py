@@ -3,12 +3,13 @@ from flask import Blueprint, render_template, request, jsonify
 from flask_socketio import join_room, leave_room, send, emit
 from app.routes.match_routes import is_there_a_match
 from flask_jwt_extended import get_jwt_identity, jwt_required
-from app.models.models import Message, MatchMode, Chat, db, CoupleMode, FriendshipMode
+from app.models.models import Message, MatchMode, Chat, db, CoupleMode, FriendshipMode, RandomQuestionGame, ChatQuestion
 from flask_jwt_extended import verify_jwt_in_request
 from flask_socketio import disconnect
 from flask_jwt_extended import decode_token
 from datetime import datetime, timedelta
 from sqlalchemy import or_, not_, and_
+import random
 
 chat_bp = Blueprint('chat', __name__)
 connected_users = {}
@@ -332,3 +333,54 @@ def handle_mark_seen(data):
             db.session.commit()
     except Exception as e:
         print("Error updating seen = true:", e)
+
+
+
+def get_random_question(chat_id):
+    # preguntas que ya se usaron
+    used_question_ids = db.session.query(ChatQuestion.question_id).filter_by(chat_id=chat_id)
+
+    # preguntas que no se usaron
+    unused_questions = db.session.query(RandomQuestionGame).filter(~RandomQuestionGame.id.in_(used_question_ids)).all()
+
+    if not unused_questions:
+        return None  # Todas las preguntas ya se usaron
+
+    # Elegir una al azar
+    question = random.choice(unused_questions)
+
+    # Registrar que se usó esta pregunta
+    chat_question = ChatQuestion(chat_id=chat_id, question_id=question.id)
+    db.session.add(chat_question)
+    db.session.commit()
+
+    return question
+
+@socketio.on("ask_random_question")
+@jwt_required()
+def handle_random_question(data):
+    sender = get_jwt_identity()
+    chat_id = data["chat_id"]
+
+    chat = Chat.query.get(chat_id)
+    if not chat:
+        emit("error", {"message": "Chat no encontrado."})
+        return
+
+    question = get_random_question(chat_id)  # busca una pregunta no repetida
+
+    match = chat.match
+    room = get_room_name(match.user1, match.user2)
+
+    if question:
+        emit("new_message", {
+            "content": question.question,
+            "sender": sender,
+            "ephemeral": False,
+        }, to=room)
+    else:
+        emit("new_message", {
+            "content": "¡Ya no hay más preguntas!",
+            "sender": sender,
+            "ephemeral": False,
+        }, to=room)

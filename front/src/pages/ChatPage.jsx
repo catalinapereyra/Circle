@@ -84,9 +84,11 @@ export default function ChatPage() {
             const messageObj = {
                 ...data,
                 isMine,
-                display: isMine
-                    ? `${data.message} ${data.seen ? "✅" : "⏳"}`
-                    : `${data.sender}: ${data.message}`,
+                display: data.sender === "game"
+                    ? `🎯 Pregunta del juego: ${data.content || data.message}`
+                    : isMine
+                        ? `${data.message} ${data.seen ? "✅" : "⏳"}`
+                        : `${data.sender}: ${data.message}`,
             };
 
             // Mostrar solo si el mensaje pertenece al modo actual
@@ -158,6 +160,12 @@ export default function ChatPage() {
 
             <button onClick={() => setIsEphemeralMode((prev) => !prev)}>
                 {isEphemeralMode ? "Modo normal" : "Modo efímero"}
+            </button>
+
+            <button onClick={() => {
+                socketRef.current.emit("ask_random_question", { chat_id: targetUser });
+            }}>
+                🎲 Pregunta random
             </button>
 
             <div>

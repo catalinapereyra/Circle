@@ -43,7 +43,8 @@ def create_app():
 
     db.init_app(app)
     migrate.init_app(app, db)
-    socketio.init_app(app, cors_allowed_origins="*")
+    # socketio.init_app(app, cors_allowed_origins="*")
+    socketio.init_app(app, cors_allowed_origins="http://localhost:5173")
 
 
     # Registrar blueprints
@@ -57,3 +58,8 @@ def create_app():
         db.create_all()
 
     return app
+
+if __name__ == "__main__":
+    app = create_app()
+    # app.run(host="0.0.0.0", port=5000, debug=True)
+    socketio.run(app, host="127.0.0.1", port=5001, debug=True)
