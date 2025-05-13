@@ -15,6 +15,9 @@ export default function ChatPage() {
     const [streak, setStreak] = useState(0);
 
     const socketRef = useRef(null);
+    const prevEphemeralMode = useRef(false);
+    // tengo que guardar el estado para que los mensajes efimeros se borren cuando
+    // cambio de ephemeral true a false, no cuando entreo al chatr, sino cuando me voy
 
     if (!token) return <Navigate to="/login" />;
 
@@ -46,15 +49,25 @@ export default function ChatPage() {
             });
     }, [targetUser, currentMode]);
 
-    // ✅ Cuando se entra a modo efímero, se muestran y se marcan como vistos
+    // Cuando se entra a modo efímero, se muestran los efimeros
     useEffect(() => {
         if (isEphemeralMode && pendingEphemerals.length > 0) {
+            // Mostrar los mensajes efímeros en la vista
+            setMessages(pendingEphemerals);
+        }
+    }, [isEphemeralMode, pendingEphemerals]);
+
+    // cuando salgo del modo efimero (epehemeral -> true a false) se marcan como vistos
+    useEffect(() => {
+        if (prevEphemeralMode.current === true && isEphemeralMode === false) {
+            // sali del efimero → marcar como vistos
             pendingEphemerals.forEach((msg) => {
                 socketRef.current?.emit("mark_seen", { id: msg.id });
             });
-            setMessages(pendingEphemerals);
             setPendingEphemerals([]);
         }
+
+        prevEphemeralMode.current = isEphemeralMode;
     }, [isEphemeralMode]);
 
     // 🔌 WebSocket setup
@@ -98,7 +111,7 @@ export default function ChatPage() {
         });
 
         socket.on("messages_seen", () => {
-            fetchMessages(); // opcional: refresca visto/⏳
+            fetchMessages();
         });
 
         socket.on("streak_updated", (data) => {

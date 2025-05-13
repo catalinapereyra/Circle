@@ -111,7 +111,7 @@ def handle_private_message(data):
             socketio.emit("new_message", {
                 "sender": sender,
                 "message": message_text,
-                "ephemeral": False,
+                "ephemeral": ephemeral,
                 "seen": False,  # receptor no lo vio
                 "id": new_message.id
             }, to=recipient_sid)
@@ -119,7 +119,7 @@ def handle_private_message(data):
         socketio.emit("new_message", {
             "sender": sender,
             "message": message_text,
-            "ephemeral": False,
+            "ephemeral": ephemeral,
             "seen": True,
             "id": new_message.id
         }, to=request.sid)
