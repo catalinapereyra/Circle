@@ -186,7 +186,7 @@ class Message(db.Model):
 class RandomQuestionGame(db.Model):
     __tablename__ = 'random_question_game'
 
-    question_id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True)
     question_text = db.Column(db.Text, nullable=False)
 
 class ChatQuestion(db.Model):
