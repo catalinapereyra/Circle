@@ -13,6 +13,7 @@ export default function ChatPage() {
     const [isEphemeralMode, setIsEphemeralMode] = useState(false);
     const [isOnline, setIsOnline] = useState(false);
     const [streak, setStreak] = useState(0);
+    const [chatId, setChatId] = useState(null);
 
     const socketRef = useRef(null);
     const prevEphemeralMode = useRef(false);
@@ -38,6 +39,7 @@ export default function ChatPage() {
                         : `${msg.sender}: ${msg.message}`,
                 }));
 
+                // Si es efímero y no visto, guardarlo en pendingEphemerals
                 if (currentMode === "ephemeral") {
                     setPendingEphemerals(formatted);
                     setMessages([]); // mostrar solo cuando se active
@@ -45,9 +47,17 @@ export default function ChatPage() {
                     setMessages(formatted);
                 }
 
+                console.log("🟢 data:", data);
+
                 setStreak(data.streak);
+
+                if (data.chat_id) {
+                    console.log("✅ chatId recibido:", data.chat_id);
+                    setChatId(data.chat_id);
+                }
             });
     }, [targetUser, currentMode]);
+
 
     // Cuando se entra a modo efímero, se muestran los efimeros
     useEffect(() => {
@@ -84,11 +94,20 @@ export default function ChatPage() {
             const messageObj = {
                 ...data,
                 isMine,
-                display: isMine
-                    ? `${data.message} ${data.seen ? "✅" : "⏳"}`
-                    : `${data.sender}: ${data.message}`,
+                display: data.is_question
+                    ? `❓ ${data.message}`
+                    : isMine
+                        ? `${data.message} ${data.seen ? "✅" : "⏳"}`
+                        : `${data.sender}: ${data.message}`,
             };
 
+            // Mostrar preguntas siempre, sin importar el modo
+            if (data.is_question) {
+                setMessages((prev) => [...prev, messageObj]);
+                return;
+            }
+
+            console.log("📩 Recibido mensaje:", data);
             // Mostrar solo si el mensaje pertenece al modo actual
             if (data.ephemeral && currentMode !== "ephemeral") return;
             if (!data.ephemeral && currentMode !== "normal") return;
@@ -158,6 +177,22 @@ export default function ChatPage() {
 
             <button onClick={() => setIsEphemeralMode((prev) => !prev)}>
                 {isEphemeralMode ? "Modo normal" : "Modo efímero"}
+            </button>
+
+            <button
+                onClick={() => {
+                    if (!chatId) {
+                        console.warn("⚠️ chatId aún no está listo");
+                        return;
+                    }
+                    console.log("✅ Enviando pregunta con chat_id:", chatId);
+                    socketRef.current.emit("random_question_game", {
+                        chat_id: chatId,
+                        recipient: targetUser,
+                    });
+                }}
+            >
+                ❓ Pregunta Aleatoria (socket)
             </button>
 
             <div>

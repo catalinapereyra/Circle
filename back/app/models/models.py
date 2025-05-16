@@ -1,3 +1,4 @@
+import enum
 from enum import Enum
 
 import sqlalchemy
@@ -12,6 +13,11 @@ class Genders(Enum): #clase para generar las opciones de gender
     MALE = 1
     FEMALE = 2
     OTHER = 3
+
+class Mode(enum.Enum):
+    FRIENDSHIP = "friendship"
+    COUPLE = "couple"
+
 
 class User(db.Model):
     __tablename__ = 'user'
@@ -132,9 +138,7 @@ class Swipe(db.Model): # creo la tabla swipes para almacenar quienes ya me apare
         # esta linea dice que no vuelva a aparecer en el mismo modo un user que ya aparece en la tabla swipe de ese user
     )
 
-class MatchMode(Enum):
-    FRIENDSHIP = "friendship"
-    COUPLE = "couple"
+
 
 class Match(db.Model):
     __tablename__ = 'match'
@@ -142,7 +146,7 @@ class Match(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user1 = db.Column(db.String(25), db.ForeignKey('user.username'), nullable=False)
     user2 = db.Column(db.String(25), db.ForeignKey('user.username'), nullable=False)
-    mode = db.Column(db.Enum(MatchMode), nullable=False)
+    mode = db.Column(db.Enum(Mode), nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
     __table_args__ = (
@@ -173,13 +177,25 @@ class Message(db.Model):
     chat_id = db.Column(db.Integer, db.ForeignKey('chat.id'), nullable=False)
 
     sender_profile_id = db.Column(db.Integer, nullable=False)
-    sender_mode = db.Column(db.Enum(MatchMode), nullable=False)  # "couple" o "friendship"
+    sender_mode = db.Column(db.Enum(Mode), nullable=False)  # "couple" o "friendship"
 
     content = db.Column(db.Text, nullable=False)
     timestamp = db.Column(db.DateTime, default=datetime.utcnow)
 
     ephemeral = db.Column(db.Boolean, default=False)
     seen = db.Column(db.Boolean, default=False)
+    is_question = db.Column(db.Boolean, default=False)
 
     # No se define ForeignKey directa a CoupleMode o FriendshipMode por ser dinámica
 
+class Question(db.Model):
+    __tablename__ = 'question'
+    id = db.Column(db.Integer, primary_key=True)
+    question = db.Column(db.Text, nullable=False)
+    mode = db.Column(db.Enum(Mode), nullable=False)
+
+class UsedQuestion(db.Model):
+    __tablename__ = 'used_question'
+    id = db.Column(db.Integer, primary_key=True)
+    question_id = db.Column(db.Integer, db.ForeignKey('question.id'), nullable=False)
+    chat_id = db.Column(db.Integer, db.ForeignKey('chat.id'), nullable=False)

@@ -1,15 +1,15 @@
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
-from app.models.models import Swipe, SwipeType, SwipeMode, User, Match
+from app.models.models import Swipe, SwipeType, SwipeMode, User, Match, Chat
 from app.extensions import db
 
 bp_match = Blueprint('match', __name__, url_prefix='/match')
 
-from app.models.models import Swipe, SwipeType, SwipeMode, User, Match, MatchMode
+from app.models.models import Swipe, SwipeType, SwipeMode, User, Match, Mode
 
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
-from app.models.models import Swipe, SwipeType, SwipeMode, User, Match, MatchMode
+from app.models.models import Swipe, SwipeType, SwipeMode, User, Match, Mode
 from app.extensions import db
 
 bp_match = Blueprint('match', __name__, url_prefix='/match')
@@ -65,10 +65,16 @@ def swipe_user():
                 new_match = Match(
                     user1=swiper,
                     user2=swiped,
-                    mode=MatchMode.COUPLE if mode == "couple" else MatchMode.FRIENDSHIP
+                    mode=Mode.COUPLE if mode == "couple" else Mode.FRIENDSHIP
                 )
                 db.session.add(new_match)
                 db.session.commit()
+                # Crear el chat para este match
+                chat = Chat(match_id=new_match.id)
+                db.session.add(chat)
+                db.session.commit()
+
+                print(f"💬 Chat creado para match {new_match.id}")
                 print(f"✨ Nuevo match entre {swiper} y {swiped} en modo {mode}")
                 return jsonify({
                     'match': True,

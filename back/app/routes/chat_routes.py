@@ -3,12 +3,13 @@ from flask import Blueprint, render_template, request, jsonify
 from flask_socketio import join_room, leave_room, send, emit
 from app.routes.match_routes import is_there_a_match
 from flask_jwt_extended import get_jwt_identity, jwt_required
-from app.models.models import Message, MatchMode, Chat, db, CoupleMode, FriendshipMode
+from app.models.models import Message, Mode, Chat, db, CoupleMode, FriendshipMode, UsedQuestion, Question
 from flask_jwt_extended import verify_jwt_in_request
 from flask_socketio import disconnect
 from flask_jwt_extended import decode_token
 from datetime import datetime, timedelta
 from sqlalchemy import or_, not_, and_
+from app.models.models import Match
 
 chat_bp = Blueprint('chat', __name__)
 connected_users = {}
@@ -58,9 +59,9 @@ def get_match_instance(user1, user2):
 #busca el perfil (couple o friendship) segun el modo del match
 def get_sender_profile(username, mode):
     from app.models.models import CoupleMode, FriendshipMode
-    if mode == MatchMode.COUPLE:
+    if mode == Mode.COUPLE:
         return CoupleMode.query.filter_by(username=username).first()
-    elif mode == MatchMode.FRIENDSHIP:
+    elif mode == Mode.FRIENDSHIP:
         return FriendshipMode.query.filter_by(username=username).first()
     return None
 
@@ -101,6 +102,7 @@ def handle_private_message(data):
             content=message_text,
             ephemeral = ephemeral,
             seen = False,
+            is_question = False,
         )
         db.session.add(new_message)
         db.session.commit()
@@ -113,7 +115,8 @@ def handle_private_message(data):
                 "message": message_text,
                 "ephemeral": ephemeral,
                 "seen": False,  # receptor no lo vio
-                "id": new_message.id
+                "id": new_message.id,
+                "is_question": new_message.is_question,
             }, to=recipient_sid)
 
         socketio.emit("new_message", {
@@ -121,19 +124,10 @@ def handle_private_message(data):
             "message": message_text,
             "ephemeral": ephemeral,
             "seen": True,
-            "id": new_message.id
+            "id": new_message.id,
+            "is_question": new_message.is_question,
         }, to=request.sid)
 
-        #emite el mensaje a todos los usuarios en el room
-        # room = get_room_name(sender, recipient)
-        #
-        # socketio.emit("new_message", {
-        #     "sender": sender,
-        #     "message": message_text,
-        #     "ephemeral": ephemeral,
-        #     "seen": False,
-        #     "id": new_message.id
-        # }, to=room)
 
     except Exception as e:
         print("Error saving message:", e)
@@ -149,9 +143,9 @@ def get_room_name(user1, user2):
 
 #recibe el id del perfil y el modo (couple o friendship) y busca el username original desde la tabla correspondiente
 def get_username_from_profile(profile_id, mode):
-    if mode == MatchMode.COUPLE:
+    if mode == Mode.COUPLE:
         profile = CoupleMode.query.get(profile_id)
-    elif mode == MatchMode.FRIENDSHIP:
+    elif mode == Mode.FRIENDSHIP:
         profile = FriendshipMode.query.get(profile_id)
     else:
         return "Unknown"
@@ -169,13 +163,20 @@ def get_chat_messages(username):
 
     # busca el match
     match = get_match_instance(current_user, username)
-    if not match:
-        return jsonify([])
+    # if not match:
+    #     return jsonify([])
 
     # obtiene el chat relacionado a ese match
     chat = Chat.query.filter_by(match_id=match.id).first()
-    if not chat:
-        return jsonify([])
+    # if not chat:
+    #     return jsonify([])
+
+    if not match or not chat:
+        return jsonify({
+            "chat_id": None,
+            "messages": [],
+            "streak": 0
+        })
 
     # trae los mensajes de ese chat
     # messages = Message.query.filter_by(chat_id=chat.id).order_by(Message.timestamp.asc()).all()
@@ -211,6 +212,7 @@ def get_chat_messages(username):
     current_streak = streaks(chat.id)
 
     return jsonify({
+        "chat_id": chat.id, # no lo tengo que incluid dentro del mensaje, sino como estado global
         "messages": [
             {
                 "sender": get_username_from_profile(m.sender_profile_id, m.sender_mode),
@@ -219,6 +221,7 @@ def get_chat_messages(username):
                 "seen": m.seen,
                 "ephemeral": m.ephemeral,
                 "id": m.id,
+                "is_question": m.is_question,
             } for m in messages
         ],
         "streak": current_streak
@@ -251,7 +254,11 @@ def streaks(chat_id):
     chat = Chat.query.get(chat_id)
 
     if not chat:
-        return 0  # o podrías crear uno nuevo
+        return jsonify({
+            "chat_id": None,
+            "messages": [],
+            "streak": 0
+        })
 
     now = datetime.utcnow()
 
@@ -332,3 +339,90 @@ def handle_mark_seen(data):
             db.session.commit()
     except Exception as e:
         print("Error updating seen = true:", e)
+
+@socketio.on("random_question_game")
+def question_game(data):
+    print("📥 Socket recibió 'random_question_game':", data)
+    chat_id = data.get("chat_id")
+    recipient = data.get("recipient")
+    sender = request.environ.get("username")
+
+    chat = Chat.query.get(chat_id)
+    if not chat:
+        print("❌ Chat no encontrado con id:", chat_id)
+        emit("error", {"error": "Chat no encontrado"}, to=request.sid)
+        return
+
+    match = Match.query.get(chat.match_id)
+    if not match:
+        print("❌ Match no encontrado para chat:", chat.id)
+        emit("error", {"error": "Match no encontrado"}, to=request.sid)
+        return
+
+    if not match or not chat:
+        return jsonify({
+            "chat_id": None,
+            "messages": [],
+            "streak": 0
+        })
+
+    used_question_ids = [uq.question_id for uq in UsedQuestion.query.filter_by(chat_id=chat_id).all()]
+
+    available_questions = Question.query.filter(
+        ~Question.id.in_(used_question_ids),
+        Question.mode == match.mode
+    ).all()
+
+    if not available_questions:
+        print("no more available questions")
+        return
+
+    import random
+    question = random.choice(available_questions)
+    print(question)
+
+
+    # Guardar que fue usada
+    used = UsedQuestion(chat_id=chat_id, question_id=question.id)
+    db.session.add(used)
+    db.session.commit()
+
+    sender_profile = get_sender_profile(sender, match.mode)
+    if not sender_profile:
+        print("❌ No se encontró el perfil del sender")
+        return
+
+    new_message = Message(
+        chat_id=chat_id,
+        sender_profile_id = sender_profile.id,
+        sender_mode= match.mode,
+        content=question.question,
+        ephemeral=False,
+        seen=False,
+        is_question = True
+    )
+    db.session.add(new_message)
+    db.session.commit()
+
+    # Emitir al receptor
+    emit("new_message", {
+        "sender": sender,
+        "message": question.question,
+        "ephemeral": False,
+        "seen": False,
+        "id": new_message.id,
+        "is_question": True
+    }, to=get_sid_by_username(recipient))
+
+    # Emitir al emisor (ya marcado como visto)
+    emit("new_message", {
+        "sender": sender,
+        "message": question.question,
+        "ephemeral": False,
+        "seen": True,
+        "id": new_message.id,
+        "is_question": True
+    }, to=request.sid)
+
+    print("🎲 Pregunta seleccionada:", question.question)
+    emit("question_sent", {"status": "ok", "question": question.question}, to=request.sid)
