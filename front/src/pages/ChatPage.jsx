@@ -86,6 +86,7 @@ export default function ChatPage() {
         socketRef.current = socket;
 
         socket.on("connect", () => {
+            console.log("🟢 WebSocket conectado");
             socket.emit("join", { target_user: targetUser });
         });
 

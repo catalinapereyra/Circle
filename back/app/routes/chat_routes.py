@@ -343,86 +343,89 @@ def handle_mark_seen(data):
 @socketio.on("random_question_game")
 def question_game(data):
     print("📥 Socket recibió 'random_question_game':", data)
-    chat_id = data.get("chat_id")
-    recipient = data.get("recipient")
-    sender = request.environ.get("username")
+    try:
+        chat_id = data.get("chat_id")
+        recipient = data.get("recipient")
+        sender = request.environ.get("username")
 
-    chat = Chat.query.get(chat_id)
-    if not chat:
-        print("❌ Chat no encontrado con id:", chat_id)
-        emit("error", {"error": "Chat no encontrado"}, to=request.sid)
-        return
+        chat = Chat.query.get(chat_id)
+        if not chat:
+            print("❌ Chat no encontrado con id:", chat_id)
+            emit("error", {"error": "Chat no encontrado"}, to=request.sid)
+            return
 
-    match = Match.query.get(chat.match_id)
-    if not match:
-        print("❌ Match no encontrado para chat:", chat.id)
-        emit("error", {"error": "Match no encontrado"}, to=request.sid)
-        return
+        match = Match.query.get(chat.match_id)
+        if not match:
+            print("❌ Match no encontrado para chat:", chat.id)
+            emit("error", {"error": "Match no encontrado"}, to=request.sid)
+            return
 
-    if not match or not chat:
-        return jsonify({
-            "chat_id": None,
-            "messages": [],
-            "streak": 0
-        })
+        if not match or not chat:
+            return jsonify({
+                "chat_id": None,
+                "messages": [],
+                "streak": 0
+            })
 
-    used_question_ids = [uq.question_id for uq in UsedQuestion.query.filter_by(chat_id=chat_id).all()]
+        used_question_ids = [uq.question_id for uq in UsedQuestion.query.filter_by(chat_id=chat_id).all()]
 
-    available_questions = Question.query.filter(
-        ~Question.id.in_(used_question_ids),
-        Question.mode == match.mode
-    ).all()
+        available_questions = Question.query.filter(
+            ~Question.id.in_(used_question_ids),
+            Question.mode == match.mode
+        ).all()
 
-    if not available_questions:
-        print("no more available questions")
-        return
+        if not available_questions:
+            print("no more available questions")
+            return
 
-    import random
-    question = random.choice(available_questions)
-    print(question)
+        import random
+        question = random.choice(available_questions)
+        print(question)
 
 
-    # Guardar que fue usada
-    used = UsedQuestion(chat_id=chat_id, question_id=question.id)
-    db.session.add(used)
-    db.session.commit()
+        # Guardar que fue usada
+        used = UsedQuestion(chat_id=chat_id, question_id=question.id)
+        db.session.add(used)
+        db.session.commit()
 
-    sender_profile = get_sender_profile(sender, match.mode)
-    if not sender_profile:
-        print("❌ No se encontró el perfil del sender")
-        return
+        sender_profile = get_sender_profile(sender, match.mode)
+        if not sender_profile:
+            print("❌ No se encontró el perfil del sender")
+            return
 
-    new_message = Message(
-        chat_id=chat_id,
-        sender_profile_id = sender_profile.id,
-        sender_mode= match.mode,
-        content=question.question,
-        ephemeral=False,
-        seen=False,
-        is_question = True
-    )
-    db.session.add(new_message)
-    db.session.commit()
+        new_message = Message(
+            chat_id=chat_id,
+            sender_profile_id = sender_profile.id,
+            sender_mode= match.mode,
+            content=question.question,
+            ephemeral=False,
+            seen=False,
+            is_question = True
+        )
+        db.session.add(new_message)
+        db.session.commit()
 
-    # Emitir al receptor
-    emit("new_message", {
-        "sender": sender,
-        "message": question.question,
-        "ephemeral": False,
-        "seen": False,
-        "id": new_message.id,
-        "is_question": True
-    }, to=get_sid_by_username(recipient))
+        # Emitir al receptor
+        emit("new_message", {
+            "sender": sender,
+            "message": question.question,
+            "ephemeral": False,
+            "seen": False,
+            "id": new_message.id,
+            "is_question": True
+        }, to=get_sid_by_username(recipient))
 
-    # Emitir al emisor (ya marcado como visto)
-    emit("new_message", {
-        "sender": sender,
-        "message": question.question,
-        "ephemeral": False,
-        "seen": True,
-        "id": new_message.id,
-        "is_question": True
-    }, to=request.sid)
+        # Emitir al emisor (ya marcado como visto)
+        emit("new_message", {
+            "sender": sender,
+            "message": question.question,
+            "ephemeral": False,
+            "seen": True,
+            "id": new_message.id,
+            "is_question": True
+        }, to=request.sid)
 
-    print("🎲 Pregunta seleccionada:", question.question)
-    emit("question_sent", {"status": "ok", "question": question.question}, to=request.sid)
+        print("🎲 Pregunta seleccionada:", question.question)
+        emit("question_sent", {"status": "ok", "question": question.question}, to=request.sid)
+    except Exception as e:
+        print("❌ Error en random_question_game:", e)
