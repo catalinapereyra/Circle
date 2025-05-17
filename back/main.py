@@ -57,3 +57,8 @@ def create_app():
         db.create_all()
 
     return app
+
+if __name__ == '__main__':
+    app = create_app()
+    from app.extensions import socketio
+    socketio.run(app, port=5001, debug=True)
