@@ -106,3 +106,5 @@ Usar el  /user/<username> para mostrar datos visibles de otros usuarios (como en
 ahora cada vez que dropeamos las tablas, hay que correr python seed_questions.py que ahi es donde cargamos nuestras preguntas en un file y se pasan a la base de datos
 Rocio: y despues como siempre
  Rocio: pero se corre con python main.py
+
+PREGUNTAS ALEATORIAS: python seed_questions.py

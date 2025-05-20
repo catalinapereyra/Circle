@@ -56,16 +56,12 @@ def create_couple_profile():
     db.session.add(new_profile)
     db.session.commit()
 
-    upload_folder = 'uploads/couple_photos'
-    os.makedirs(upload_folder, exist_ok=True)
-
     for file in extra_photos:
         if file and allowed_file(file.filename):
-            filename = secure_filename(file.filename)
-            filepath = os.path.join(upload_folder, filename)
-            file.save(filepath)
+            photo_bytes = file.read()
+            encoded_photo = base64.b64encode(photo_bytes).decode('utf-8')
 
-            photo = CouplePhoto(couple_id=new_profile.id, filename=filename)
+            photo = CouplePhoto(couple_id=new_profile.id, photo_data=encoded_photo)
             db.session.add(photo)
         else:
             return jsonify({'error': 'Invalid file type'}), 400
@@ -104,16 +100,12 @@ def create_friendship_profile():
     db.session.add(new_profile)
     db.session.commit()
 
-    upload_folder = 'uploads/friendship_photos'
-    os.makedirs(upload_folder, exist_ok=True)
-
     for file in extra_photos:
         if file and allowed_file(file.filename):
-            filename = secure_filename(file.filename)
-            filepath = os.path.join(upload_folder, filename)
-            file.save(filepath)
+            photo_bytes = file.read()
+            encoded_photo = base64.b64encode(photo_bytes).decode('utf-8')
 
-            photo = FriendshipPhoto(friendship_id=new_profile.id, filename=filename)
+            photo = FriendshipPhoto(friendship_id=new_profile.id, photo_data=encoded_photo)
             db.session.add(photo)
         else:
             return jsonify({'error': 'Invalid file type'}), 400
@@ -183,7 +175,7 @@ def get_profiles_by_mode(mode):
                 'bio': p.bio,
                 'interest': p.interest,
                 'profile_picture': p.profile_picture,
-                'photos': [photo.filename for photo in p.photos],
+                'photos': [f"data:image/jpeg;base64,{photo.photo_data}" for photo in p.photos]
             }
             for p in profiles
         ]
@@ -202,13 +194,15 @@ def get_profiles_by_mode(mode):
                 'age': p.user.age,
                 'bio': p.bio,
                 'interest': p.interest,
-                'profile_picture': p.profile_picture
+                'profile_picture': p.profile_picture,
+                'photos': [f"data:image/jpeg;base64,{photo.photo_data}" for photo in p.photos]
             }
             for p in profiles
         ]
         return jsonify(result)
 
     return jsonify({'error': 'Modo inválido'}), 400
+
 
 
 @bp_profile.route('/public/<username>', methods=['GET'])
@@ -302,7 +296,8 @@ def get_my_couple_profile():
         'bio': profile.bio,
         'interest': profile.interest,
         'profile_picture': profile.profile_picture,
-        'photos': [photo.filename for photo in profile.photos]
+        'photos': [f"data:image/jpeg;base64,{photo.photo_data}" for photo in profile.photos]
+
     }), 200
 
 @bp_profile.route('/my-friendship-profile', methods=['GET'])
@@ -319,7 +314,8 @@ def get_my_friendship_profile():
         'bio': profile.bio,
         'interest': profile.interest,
         'profile_picture': profile.profile_picture,
-        'photos': [photo.filename for photo in profile.photos]
+        'photos': [f"data:image/jpeg;base64,{photo.photo_data}" for photo in profile.photos]
+
     }), 200
 
 
