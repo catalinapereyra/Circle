@@ -56,6 +56,7 @@ def create_couple_profile():
     db.session.add(new_profile)
     db.session.commit()
 
+#encodeo las fotos
     for file in extra_photos:
         if file and allowed_file(file.filename):
             photo_bytes = file.read()
@@ -100,6 +101,7 @@ def create_friendship_profile():
     db.session.add(new_profile)
     db.session.commit()
 
+#encodeo
     for file in extra_photos:
         if file and allowed_file(file.filename):
             photo_bytes = file.read()
