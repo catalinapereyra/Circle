@@ -186,6 +186,7 @@ class Message(db.Model):
     seen = db.Column(db.Boolean, default=False)
     is_question = db.Column(db.Boolean, default=False)
 
+
     # No se define ForeignKey directa a CoupleMode o FriendshipMode por ser dinámica
 
 class Question(db.Model):
