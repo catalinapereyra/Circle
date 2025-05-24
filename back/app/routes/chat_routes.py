@@ -536,6 +536,31 @@ def handle_card_game_completed(data):
 
         emit("card_game_saved", {"status": "ok"}, to=request.sid)
 
+        # 💡 Si ambos ya respondieron, comparar respuestas y emitir coincidencias
+        answers_user1 = CardGameAnswer.query.filter_by(interaction_id=interaction.id, user_username=match.user1).all()
+        answers_user2 = CardGameAnswer.query.filter_by(interaction_id=interaction.id, user_username=match.user2).all()
+
+        if answers_user1 and answers_user2:
+            map1 = {a.question_id: a.answer for a in answers_user1}
+            map2 = {a.question_id: a.answer for a in answers_user2}
+            coincidences = []
+
+            for qid in map1:
+                if qid in map2 and map1[qid] == map2[qid]:
+                    q = CardGameQuestion.query.get(qid)
+                    coincidences.append({
+                        "question": q.question,
+                        "answer": map1[qid]
+                    })
+
+            for username in [match.user1, match.user2]:
+                emit("card_game_result", {
+                    "coincidences": coincidences
+                }, to=get_sid_by_username(username))
+
+            print("🎯 Coincidencias enviadas:", coincidences)
+
+
     except Exception as e:
         print("❌ Error en card_game_completed:", e)
         emit("error", {"error": "Error al guardar respuestas"}, to=request.sid)
@@ -545,9 +570,6 @@ def handle_card_game_completed(data):
 
 @socketio.on("check_card_game_turn")
 def handle_check_card_game_turn(data):
-    """
-    Verifica si es el turno del usuario para jugar el juego de cartas
-    """
     try:
         sender = request.environ.get("username")
         match_id = data.get("match_id")
@@ -557,13 +579,11 @@ def handle_check_card_game_turn(data):
             emit("error", {"error": "Match inválido o no autorizado"}, to=request.sid)
             return
 
-        # Buscar la interacción del juego de cartas
         interaction = CardGameInteraction.query.filter_by(match_id=match_id).first()
         if not interaction:
             emit("error", {"error": "No hay juego de cartas activo para este match"}, to=request.sid)
             return
 
-        # Verificar si el usuario ya respondió
         already_answered = CardGameAnswer.query.filter_by(
             interaction_id=interaction.id,
             user_username=sender
@@ -573,11 +593,8 @@ def handle_check_card_game_turn(data):
             emit("error", {"error": "Ya completaste este juego de cartas"}, to=request.sid)
             return
 
-        # Si no ha respondido, enviarle las preguntas
         question_ids = interaction.question_ids
         questions = CardGameQuestion.query.filter(CardGameQuestion.id.in_(question_ids)).all()
-
-        # Ordenar las preguntas según el orden original
         questions_dict = {q.id: q for q in questions}
         ordered_questions = [questions_dict[qid] for qid in question_ids if qid in questions_dict]
 
@@ -598,3 +615,5 @@ def handle_check_card_game_turn(data):
     except Exception as e:
         print("❌ Error en check_card_game_turn:", e)
         emit("error", {"error": "Error al verificar turno"}, to=request.sid)
+
+

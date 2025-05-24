@@ -2,6 +2,8 @@ import { useEffect, useState, useRef } from "react";
 import { Navigate, useParams } from "react-router-dom";
 import { io } from "socket.io-client";
 import CardGameModal from "../components/CardGame/CardGameModal.jsx";
+import CardGameResultModal from "../components/CardGame/CardGameResultModal.jsx";
+
 
 export default function ChatPage() {
     const { username: targetUser } = useParams();
@@ -17,6 +19,10 @@ export default function ChatPage() {
     const [chatId, setChatId] = useState(null);
     const [matchId, setMatchId] = useState(null);
     const [userMode, setUserMode] = useState(null);
+    //para el match en el juego de cartas
+    const [cardGameResult, setCardGameResult] = useState([]);
+    const [showResultModal, setShowResultModal] = useState(false);
+
 
     // Estado para el juego de cartas
     const [showCardGame, setShowCardGame] = useState(false);
@@ -74,12 +80,28 @@ export default function ChatPage() {
     }, [isEphemeralMode]);
 
     useEffect(() => {
+        if (matchId && !interactionId) {
+            console.log("👀 Verificando si es mi turno de jugar...");
+            socketRef.current?.emit("check_card_game_turn", {
+                match_id: matchId
+            });
+        }
+    }, [matchId, interactionId]);
+
+
+    useEffect(() => {
         const socket = io("http://localhost:5001", { auth: { token } });
         socketRef.current = socket;
 
         socket.on("connect", () => {
             socket.emit("join", { target_user: targetUser });
+            // 👇 Verificar si hay un juego pendiente para este match
+            if (matchId && !interactionId) {
+                socket.emit("check_card_game_turn", { match_id: matchId });
+            }
+
         });
+
 
         socket.on("new_message", (data) => {
             const isMine = data.sender === myUsername;
@@ -159,6 +181,12 @@ export default function ChatPage() {
 
         socket.on("error", (data) => {
             alert(data.error);
+        });
+
+        socket.on("card_game_result", (data) => {
+            console.log("🎯 Coincidencias recibidas:", data.coincidences);
+            setCardGameResult(data.coincidences);
+            setShowResultModal(true);
         });
 
         return () => {
@@ -344,6 +372,14 @@ export default function ChatPage() {
                     onClose={() => setShowCardGame(false)}
                 />
             )}
+
+            {showResultModal && (
+                <CardGameResultModal
+                    coincidences={cardGameResult}
+                    onClose={() => setShowResultModal(false)}
+                />
+            )}
+
         </div>
     );
 }
