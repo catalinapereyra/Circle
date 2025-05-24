@@ -200,3 +200,47 @@ class UsedQuestion(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     question_id = db.Column(db.Integer, db.ForeignKey('question.id'), nullable=False)
     chat_id = db.Column(db.Integer, db.ForeignKey('chat.id'), nullable=False)
+
+
+
+
+#Banco de preguntas
+class CardGameQuestion(db.Model):
+    __tablename__ = 'card_game_question'
+    id = db.Column(db.Integer, primary_key=True)
+    question = db.Column(db.String(255), nullable=False)
+    option1 = db.Column(db.String(100), nullable=False)
+    option2 = db.Column(db.String(100), nullable=False)
+
+
+#Representa una partida (una selección de preguntas para un match)
+class CardGameInteraction(db.Model):
+    __tablename__ = 'card_game_interaction'
+    id = db.Column(db.Integer, primary_key=True)
+    match_id = db.Column(db.Integer, db.ForeignKey('match.id'), nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    # Guarda las preguntas usadas (lista fija de 5)
+    question_ids = db.Column(db.ARRAY(db.Integer), nullable=False)  # o Text y lo serializás
+
+
+
+#Respuestas de cada usuario a esa interacción
+class CardGameAnswer(db.Model):
+    __tablename__ = 'card_game_answer'
+
+    id = db.Column(db.Integer, primary_key=True)
+    interaction_id = db.Column(db.Integer, db.ForeignKey('card_game_interaction.id'), nullable=False)
+    user_username = db.Column(db.String(25), db.ForeignKey('user.username'), nullable=False)
+    question_id = db.Column(db.Integer, db.ForeignKey('card_game_question.id'), nullable=False)
+    answer = db.Column(db.String(100), nullable=False)
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+
+    interaction = db.relationship("CardGameInteraction", backref="answers")
+    user = db.relationship("User")
+    question = db.relationship("CardGameQuestion")
+
+
+
+#question (pregunta aleatoria)	card_game_question (juego de cartas)
+#Solo tiene question + mode	Tiene question, option1, option2

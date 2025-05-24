@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef } from "react";
 import { Navigate, useParams } from "react-router-dom";
 import { io } from "socket.io-client";
+import CardGameModal from "../components/CardGame/CardGameModal.jsx";
 
 export default function ChatPage() {
     const { username: targetUser } = useParams();
@@ -14,17 +15,20 @@ export default function ChatPage() {
     const [isOnline, setIsOnline] = useState(false);
     const [streak, setStreak] = useState(0);
     const [chatId, setChatId] = useState(null);
+    const [matchId, setMatchId] = useState(null);
+    const [userMode, setUserMode] = useState(null);
+
+    // Estado para el juego de cartas
+    const [showCardGame, setShowCardGame] = useState(false);
+    const [cardGameQuestions, setCardGameQuestions] = useState([]);
+    const [interactionId, setInteractionId] = useState(null);
 
     const socketRef = useRef(null);
     const prevEphemeralMode = useRef(false);
-    // tengo que guardar el estado para que los mensajes efimeros se borren cuando
-    // cambio de ephemeral true a false, no cuando entreo al chatr, sino cuando me voy
 
     if (!token) return <Navigate to="/login" />;
-
     const currentMode = isEphemeralMode ? "ephemeral" : "normal";
 
-    // 🔁 Fetch de mensajes según el modo
     useEffect(() => {
         fetch(`http://localhost:5001/chat/${targetUser}?mode=${currentMode}`, {
             headers: { Authorization: `Bearer ${token}` },
@@ -39,54 +43,41 @@ export default function ChatPage() {
                         : `${msg.sender}: ${msg.message}`,
                 }));
 
-                // Si es efímero y no visto, guardarlo en pendingEphemerals
                 if (currentMode === "ephemeral") {
                     setPendingEphemerals(formatted);
-                    setMessages([]); // mostrar solo cuando se active
+                    setMessages([]);
                 } else {
                     setMessages(formatted);
                 }
 
-                console.log("🟢 data:", data);
-
                 setStreak(data.streak);
-
-                if (data.chat_id) {
-                    console.log("✅ chatId recibido:", data.chat_id);
-                    setChatId(data.chat_id);
-                }
+                setChatId(data.chat_id || null);
+                setMatchId(data.match_id || null);
+                setUserMode(data.mode || null);
             });
     }, [targetUser, currentMode]);
 
-
-    // Cuando se entra a modo efímero, se muestran los efimeros
     useEffect(() => {
         if (isEphemeralMode && pendingEphemerals.length > 0) {
-            // Mostrar los mensajes efímeros en la vista
             setMessages(pendingEphemerals);
         }
     }, [isEphemeralMode, pendingEphemerals]);
 
-    // cuando salgo del modo efimero (epehemeral -> true a false) se marcan como vistos
     useEffect(() => {
         if (prevEphemeralMode.current === true && isEphemeralMode === false) {
-            // sali del efimero → marcar como vistos
             pendingEphemerals.forEach((msg) => {
                 socketRef.current?.emit("mark_seen", { id: msg.id });
             });
             setPendingEphemerals([]);
         }
-
         prevEphemeralMode.current = isEphemeralMode;
     }, [isEphemeralMode]);
 
-    // 🔌 WebSocket setup
     useEffect(() => {
         const socket = io("http://localhost:5001", { auth: { token } });
         socketRef.current = socket;
 
         socket.on("connect", () => {
-            console.log("🟢 WebSocket conectado");
             socket.emit("join", { target_user: targetUser });
         });
 
@@ -102,18 +93,14 @@ export default function ChatPage() {
                         : `${data.sender}: ${data.message}`,
             };
 
-            // Mostrar preguntas siempre, sin importar el modo
             if (data.is_question) {
                 setMessages((prev) => [...prev, messageObj]);
                 return;
             }
 
-            console.log("📩 Recibido mensaje:", data);
-            // Mostrar solo si el mensaje pertenece al modo actual
             if (data.ephemeral && currentMode !== "ephemeral") return;
             if (!data.ephemeral && currentMode !== "normal") return;
 
-            // Si es efímero no visto y yo soy el receptor
             if (data.ephemeral && !data.seen && !isMine) {
                 setPendingEphemerals((prev) => [...prev, messageObj]);
                 return;
@@ -136,6 +123,42 @@ export default function ChatPage() {
 
         socket.on("streak_updated", (data) => {
             setStreak(data.new_streak);
+        });
+
+        // 🎴 Eventos del juego de cartas
+        socket.on("card_game_started", (data) => {
+            setCardGameQuestions(data.questions);
+            setInteractionId(data.interaction_id);
+            setShowCardGame(true);
+        });
+
+        socket.on("card_game_your_turn", (data) => {
+            const notificationMessage = {
+                id: Date.now(),
+                sender: "Sistema",
+                message: data.message,
+                isMine: false,
+                display: `🎴 ${data.message}`,
+                is_system: true
+            };
+            setMessages((prev) => [...prev, notificationMessage]);
+        });
+
+        socket.on("card_game_saved", () => {
+            setShowCardGame(false);
+            const confirmMessage = {
+                id: Date.now(),
+                sender: "Sistema",
+                message: "¡Tus respuestas han sido guardadas!",
+                isMine: false,
+                display: "✅ ¡Tus respuestas han sido guardadas!",
+                is_system: true
+            };
+            setMessages((prev) => [...prev, confirmMessage]);
+        });
+
+        socket.on("error", (data) => {
+            alert(data.error);
         });
 
         return () => {
@@ -171,45 +194,156 @@ export default function ChatPage() {
             });
     };
 
+    // 🎴 Click en botón "Juego de cartas"
+    const handleCardGameClick = () => {
+        if (!matchId) {
+            alert("No se pudo obtener el match.");
+            return;
+        }
+
+        // Si ya hubo un juego creado (pista: interactionId fue seteado)
+        if (interactionId) {
+            socketRef.current.emit("check_card_game_turn", { match_id: matchId });
+        } else {
+            socketRef.current.emit("start_card_game", {
+                match_id: matchId,
+                recipient: targetUser
+            });
+        }
+    };
+
+
+    // 🎴 Enviar respuestas del juego
+    const handleCardGameSubmit = (answers) => {
+        socketRef.current.emit("card_game_completed", {
+            match_id: matchId,
+            interaction_id: interactionId,
+            recipient: targetUser,
+            answers: answers
+        });
+    };
+
     return (
-        <div>
+        <div style={{ padding: "20px", maxWidth: "600px", margin: "0 auto" }}>
             <h2>Chat with {targetUser} {isOnline ? "🟢" : "⚪️"}</h2>
             <h3>🔥 Streak: {streak}</h3>
 
-            <button onClick={() => setIsEphemeralMode((prev) => !prev)}>
-                {isEphemeralMode ? "Modo normal" : "Modo efímero"}
-            </button>
+            <div style={{ marginBottom: "20px", display: "flex", gap: "10px", flexWrap: "wrap" }}>
+                <button
+                    onClick={() => setIsEphemeralMode((prev) => !prev)}
+                    style={{
+                        padding: "8px 16px",
+                        backgroundColor: isEphemeralMode ? "#ff6b6b" : "#4ecdc4",
+                        color: "white",
+                        border: "none",
+                        borderRadius: "5px",
+                        cursor: "pointer"
+                    }}
+                >
+                    {isEphemeralMode ? "Modo normal" : "Modo efímero"}
+                </button>
 
-            <button
-                onClick={() => {
-                    if (!chatId) {
-                        console.warn("⚠️ chatId aún no está listo");
-                        return;
-                    }
-                    console.log("✅ Enviando pregunta con chat_id:", chatId);
-                    socketRef.current.emit("random_question_game", {
-                        chat_id: chatId,
-                        recipient: targetUser,
-                    });
-                }}
-            >
-                ❓ Pregunta Aleatoria (socket)
-            </button>
+                <button
+                    onClick={() => {
+                        if (!chatId) return;
+                        socketRef.current.emit("random_question_game", {
+                            chat_id: chatId,
+                            recipient: targetUser,
+                        });
+                    }}
+                    style={{
+                        padding: "8px 16px",
+                        backgroundColor: "#845ec2",
+                        color: "white",
+                        border: "none",
+                        borderRadius: "5px",
+                        cursor: "pointer"
+                    }}
+                >
+                    ❓ Pregunta Aleatoria
+                </button>
 
-            <div>
+                {userMode === "couple" && (
+                    <button
+                        onClick={handleCardGameClick}
+                        style={{
+                            padding: "8px 16px",
+                            backgroundColor: "#ff416c",
+                            color: "white",
+                            border: "none",
+                            borderRadius: "5px",
+                            cursor: "pointer",
+                            fontWeight: "bold"
+                        }}
+                    >
+                        🎴 Juego de Cartas
+                    </button>
+
+                )}
+            </div>
+
+            <div style={{
+                height: "400px",
+                overflowY: "auto",
+                border: "1px solid #ddd",
+                padding: "10px",
+                marginBottom: "20px",
+                backgroundColor: "#f9f9f9",
+                borderRadius: "5px"
+            }}>
                 {messages.map((m, i) => (
-                    <p key={i}>
-                        [{m.ephemeral ? "⏱ efímero" : "💬 normal"}] {m.display}
-                    </p>
+                    <div key={i} style={{
+                        marginBottom: "8px",
+                        padding: "5px",
+                        backgroundColor: m.is_system ? "#e8f5e8" : m.isMine ? "#dcf8c6" : "white",
+                        borderRadius: "5px",
+                        border: m.is_system ? "1px solid #4caf50" : "1px solid #eee"
+                    }}>
+                        <span style={{ fontSize: "12px", color: "#666" }}>
+                            [{m.ephemeral ? "⏱ efímero" : "💬 normal"}]
+                        </span>{" "}
+                        {m.display}
+                    </div>
                 ))}
             </div>
 
-            <input
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                placeholder="Escribí tu mensaje..."
-            />
-            <button onClick={sendMessage}>Enviar</button>
+            <div style={{ display: "flex", gap: "10px" }}>
+                <input
+                    value={input}
+                    onChange={(e) => setInput(e.target.value)}
+                    placeholder="Escribí tu mensaje..."
+                    onKeyPress={(e) => e.key === "Enter" && sendMessage()}
+                    style={{
+                        flex: 1,
+                        padding: "10px",
+                        border: "1px solid #ddd",
+                        borderRadius: "5px"
+                    }}
+                />
+                <button
+                    onClick={sendMessage}
+                    style={{
+                        padding: "10px 20px",
+                        backgroundColor: "#007bff",
+                        color: "white",
+                        border: "none",
+                        borderRadius: "5px",
+                        cursor: "pointer"
+                    }}
+                >
+                    Enviar
+                </button>
+            </div>
+
+            {showCardGame && (
+                <CardGameModal
+                    questions={cardGameQuestions}
+                    interactionId={interactionId}
+                    matchId={matchId}
+                    onSubmit={handleCardGameSubmit}
+                    onClose={() => setShowCardGame(false)}
+                />
+            )}
         </div>
     );
 }

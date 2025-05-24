@@ -108,3 +108,4 @@ Rocio: y despues como siempre
  Rocio: pero se corre con python main.py
 
 PREGUNTAS ALEATORIAS: python seed_questions.py
+ python seed_cardgame_questions.py
