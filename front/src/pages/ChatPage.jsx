@@ -102,9 +102,38 @@ export default function ChatPage() {
 
         });
 
+        socket.on("card_game_result", (data) => {
+            console.log("🎯 Coincidencias recibidas:", data.coincidences);
+            setCardGameResult(data.coincidences);
+            setShowResultModal(true);
+
+            const resumen = data.coincidences.length === 0
+                ? "No tuvieron coincidencias 🥲"
+                : `Tuvieron ${data.coincidences.length} coincidencia${data.coincidences.length > 1 ? "s" : ""} 🎉`;
+
+            const resultMsg = {
+                id: Date.now(),
+                sender: "Sistema",
+                message: resumen,
+                isMine: false,
+                display: `💘 ${resumen}`,
+                is_system: true
+            };
+
+            setMessages(prev => [...prev, resultMsg]);
+        });
+
+
 
         socket.on("new_message", (data) => {
             const isMine = data.sender === myUsername;
+
+            // Si es un resumen del juego de cartas
+            if (data.card_game_summary) {
+                setCardGameResult(data.coincidences || []);
+                setShowResultModal(true);
+            }
+
             const messageObj = {
                 ...data,
                 isMine,
@@ -130,6 +159,7 @@ export default function ChatPage() {
 
             setMessages((prev) => [...prev, messageObj]);
         });
+
 
         socket.on("user_connected", (data) => {
             if (data.username === targetUser) setIsOnline(true);
@@ -181,12 +211,6 @@ export default function ChatPage() {
 
         socket.on("error", (data) => {
             alert(data.error);
-        });
-
-        socket.on("card_game_result", (data) => {
-            console.log("🎯 Coincidencias recibidas:", data.coincidences);
-            setCardGameResult(data.coincidences);
-            setShowResultModal(true);
         });
 
         return () => {

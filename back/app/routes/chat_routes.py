@@ -458,8 +458,10 @@ def handle_start_card_game(data):
             return
 
         # Elegir 5 preguntas aleatorias
-        all_questions = CardGameQuestion.query.all()
-        selected = random.sample(all_questions, 5)
+        # Elegir 5 preguntas aleatorias únicas por ID
+        question_ids = [q.id for q in CardGameQuestion.query.all()]
+        selected_ids = random.sample(question_ids, 5)
+        selected = CardGameQuestion.query.filter(CardGameQuestion.id.in_(selected_ids)).all()
         question_ids = [q.id for q in selected]
 
         interaction = CardGameInteraction(match_id=match_id, question_ids=question_ids)
@@ -559,6 +561,34 @@ def handle_card_game_completed(data):
                 }, to=get_sid_by_username(username))
 
             print("🎯 Coincidencias enviadas:", coincidences)
+
+            resumen = (
+                "No tuvieron coincidencias 🥲"
+                if len(coincidences) == 0
+                else f"Tuvieron {len(coincidences)} coincidencia{'s' if len(coincidences) > 1 else ''} 🎉"
+            )
+
+            system_message = {
+                "sender": "Sistema",
+                "message": resumen,
+                "ephemeral": False,
+                "seen": True,
+                "id": -1,
+                "is_question": False,
+                "card_game_summary": True,
+                "coincidences": coincidences
+            }
+
+            for username in [match.user1, match.user2]:
+                sid = get_sid_by_username(username)
+
+                emit("card_game_result", {
+                    "coincidences": coincidences
+                }, to=sid)
+
+                emit("new_message", system_message, to=sid)
+
+
 
 
     except Exception as e:
