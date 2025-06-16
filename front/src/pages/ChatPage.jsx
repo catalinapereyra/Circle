@@ -194,9 +194,13 @@ export default function ChatPage() {
             };
             setMessages((prev) => [...prev, notificationMessage]);
 
-            setCardGameQuestions(data.questions);     // Las mismas que recibió el primero
-            setInteractionId(data.interaction_id);    // Se mantiene el mismo id
-            setShowCardGame(true);                    // Abre el modal para el segundo jugador
+            // Mostrar cartel de confirmación
+            const accept = window.confirm(`${data.message}`);
+            if (accept) {
+                setCardGameQuestions(data.questions);
+                setInteractionId(data.interaction_id);
+                setShowCardGame(true);
+            }
         });
 
         //Confirmación de que se guardaron tus respuestas

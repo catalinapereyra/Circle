@@ -732,9 +732,10 @@ def handle_check_card_game_turn(data):
         } for q in ordered_questions]
 
         # Emitir evento al jugador
-        emit("card_game_started", {
+        emit("card_game_your_turn", {
             "interaction_id": interaction.id,
-            "questions": questions_data
+            "questions": questions_data,
+            "message": f"{match.user1 if match.user2 == sender else match.user2} comenzó un juego de cartas. ¿Querés responder?"
         }, to=request.sid)
 
         # Se le envía al jugador las preguntas para que comience su turno
