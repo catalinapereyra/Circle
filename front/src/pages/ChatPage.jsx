@@ -194,11 +194,12 @@ export default function ChatPage() {
             };
             setMessages((prev) => [...prev, notificationMessage]);
 
-            // Mostrar cartel de confirmación
+            // Guardamos aunque diga que no
+            setCardGameQuestions(data.questions);
+            setInteractionId(data.interaction_id);
+
             const accept = window.confirm(`${data.message}`);
             if (accept) {
-                setCardGameQuestions(data.questions);
-                setInteractionId(data.interaction_id);
                 setShowCardGame(true);
             }
         });
@@ -222,7 +223,9 @@ export default function ChatPage() {
             if (matchId) {
                 socket.emit("check_card_game_turn", { match_id: matchId });
             }
-            setInteractionId(null);
+
+            setInteractionId(null); // ✅ AGREGAR ESTO
+            setCardGameQuestions([]); // ✅ AGREGAR ESTO
         });
 
         socket.on("error", (data) => {
@@ -263,19 +266,32 @@ export default function ChatPage() {
     };
 
     //Botón "Juego de cartas" → inicia o verifica turno
+    // ✅ Nuevo handleCardGameClick con fallback
     const handleCardGameClick = () => {
         if (!matchId) {
             alert("No se pudo obtener el match.");
             return;
         }
 
-        if (interactionId) {
-            socketRef.current.emit("check_card_game_turn", { match_id: matchId });
+        // Si hay una partida pendiente con preguntas, la muestra
+        if (interactionId && cardGameQuestions.length > 0) {
+            setShowCardGame(true);
         } else {
-            socketRef.current.emit("start_card_game", {
+            // Primero intentar verificar si es tu turno
+            socketRef.current.emit("check_card_game_turn", {
                 match_id: matchId,
-                recipient: targetUser
             });
+
+            // ⏱ Esperar 1 segundo. Si no llega ninguna pregunta, se inicia una nueva
+            setTimeout(() => {
+                if (!interactionId) {
+                    // 👉 Si no se setearon preguntas, inicia una nueva
+                    socketRef.current.emit("start_card_game", {
+                        match_id: matchId,
+                        recipient: targetUser,
+                    });
+                }
+            }, 1000);
         }
     };
 
