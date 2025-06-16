@@ -440,34 +440,69 @@ def question_game(data):
 #usuario inicia el juego
 @socketio.on("start_card_game")
 def handle_start_card_game(data):
-    print("🎮 Inicio de juego de cartas:", data)
+    print("📥 Inicio de juego de cartas recibido con data:", data)
     try:
         match_id = data.get("match_id")
-        recipient = data.get("recipient")  # username del otro
         sender = request.environ.get("username")
+        print("👤 Usuario iniciador:", sender)
+        print("🎮 Match ID:", match_id)
 
         match = Match.query.get(match_id)
-        if not match or match.mode != Mode.COUPLE or sender not in [match.user1, match.user2]:
-            emit("error", {"error": "Match inválido o no autorizado"}, to=request.sid)
+        if not match:
+            print("❌ Match no encontrado")
+            emit("error", {"error": "Match inválido"}, to=request.sid)
+            return
+        if match.mode != Mode.COUPLE:
+            print("❌ El match no es modo couple:", match.mode)
+            emit("error", {"error": "Modo incorrecto para este match"}, to=request.sid)
+            return
+        if sender not in [match.user1, match.user2]:
+            print("❌ Usuario no forma parte del match:", sender)
+            emit("error", {"error": "No autorizado"}, to=request.sid)
             return
 
-        # Verificar si ya existe una interacción
-        existing = CardGameInteraction.query.filter_by(match_id=match_id).first()
+        # Verifica si hay una interacción previa no completada
+        existing = (
+            CardGameInteraction.query
+            .filter_by(match_id=match_id, completed=False)
+            .order_by(CardGameInteraction.created_at.desc())
+            .first()
+        )
+
         if existing:
-            emit("error", {"error": "Ya existe una partida para este match"}, to=request.sid)
+            print("📦 Ya hay una interacción activa con ID:", existing.id)
+            respuestas = CardGameAnswer.query.filter_by(interaction_id=existing.id).all()
+            usernames = set(r.user_username for r in respuestas)
+            print("👥 Usuarios que ya respondieron:", usernames)
+
+            if match.user1 in usernames and match.user2 in usernames:
+                print("✅ Ambos ya respondieron, cerrando interacción previa")
+                existing.completed = True
+                db.session.commit()
+            else:
+                print("⛔ Solo uno respondió. No se puede iniciar nuevo juego.")
+                emit("error", {"error": "Ya hay una partida activa en curso para este match"}, to=request.sid)
+                return
+
+        # Selección de preguntas
+        all_questions = CardGameQuestion.query.all()
+        print(f"📊 Total de preguntas disponibles: {len(all_questions)}")
+        if len(all_questions) < 5:
+            emit("error", {"error": "No hay suficientes preguntas para iniciar el juego"}, to=request.sid)
             return
 
-        # Elegir 5 preguntas aleatorias
-        # Elegir 5 preguntas aleatorias únicas por ID
-        question_ids = [q.id for q in CardGameQuestion.query.all()]
-        selected_ids = random.sample(question_ids, 5)
-        selected = CardGameQuestion.query.filter(CardGameQuestion.id.in_(selected_ids)).all()
+        selected_ids = random.sample([q.id for q in all_questions], 5)
+        print("🎯 Preguntas seleccionadas:", selected_ids)
+        selected = [q for q in all_questions if q.id in selected_ids]
         question_ids = [q.id for q in selected]
 
+        # Crear interacción
         interaction = CardGameInteraction(match_id=match_id, question_ids=question_ids)
         db.session.add(interaction)
         db.session.commit()
+        print(f"🆕 Interacción creada con ID: {interaction.id}")
 
+        # Armar datos para el frontend
         questions_data = [{
             "id": q.id,
             "question": q.question,
@@ -475,49 +510,66 @@ def handle_start_card_game(data):
             "option2": q.option2
         } for q in selected]
 
-        emit("card_game_started", {
-            "interaction_id": interaction.id,
-            "questions": questions_data
-        }, to=request.sid)
+        # Emitir evento a ambos jugadores
+        for username in [match.user1, match.user2]:
+            sid = get_sid_by_username(username)
+            print(f"📤 Enviando preguntas a {username} (SID: {sid})")
+            emit("card_game_started", {
+                "interaction_id": interaction.id,
+                "questions": questions_data
+            }, to=sid)
 
-        print(f"🎴 Juego iniciado para {sender}, preguntas enviadas")
+        print(f"✅ Juego iniciado por {sender}, preguntas enviadas a ambos")
 
     except Exception as e:
         print("❌ Error en start_card_game:", e)
         emit("error", {"error": "Error al iniciar juego de cartas"}, to=request.sid)
 
 
-
-
 #usuario temrina de responder
 @socketio.on("card_game_completed")
 def handle_card_game_completed(data):
     try:
+        print("📩 Datos recibidos en card_game_completed:", data)
+
         sender = request.environ.get("username")
         match_id = data.get("match_id")
         interaction_id = data.get("interaction_id")
-        recipient = data.get("recipient")  # username del otro
+        recipient = data.get("recipient")
         answers = data.get("answers")
 
+        print(f"👤 Usuario: {sender}, Match: {match_id}, Interacción: {interaction_id}, Destinatario: {recipient}")
+        print(f"📚 Respuestas recibidas: {answers}")
+
         match = Match.query.get(match_id)
-        if not match or sender not in [match.user1, match.user2]:
-            emit("error", {"error": "Match inválido o no autorizado"}, to=request.sid)
+        if not match:
+            print("❌ Match no encontrado")
+            emit("error", {"error": "Match inválido"}, to=request.sid)
+            return
+        if sender not in [match.user1, match.user2]:
+            print("❌ El usuario no pertenece al match")
+            emit("error", {"error": "No autorizado"}, to=request.sid)
             return
 
         interaction = CardGameInteraction.query.get(interaction_id)
         if not interaction or interaction.match_id != match_id:
+            print("❌ Interacción inválida o no pertenece al match")
             emit("error", {"error": "Interacción inválida"}, to=request.sid)
             return
 
         already_answered = CardGameAnswer.query.filter_by(
-            interaction_id=interaction.id, user_username=sender
+            interaction_id=interaction.id,
+            user_username=sender
         ).first()
 
         if already_answered:
+            print("⚠️ Usuario ya había respondido esta interacción")
             emit("error", {"error": "Ya enviaste tus respuestas"}, to=request.sid)
             return
 
+        print("📝 Guardando respuestas en la base de datos...")
         for a in answers:
+            print(" - Respuesta:", a)
             ans = CardGameAnswer(
                 interaction_id=interaction.id,
                 user_username=sender,
@@ -525,24 +577,40 @@ def handle_card_game_completed(data):
                 answer=a["answer"]
             )
             db.session.add(ans)
-
         db.session.commit()
+        print("✅ Respuestas guardadas")
 
-        print(f"✅ {sender} completó el juego, se notificará a {recipient}")
+        print(f"📤 Enviando preguntas al destinatario: {recipient}")
+        question_ids = interaction.question_ids
+        questions = CardGameQuestion.query.filter(CardGameQuestion.id.in_(question_ids)).all()
+        questions_dict = {q.id: q for q in questions}
+        ordered_questions = [questions_dict[qid] for qid in question_ids if qid in questions_dict]
 
-        # Emitir al receptor
-        emit("card_game_your_turn", {
-            "match_id": match_id,
-            "message": f"{sender} completó el juego. ¡Es tu turno!"
-        }, to=get_sid_by_username(recipient))
+        questions_data = [{
+            "id": q.id,
+            "question": q.question,
+            "option1": q.option1,
+            "option2": q.option2
+        } for q in ordered_questions]
+
+        recipient_sid = get_sid_by_username(recipient)
+        print("🔄 SID del destinatario:", recipient_sid)
+        emit("card_game_started", {
+            "interaction_id": interaction.id,
+            "questions": questions_data
+        }, to=recipient_sid)
 
         emit("card_game_saved", {"status": "ok"}, to=request.sid)
+        print("💾 Confirmación enviada al iniciador")
 
-        # 💡 Si ambos ya respondieron, comparar respuestas y emitir coincidencias
+        # Verificar si ambos respondieron
         answers_user1 = CardGameAnswer.query.filter_by(interaction_id=interaction.id, user_username=match.user1).all()
         answers_user2 = CardGameAnswer.query.filter_by(interaction_id=interaction.id, user_username=match.user2).all()
+        print(f"👥 Respuestas de {match.user1}: {len(answers_user1)}")
+        print(f"👥 Respuestas de {match.user2}: {len(answers_user2)}")
 
         if answers_user1 and answers_user2:
+            print("🔍 Comparando respuestas...")
             map1 = {a.question_id: a.answer for a in answers_user1}
             map2 = {a.question_id: a.answer for a in answers_user2}
             coincidences = []
@@ -555,12 +623,10 @@ def handle_card_game_completed(data):
                         "answer": map1[qid]
                     })
 
-            for username in [match.user1, match.user2]:
-                emit("card_game_result", {
-                    "coincidences": coincidences
-                }, to=get_sid_by_username(username))
-
-            print("🎯 Coincidencias enviadas:", coincidences)
+            interaction.completed = True
+            db.session.commit()
+            print("✅ Interacción marcada como completada")
+            print("🎯 Coincidencias encontradas:", coincidences)
 
             resumen = (
                 "No tuvieron coincidencias 🥲"
@@ -581,53 +647,83 @@ def handle_card_game_completed(data):
 
             for username in [match.user1, match.user2]:
                 sid = get_sid_by_username(username)
-
+                print(f"📢 Enviando resultado y mensaje a {username} (SID: {sid})")
                 emit("card_game_result", {
                     "coincidences": coincidences
                 }, to=sid)
-
                 emit("new_message", system_message, to=sid)
-
-
-
 
     except Exception as e:
         print("❌ Error en card_game_completed:", e)
         emit("error", {"error": "Error al guardar respuestas"}, to=request.sid)
 
 
-# Agregar este handler a tu archivo de sockets
 
 @socketio.on("check_card_game_turn")
 def handle_check_card_game_turn(data):
+    # se activa cuando el segundo jugador entra al chat y el frontend quiere verificar si le toca jugar
     try:
+        print("🔍 check_card_game_turn invocado")
+        print("📩 Data recibida:", data)
+
+        # Autenticación y validación del match
         sender = request.environ.get("username")
         match_id = data.get("match_id")
+        print(f"👤 Usuario autenticado: {sender}")
+        print(f"🔗 Match ID recibido: {match_id}")
 
+        # Si el match no existe o el usuario no pertenece a ese match, se corta todo.
         match = Match.query.get(match_id)
-        if not match or sender not in [match.user1, match.user2]:
-            emit("error", {"error": "Match inválido o no autorizado"}, to=request.sid)
+        if not match:
+            print("❌ No se encontró el match en la base de datos")
+            emit("error", {"error": "Match inválido"}, to=request.sid)
+            return
+        if sender not in [match.user1, match.user2]:
+            print(f"❌ Usuario {sender} no pertenece al match entre {match.user1} y {match.user2}")
+            emit("error", {"error": "Match no autorizado"}, to=request.sid)
             return
 
-        interaction = CardGameInteraction.query.filter_by(match_id=match_id).first()
+        print(f"✅ Usuario autorizado para el match")
+
+        # Se busca si ya existe una partida de cartas creada para ese match.
+        # interaction = CardGameInteraction.query.filter_by(match_id=match_id).first()
+        interaction = (
+            CardGameInteraction.query
+            .filter_by(match_id=match_id, completed=False)
+            .order_by(CardGameInteraction.created_at.desc())
+            .first()
+        )
         if not interaction:
+            print(f"⚠️ No hay interacción activa para el match {match_id}")
             emit("error", {"error": "No hay juego de cartas activo para este match"}, to=request.sid)
             return
+        else:
+            print(f"🃏 Interacción activa encontrada: ID {interaction.id}")
+            print(f"📅 Preguntas asociadas: {interaction.question_ids}")
 
+        print(f"🧩 Interacción encontrada con ID: {interaction.id}")
+
+        # Consulta si el usuario ya respondió el juego.
         already_answered = CardGameAnswer.query.filter_by(
             interaction_id=interaction.id,
             user_username=sender
         ).first()
 
+        # Si ya completó el juego, no se le vuelve a enviar nada
         if already_answered:
+            print(f"⛔ El usuario {sender} ya completó esta interacción")
             emit("error", {"error": "Ya completaste este juego de cartas"}, to=request.sid)
             return
 
+        # Enviar las preguntas en orden original
         question_ids = interaction.question_ids
+        print("📑 IDs de preguntas en esta interacción:", question_ids)
         questions = CardGameQuestion.query.filter(CardGameQuestion.id.in_(question_ids)).all()
         questions_dict = {q.id: q for q in questions}
         ordered_questions = [questions_dict[qid] for qid in question_ids if qid in questions_dict]
+        print(f"📤 {len(ordered_questions)} preguntas encontradas y ordenadas")
 
+        # Se arma el formato que el frontend espera.
         questions_data = [{
             "id": q.id,
             "question": q.question,
@@ -635,15 +731,15 @@ def handle_check_card_game_turn(data):
             "option2": q.option2
         } for q in ordered_questions]
 
+        # Emitir evento al jugador
         emit("card_game_started", {
             "interaction_id": interaction.id,
             "questions": questions_data
         }, to=request.sid)
 
-        print(f"🎴 Preguntas enviadas a {sender} para su turno")
+        # Se le envía al jugador las preguntas para que comience su turno
+        print(f"✅ Preguntas enviadas correctamente a {sender}")
 
     except Exception as e:
         print("❌ Error en check_card_game_turn:", e)
         emit("error", {"error": "Error al verificar turno"}, to=request.sid)
-
-
