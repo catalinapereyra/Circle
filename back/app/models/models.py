@@ -222,6 +222,7 @@ class CardGameInteraction(db.Model):
 
     # Guarda las preguntas usadas (lista fija de 5)
     question_ids = db.Column(db.ARRAY(db.Integer), nullable=False)  # o Text y lo serializás
+    completed = db.Column(db.Boolean, default=False)
 
 
 

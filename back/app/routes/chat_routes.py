@@ -709,7 +709,7 @@ def handle_check_card_game_turn(data):
             user_username=sender
         ).first()
 
-        # Si ya completó el juego, no se le vuelve a enviar nada
+        # Si ya completó el juego, no se le vuelve a enviar nadaaa
         if already_answered:
             print(f"⛔ El usuario {sender} ya completó esta interacción")
             emit("error", {"error": "Ya completaste este juego de cartas"}, to=request.sid)
