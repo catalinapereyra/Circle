@@ -9,16 +9,16 @@ function LikesReceived() {
     const [premiumError, setPremiumError] = useState(false);
 
     const navigate = useNavigate();
-    const { mode, isPremium } = useUserMode(); // traer mode y premium del contexto
+    const { mode, isPremium } = useUserMode();
 
     const fetchLikes = async () => {
-        if (!mode) return; // si no hay modo, no hago nada
+        if (!mode) return;
         setLoading(true);
         try {
-            const apiMode = mode === 'friendship' ? 'friend' : mode; // corregir naming
+            const apiMode = mode === 'friendship' ? 'friend' : mode;
             const response = await axiosInstance.get(`/profile/likes-received?mode=${apiMode}`);
             setLikes(response.data);
-            setPremiumError(false); // Si pudo traer likes, reseteo error de premium
+            setPremiumError(false);
         } catch (error) {
             if (error.response && error.response.status === 403) {
                 setPremiumError(true);
@@ -30,40 +30,49 @@ function LikesReceived() {
         }
     };
 
-    // 1. Cada vez que cambia el modo (al entrar o cambiar modo), busco los likes
     useEffect(() => {
         const token = localStorage.getItem('token');
         if (!token) {
             navigate('/login');
             return;
         }
-        (async () => {
-            await fetchLikes();
-        })();
+        fetchLikes();
     }, [mode]);
 
-    // 2. Cada vez que vuelve el foco a la página, refresco los likes
     useEffect(() => {
         const handleFocus = () => {
-            (async () => {
-                await fetchLikes();
-            })();
+            fetchLikes();
         };
-
         window.addEventListener('focus', handleFocus);
         return () => {
             window.removeEventListener('focus', handleFocus);
         };
     }, [mode]);
 
-    // 3. Si me hago premium estando en la página, busco likes inmediatamente
     useEffect(() => {
-        if (isPremium) {
-            (async () => {
-                await fetchLikes();
-            })();
-        }
+        if (isPremium) fetchLikes();
     }, [isPremium]);
+
+    // 👉 LIKE BACK (match)
+    const handleLike = async (user) => {
+        try {
+            const response = await axiosInstance.post('/match', {
+                swiped_username: user.username,
+                type: 'like',
+                mode: mode,
+            });
+
+            if (response.data.match) {
+                alert(`💘 It's a match with ${user.username}!`);
+            } else {
+                alert(`❤️ You liked back ${user.username}`);
+            }
+
+            setLikes(prev => prev.filter(u => u.username !== user.username));
+        } catch (err) {
+            console.error("Error al hacer like:", err);
+        }
+    };
 
     if (loading) return <p>Loading...</p>;
 
@@ -83,10 +92,23 @@ function LikesReceived() {
     return (
         <div>
             <h1>People who liked you</h1>
-            <ul>
+            <ul style={{ listStyle: 'none', padding: 0 }}>
                 {likes.map((user) => (
-                    <li key={user.username}>
-                        {user.name} ({user.age} years old) - @{user.username}
+                    <li key={user.username} style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem' }}>
+                        <span>{user.name} ({user.age} years old) - @{user.username}</span>
+                        <button
+                            onClick={() => handleLike(user)}
+                            style={{
+                                fontSize: '1.5rem',
+                                background: 'none',
+                                border: 'none',
+                                cursor: 'pointer',
+                                color: 'crimson',
+                            }}
+                            title="Like back"
+                        >
+                            ❤️
+                        </button>
                     </li>
                 ))}
             </ul>
