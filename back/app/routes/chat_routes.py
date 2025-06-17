@@ -254,46 +254,45 @@ def handle_connect(auth):
         disconnect()
 
 
-
 def streaks(chat_id):
     chat = Chat.query.get(chat_id)
-
     if not chat:
-        return jsonify({
-            "chat_id": None,
-            "messages": [],
-            "streak": 0
-        })
+        return 0
 
     now = datetime.utcnow()
+    updated = False
 
-    # Solo actualizamos si pasaron 10 minutos desde la última vez
     if chat.last_streak_time is None or now - chat.last_streak_time >= timedelta(minutes=1):
         ten_minutes_ago = now - timedelta(minutes=1)
-
         last_messages = Message.query.filter(
             Message.chat_id == chat_id,
             Message.timestamp >= ten_minutes_ago
         ).order_by(Message.timestamp.desc()).all()
 
         users = {message.sender_profile_id for message in last_messages}
+        print(f"🧠 Últimos mensajes: {[m.sender_profile_id for m in last_messages]}")
+        print(f"👥 Usuarios únicos en el streak: {users}")
 
         if len(users) == 2:
+            previous_streak = chat.streaks
             chat.streaks += 1
+            updated = True
+            if chat.streaks > previous_streak:
+                room = get_room_name(chat.match.user1, chat.match.user2)
+                print(f"📡 Emitiendo streak_updated a room '{room}' con streak={chat.streaks}")
+                socketio.emit("streak_updated", {
+                    "chat_id": chat.id,
+                    "new_streak": chat.streaks
+                }, to=room)
         else:
             chat.streaks = 0
+            print("🔁 Streak reseteado a 0")
 
-        chat.last_streak_time = now # seteo el nuevo last check
+        chat.last_streak_time = now
         db.session.commit()
 
-        match = chat.match  # accede al match de este chat
-        room = get_room_name(match.user1, match.user2)  # usa los usernames reales
-        socketio.emit("streak_updated", {
-            "chat_id": chat.id,
-            "new_streak": chat.streaks
-        }, to=room)
-
     return chat.streaks
+
 
 @socketio.on("message_seen")
 def handle_message_seen(data):
