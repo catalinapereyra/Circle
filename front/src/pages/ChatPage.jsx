@@ -19,7 +19,6 @@ export default function ChatPage() {
     const [matchId, setMatchId] = useState(null);
     const [userMode, setUserMode] = useState(null);
 
-    //Estado del juego de cartas
     const [cardGameResult, setCardGameResult] = useState([]);
     const [showResultModal, setShowResultModal] = useState(false);
     const [showCardGame, setShowCardGame] = useState(false);
@@ -76,12 +75,8 @@ export default function ChatPage() {
         prevEphemeralMode.current = isEphemeralMode;
     }, [isEphemeralMode]);
 
-
-    //Si hay match pero no interacción, se verifica si es tu turno en el juego de cartas
     useEffect(() => {
         if (!matchId) return;
-
-        // Siempre chequeamos si hay un juego pendiente cada vez que cambia el matchId
         socketRef.current?.emit("check_card_game_turn", { match_id: matchId });
     }, [matchId]);
 
@@ -91,15 +86,11 @@ export default function ChatPage() {
 
         socket.on("connect", () => {
             socket.emit("join", { target_user: targetUser });
-
-            // 💥 ACA va el fix: siempre chequeamos el juego cuando se reconecta el socket
             if (matchId) {
                 socket.emit("check_card_game_turn", { match_id: matchId });
             }
         });
 
-        //Recibe las coincidencias finales del juego de cartas
-//Recibe las coincidencias finales del juego de cartas
         socket.on("card_game_result", (data) => {
             setCardGameResult(data.coincidences);
             setShowResultModal(true);
@@ -118,13 +109,10 @@ export default function ChatPage() {
             };
 
             setMessages(prev => [...prev, resultMsg]);
-
-            // ✅ Permite iniciar una nueva partida después
             setInteractionId(null);
-            setCardGameQuestions([]); // opcional: limpia preguntas viejas
+            setCardGameQuestions([]);
         });
 
-        //Recibe mensajes, incluido resumen de juego si viene como mensaje del sistema
         socket.on("new_message", (data) => {
             const isMine = data.sender === myUsername;
 
@@ -150,7 +138,6 @@ export default function ChatPage() {
 
             if (data.ephemeral && currentMode !== "ephemeral") return;
             if (!data.ephemeral && currentMode !== "normal") return;
-
             if (data.ephemeral && !data.seen && !isMine) {
                 setPendingEphemerals((prev) => [...prev, messageObj]);
                 return;
@@ -175,14 +162,12 @@ export default function ChatPage() {
             setStreak(data.new_streak);
         });
 
-        //Llega la partida con las preguntas → se abre el modal
         socket.on("card_game_started", (data) => {
             setCardGameQuestions(data.questions);
             setInteractionId(data.interaction_id);
             setShowCardGame(true);
         });
 
-        //Notifica al segundo jugador que es su turno de jugar
         socket.on("card_game_your_turn", (data) => {
             const notificationMessage = {
                 id: Date.now(),
@@ -193,21 +178,15 @@ export default function ChatPage() {
                 is_system: true
             };
             setMessages((prev) => [...prev, notificationMessage]);
-
-            // Guardamos aunque diga que no
             setCardGameQuestions(data.questions);
             setInteractionId(data.interaction_id);
 
             const accept = window.confirm(`${data.message}`);
-            if (accept) {
-                setShowCardGame(true);
-            }
+            if (accept) setShowCardGame(true);
         });
 
-        //Confirmación de que se guardaron tus respuestas
         socket.on("card_game_saved", () => {
             setShowCardGame(false);
-
             const confirmMessage = {
                 id: Date.now(),
                 sender: "Sistema",
@@ -216,16 +195,12 @@ export default function ChatPage() {
                 display: "✅ ¡Tus respuestas han sido guardadas!",
                 is_system: true
             };
-
             setMessages((prev) => [...prev, confirmMessage]);
-
-            // Volver a chequear si el otro jugador debe responder
             if (matchId) {
                 socket.emit("check_card_game_turn", { match_id: matchId });
             }
-
-            setInteractionId(null); // ✅ AGREGAR ESTO
-            setCardGameQuestions([]); // ✅ AGREGAR ESTO
+            setInteractionId(null);
+            setCardGameQuestions([]);
         });
 
         socket.on("error", (data) => {
@@ -265,27 +240,20 @@ export default function ChatPage() {
             });
     };
 
-    //Botón "Juego de cartas" → inicia o verifica turno
-    // ✅ Nuevo handleCardGameClick con fallback
     const handleCardGameClick = () => {
         if (!matchId) {
             alert("No se pudo obtener el match.");
             return;
         }
 
-        // Si hay una partida pendiente con preguntas, la muestra
         if (interactionId && cardGameQuestions.length > 0) {
             setShowCardGame(true);
         } else {
-            // Primero intentar verificar si es tu turno
             socketRef.current.emit("check_card_game_turn", {
                 match_id: matchId,
             });
-
-            // ⏱ Esperar 1 segundo. Si no llega ninguna pregunta, se inicia una nueva
             setTimeout(() => {
                 if (!interactionId) {
-                    // 👉 Si no se setearon preguntas, inicia una nueva
                     socketRef.current.emit("start_card_game", {
                         match_id: matchId,
                         recipient: targetUser,
@@ -295,13 +263,12 @@ export default function ChatPage() {
         }
     };
 
-    // Enviar respuestas del juego al backend
     const handleCardGameSubmit = (answers) => {
         socketRef.current.emit("card_game_completed", {
             match_id: matchId,
             interaction_id: interactionId,
             recipient: targetUser,
-            answers: answers
+            answers
         });
     };
 
@@ -324,13 +291,11 @@ export default function ChatPage() {
                     style={{ padding: "8px 16px", backgroundColor: "#845ec2", color: "white", border: "none", borderRadius: "5px", cursor: "pointer" }}>
                     ❓ Pregunta Aleatoria
                 </button>
-                {userMode === "couple" && (
-                    <button
-                        onClick={handleCardGameClick}
-                        style={{ padding: "8px 16px", backgroundColor: "#ff416c", color: "white", border: "none", borderRadius: "5px", cursor: "pointer", fontWeight: "bold" }}>
-                        🎴 Juego de Cartas
-                    </button>
-                )}
+                <button
+                    onClick={handleCardGameClick}
+                    style={{ padding: "8px 16px", backgroundColor: "#ff416c", color: "white", border: "none", borderRadius: "5px", cursor: "pointer", fontWeight: "bold" }}>
+                    🎴 Juego de Cartas
+                </button>
             </div>
 
             <div style={{ height: "400px", overflowY: "auto", border: "1px solid #ddd", padding: "10px", marginBottom: "20px", backgroundColor: "#f9f9f9", borderRadius: "5px" }}>
