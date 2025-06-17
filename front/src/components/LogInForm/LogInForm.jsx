@@ -41,38 +41,39 @@ function LogInForm() {
     };
 
     return (
-        <div className="login-form-container">
-            {error && <div className="error-message">{error}</div>}
+        <div className="logo-center"></div>,
+            <div className="login-form-container">
+                {error && <div className="error-message">{error}</div>}
 
-            <form onSubmit={handleSubmit}>
-                <div className="form-group">
-                    <label htmlFor="username">Username</label>
-                    <input
-                        type="text"
-                        id="username"
-                        name="username"
-                        value={formData.username}
-                        onChange={handleChange}
-                        required
-                    />
-                </div>
+                <form onSubmit={handleSubmit}>
+                    <div className="form-group">
+                        <label htmlFor="username">Username</label>
+                        <input
+                            type="text"
+                            id="username"
+                            name="username"
+                            value={formData.username}
+                            onChange={handleChange}
+                            required
+                        />
+                    </div>
 
-                <div className="form-group">
-                    <label htmlFor="password">Password</label>
-                    <input
-                        type="password"
-                        id="password"
-                        name="password"
-                        value={formData.password}
-                        onChange={handleChange}
-                        required
-                    />
-                </div>
+                    <div className="form-group">
+                        <label htmlFor="password">Password</label>
+                        <input
+                            type="password"
+                            id="password"
+                            name="password"
+                            value={formData.password}
+                            onChange={handleChange}
+                            required
+                        />
+                    </div>
 
-                <button type="submit" className="submit-button">Log IN</button>
-                <button className="back-button" type="button" onClick={() => navigate(-1)}>BACK</button>
-            </form>
-        </div>
+                    <button type="submit" className="back-button">Log IN</button>
+                    <button className="back-button" type="button" onClick={() => navigate(-1)}>BACK</button>
+                </form>
+            </div>
     );
 }
 

@@ -77,6 +77,7 @@ def handle_private_message(data):
         recipient = data["recipient"]
         message_text = data["message"]
         ephemeral = data.get("ephemeral", False)
+        is_image = data.get("is_image", False)
 
         # verificas que haya un match
         if not is_there_a_match(sender, recipient):
@@ -106,6 +107,7 @@ def handle_private_message(data):
             ephemeral = ephemeral,
             seen = False,
             is_question = False,
+            is_image = is_image,
         )
         db.session.add(new_message)
         db.session.commit()
@@ -120,6 +122,7 @@ def handle_private_message(data):
                 "seen": False,  # receptor no lo vio
                 "id": new_message.id,
                 "is_question": new_message.is_question,
+                "is_image": new_message.is_image,
             }, to=recipient_sid)
 
         socketio.emit("new_message", {
@@ -129,6 +132,7 @@ def handle_private_message(data):
             "seen": True,
             "id": new_message.id,
             "is_question": new_message.is_question,
+            "is_image": new_message.is_image,
         }, to=request.sid)
 
 
@@ -227,6 +231,7 @@ def get_chat_messages(username):
                 "ephemeral": m.ephemeral,
                 "id": m.id,
                 "is_question": m.is_question,
+                "is_image": m.is_image,
             } for m in messages
         ],
         "streak": current_streak

@@ -185,6 +185,7 @@ class Message(db.Model):
     ephemeral = db.Column(db.Boolean, default=False)
     seen = db.Column(db.Boolean, default=False)
     is_question = db.Column(db.Boolean, default=False)
+    is_image = db.Column(db.Boolean, default=False)
 
 
     # No se define ForeignKey directa a CoupleMode o FriendshipMode por ser dinámica

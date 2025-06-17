@@ -1,133 +1,286 @@
-/* Loader Container */
-.loader-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+.intro-screen {
+    width: 100vw;
     height: 100vh;
-    background: #111;
-    padding: 0 20px; /* Prevent content from touching the edges */
-    box-sizing: border-box;
+    background: #000000;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
     overflow: hidden;
-    flex-direction: column; /* Make sure the items stack vertically */
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
-/* Intro Circle */
+/* Efectos de fondo minimalistas */
+.intro-screen::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 600px;
+    height: 600px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1;
+    animation: rotateOuter 30s linear infinite;
+}
+
+.intro-screen::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 900px;
+    height: 900px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1;
+    animation: rotateOuter 45s linear infinite reverse;
+}
+
+@keyframes backgroundShift {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.8; }
+}
+
+/* Circunferencia simple y elegante */
 .intro-circle {
-    width: 180px;
-    height: 180px;
+    width: 300px;
+    height: 300px;
+    border: 2px solid #ffffff;
     border-radius: 50%;
     position: relative;
-    transform: scale(0);
-    animation: circleScale 0.8s ease-out forwards, disappear 0.8s ease-in-out 4.2s forwards;
-    margin-bottom: 30px; /* Add space below the circle */
+    z-index: 10;
+    background: transparent;
 }
 
-/* Intro Circle Border Animation */
+.fade-in .intro-circle {
+    animation: circleIn 2s ease-out forwards, rotateCircle 15s linear infinite 2s;
+}
+
+.fade-out .intro-circle {
+    animation: circleOut 1s ease-in forwards;
+}
+
+/* Efectos de los elementos orbitales simplificados */
 .intro-circle::before {
     content: '';
     position: absolute;
-    inset: 0;
+    top: -1px;
+    left: -1px;
+    right: -1px;
+    bottom: -1px;
+    border: 1px solid rgba(255, 255, 255, 0.3);
     border-radius: 50%;
-    border: 14px solid transparent;
-    background: conic-gradient(#c51d86 0deg, #c51d86 0deg);
-    animation: fillCircle 4.5s ease-in-out forwards;
-    box-shadow: 0 0 20px #c51d86;
-    z-index: 1;
+    border-top-color: #ffffff;
+    border-right-color: transparent;
+    animation: rotateOrbital 8s linear infinite;
+    z-index: -1;
 }
 
-/* Center of the Circle */
 .intro-circle::after {
     content: '';
     position: absolute;
-    inset: 14px;
-    background: #111;
+    top: -20px;
+    left: -20px;
+    right: -20px;
+    bottom: -20px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
     border-radius: 50%;
-    z-index: 2;
+    border-bottom-color: #ffffff;
+    border-left-color: transparent;
+    animation: rotateOrbital 12s linear infinite reverse;
+    z-index: -2;
 }
 
-/* Circle Scaling Animation */
-@keyframes circleScale {
+@keyframes rotateCircle {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+@keyframes rotateOuter {
+    from { transform: translate(-50%, -50%) rotate(0deg); }
+    to { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+@keyframes rotateOrbital {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+/* Botones minimalistas */
+.landing-buttons {
+    display: flex;
+    gap: 2rem;
+    margin-top: 4rem;
+    z-index: 10;
+    position: relative;
+    opacity: 0;
+}
+
+.fade-out .landing-buttons {
+    animation: buttonsIn 1s ease-out 0.5s both;
+}
+
+.landing-buttons button {
+    padding: 1rem 2.5rem;
+    font-size: 1.1rem;
+    font-weight: 400;
+    font-family: inherit;
+    border: 2px solid #ffffff;
+    background: transparent;
+    color: #ffffff;
+    border-radius: 0;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    min-width: 140px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.landing-buttons button:hover {
+    background: #ffffff;
+    color: #000000;
+    transform: translateY(-1px);
+}
+
+.landing-buttons button:active {
+    transform: translateY(0px);
+}
+
+/* Animaciones de entrada y salida */
+.fade-in .intro-circle {
+    animation: circleIn 2s ease-out forwards;
+}
+
+.fade-out .intro-circle {
+    animation: circleOut 1s ease-in forwards;
+}
+
+.fade-out .landing-buttons {
+    animation: buttonsIn 1s ease-out 0.5s both;
+}
+
+@keyframes circleIn {
+    from {
+        opacity: 0;
+        transform: scale(0.3) rotate(0deg);
+    }
     to {
-        transform: scale(1);
+        opacity: 1;
+        transform: scale(1) rotate(360deg);
     }
 }
 
-/* Circle Fill Animation */
-@keyframes fillCircle {
+@keyframes circleOut {
+    from {
+        opacity: 1;
+        transform: scale(1) rotate(0deg);
+    }
+    to {
+        opacity: 0;
+        transform: scale(0.3) rotate(360deg);
+    }
+}
+
+@keyframes buttonsIn {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0px);
+    }
+}
+
+/* Partículas flotantes */
+.intro-screen .particle {
+    position: absolute;
+    width: 2px;
+    height: 2px;
+    background: rgba(255, 255, 255, 0.6);
+    border-radius: 50%;
+    animation: floatParticle 15s linear infinite;
+    z-index: 3;
+}
+
+.intro-screen .particle:nth-child(odd) {
+    animation-delay: -5s;
+    animation-duration: 20s;
+}
+
+.intro-screen .particle:nth-child(even) {
+    animation-delay: -10s;
+    animation-duration: 25s;
+}
+
+@keyframes floatParticle {
     0% {
-        background: conic-gradient(#c51d86 0deg, #c51d86 0deg);
-        box-shadow: 0 0 20px #c51d86;
+        transform: translateY(100vh) translateX(0px) rotate(0deg);
+        opacity: 0;
     }
-    25% {
-        background: conic-gradient(#c51d86 0deg, #c51d86 120deg);
-        box-shadow: 0 0 20px #c51d86;
+    10% {
+        opacity: 1;
     }
-    40% {
-        background: conic-gradient(#ffdb0a 0deg, #ffdb0a 240deg);
-        box-shadow: 0 0 25px #ffdb0a;
-    }
-    55% {
-        background: conic-gradient(#00d9ff 0deg, #00d9ff 360deg);
-        box-shadow: 0 0 30px #00d9ff;
-    }
-    75% {
-        background: conic-gradient(white 0deg, white 360deg);
-        box-shadow: 0 0 35px white;
+    90% {
+        opacity: 1;
     }
     100% {
-        background: conic-gradient(white 0deg, white 360deg);
-        box-shadow: 0 0 35px white;
-    }
-}
-
-/* Circle Disappearance Animation */
-@keyframes disappear {
-    to {
-        transform: scale(0);
+        transform: translateY(-10vh) translateX(100px) rotate(360deg);
         opacity: 0;
     }
 }
 
-/* Buttons Container */
-.mood-buttons {
-    display: flex;
-    justify-content: center;
-    gap: 20px;
-    flex-direction: column; /* Stack buttons vertically */
+/* Efectos responsive */
+@media (max-width: 768px) {
+    .intro-circle {
+        width: 250px;
+        height: 250px;
+    }
+
+    .landing-buttons {
+        flex-direction: column;
+        gap: 1.5rem;
+        margin-top: 3rem;
+        width: 100%;
+        max-width: 300px;
+    }
+
+    .landing-buttons button {
+        padding: 1rem 2rem;
+        font-size: 1rem;
+        width: 100%;
+    }
 }
 
-/* General Button Styling */
-button {
-    padding: 15px 30px;
-    font-size: 1.2rem;
-    background: linear-gradient(45deg, #c51d86, #ffdb0a);
-    border: none;
-    border-radius: 30px;
-    color: white;
-    cursor: pointer;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-    transition: transform 0.2s, box-shadow 0.3s;
-    font-weight: 500;
-    min-width: 200px; /* Uniform width */
-    text-align: center;
-    margin-top: 10px; /* Add space above each button */
+@media (max-width: 480px) {
+    .intro-circle {
+        width: 200px;
+        height: 200px;
+    }
+
+    .landing-buttons {
+        margin-top: 2.5rem;
+        max-width: 250px;
+    }
+
+    .landing-buttons button {
+        padding: 0.9rem 1.5rem;
+        font-size: 0.9rem;
+    }
 }
 
-/* Button Hover Effect */
-button:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
-    background: linear-gradient(45deg, #ffdb0a, #c51d86);
-}
-
-/* Active Button */
-button:active {
-    transform: translateY(0);
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-}
-
-/* Button Focus Effect */
-button:focus {
-    outline: none;
-    box-shadow: 0 0 0 3px rgba(255, 219, 10, 0.4);
+/* Efecto de cristal para navegadores compatibles */
+@supports (backdrop-filter: blur(10px)) {
+    .intro-circle,
+    .landing-buttons button {
+        backdrop-filter: blur(10px);
+    }
 }

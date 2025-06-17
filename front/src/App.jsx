@@ -17,7 +17,7 @@ import ChooseMood from './components/ChooseMood/ChooseMood.jsx';
 import Matches from "./pages/Matches/Matches.jsx";
 import LikesReceived from './pages/LikesReceived';
 import EditProfilePage from "./pages/EditProfilePage/EditProfilePage.jsx";
-import ChatPage from "./pages/ChatPage.jsx";
+import ChatPage from "./pages/ChatPage/ChatPage.jsx";
 
 
 

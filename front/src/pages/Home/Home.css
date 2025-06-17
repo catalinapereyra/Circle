@@ -1,78 +1,391 @@
-.home-page {
-    padding: 2rem;
-    min-height: 100vh;
+/* Variables minimalistas pero poderosas */
+:root {
+    --white: #ffffff;
+    --black: #000000;
+    --gray-50: #fafafa;
+    --gray-100: #f5f5f5;
+    --gray-900: #111111;
+    --pink: #ff0066;
+    --yellow: #ffdd00;
+    --shadow-brutal: 8px 8px 0px 0px #000000;
+    --shadow-hover: 16px 16px 0px 0px #000000;
+    --transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+/* Reset base */
+* {
+    margin: 0;
+    padding: 0;
     box-sizing: border-box;
 }
 
-.home-header {
+.home-page {
+    min-height: 100vh;
+    background: var(--white);
     display: flex;
     flex-direction: column;
-    align-items: center;
-    margin-bottom: 0.4rem;
+    font-family: 'JetBrains Mono', 'Courier New', monospace;
+    color: var(--black);
+    position: relative;
+    overflow-x: hidden;
 }
 
-.home-logo {
-    width: 80px;
-    height: 80px;
-    border-radius: 50%;
-    background-color: black;
-    margin-bottom: 1rem;
-}
-
-.home-title {
-    font-size: 1.5rem;
-    font-weight: 600;
-    color: #1c1c1c;
-    margin: 0;
-}
-
-/* Fondo para cada modo */
+/* Modo acentos */
 .couple-bg {
-    background-color: #ec7ac1;
+    --accent: var(--pink);
 }
 
 .friendship-bg {
-    background-color: #dcc542;
+    --accent: var(--yellow);
 }
 
+/* Patrón de fondo sorprendente */
+.home-page::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image:
+            radial-gradient(circle at 2px 2px, var(--black) 1px, transparent 0);
+    background-size: 40px 40px;
+    opacity: 0.03;
+    pointer-events: none;
+    animation: drift 20s linear infinite;
+}
+
+@keyframes drift {
+    0% { transform: translateX(0) translateY(0); }
+    100% { transform: translateX(40px) translateY(40px); }
+}
+
+/* Header brutal y sorprendente */
+.home-header {
+    padding: clamp(3rem, 8vh, 6rem) clamp(1rem, 5vw, 3rem) clamp(2rem, 6vh, 4rem);
+    text-align: center;
+    position: relative;
+    z-index: 10;
+}
+
+.home-logo {
+    width: clamp(60px, 15vw, 120px);
+    height: clamp(60px, 15vw, 120px);
+    background: var(--black);
+    margin: 0 auto clamp(2rem, 5vh, 3rem);
+    position: relative;
+    cursor: pointer;
+    transition: var(--transition);
+    transform: rotate(45deg);
+}
+
+.home-logo::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 40%;
+    height: 40%;
+    background: var(--accent);
+    transform: translate(-50%, -50%) rotate(-45deg);
+    transition: var(--transition);
+}
+
+.home-logo:hover {
+    transform: rotate(225deg) scale(1.1);
+    box-shadow: var(--shadow-brutal);
+}
+
+.home-title {
+    font-size: clamp(1.5rem, 5vw, 3rem);
+    font-weight: 900;
+    line-height: 0.9;
+    letter-spacing: -0.05em;
+    color: var(--black);
+    text-transform: uppercase;
+    max-width: 800px;
+    margin: 0 auto;
+    position: relative;
+    text-shadow: 3px 3px 0px var(--accent);
+}
+
+.home-title::after {
+    content: '';
+    position: absolute;
+    bottom: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: clamp(60px, 20vw, 120px);
+    height: 4px;
+    background: var(--accent);
+    animation: stretch 2s ease-in-out infinite alternate;
+}
+
+@keyframes stretch {
+    0% { width: clamp(60px, 20vw, 120px); }
+    100% { width: clamp(120px, 40vw, 240px); }
+}
+
+/* Grid principal con efecto WOW */
 .card-grid {
+    flex: 1;
     display: flex;
-    flex-wrap: wrap;
     justify-content: center;
-    gap: 1.5rem;
+    align-items: center;
+    padding: clamp(2rem, 8vh, 4rem) clamp(1rem, 5vw, 3rem);
+    position: relative;
+    z-index: 10;
 }
 
+.card-grid::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 200%;
+    height: 200%;
+    background: conic-gradient(from 0deg, transparent, var(--accent), transparent);
+    transform: translate(-50%, -50%) rotate(0deg);
+    animation: spin 20s linear infinite;
+    opacity: 0.1;
+    pointer-events: none;
+}
+
+@keyframes spin {
+    100% { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+.card-grid > * {
+    position: relative;
+    z-index: 2;
+    transition: var(--transition);
+    filter: drop-shadow(var(--shadow-brutal));
+}
+
+.card-grid > *:hover {
+    transform: scale(1.02) rotate(1deg);
+    filter: drop-shadow(var(--shadow-hover));
+}
+
+/* Botones brutales pero elegantes */
 .home-buttons {
     display: flex;
     justify-content: center;
-    gap: 40px;
-    margin: 20px 0;
+    gap: clamp(2rem, 8vw, 4rem);
+    padding: clamp(2rem, 6vh, 3rem) clamp(1rem, 5vw, 3rem) clamp(3rem, 8vh, 5rem);
+    position: relative;
+    z-index: 10;
 }
 
-.like-button, .dislike-button {
-    width: 60px; /* ancho fijo para que sea un círculo */
-    height: 60px; /* alto igual que ancho */
-    font-size: 24px;
-    border-radius: 50%; /* círculo perfecto */
-    border: none;
+.dislike-button,
+.like-button {
+    width: clamp(60px, 15vw, 80px);
+    height: clamp(60px, 15vw, 80px);
+    border: 4px solid var(--black);
+    background: var(--white);
+    font-size: clamp(1.2rem, 4vw, 1.8rem);
     cursor: pointer;
-    display: flex; /* para centrar el emoji */
+    transition: var(--transition);
+    display: flex;
     align-items: center;
     justify-content: center;
-    transition: transform 0.2s;
-}
-
-.like-button {
-    background-color: #ff7aa2;
-    color: white;
+    position: relative;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: -0.02em;
+    box-shadow: var(--shadow-brutal);
 }
 
 .dislike-button {
-    background-color: #ffcccc;
-    color: black;
+    color: var(--black);
+    transform: rotate(-5deg);
 }
 
-/* Hover efecto */
-.like-button:hover, .dislike-button:hover {
-    transform: scale(1.1);
+.dislike-button::before {
+    content: 'NOPE';
+    position: absolute;
+    font-size: clamp(0.6rem, 2vw, 0.8rem);
+    top: -30px;
+    opacity: 0;
+    transition: var(--transition);
+}
+
+.dislike-button:hover {
+    background: var(--black);
+    color: var(--white);
+    transform: rotate(-10deg) scale(1.1);
+    box-shadow: var(--shadow-hover);
+}
+
+.dislike-button:hover::before {
+    opacity: 1;
+    color: var(--black);
+}
+
+.like-button {
+    background: var(--accent);
+    border-color: var(--black);
+    color: var(--black);
+    transform: rotate(5deg);
+}
+
+.like-button::before {
+    content: 'YES!';
+    position: absolute;
+    font-size: clamp(0.6rem, 2vw, 0.8rem);
+    top: -30px;
+    opacity: 0;
+    transition: var(--transition);
+}
+
+.like-button:hover {
+    background: var(--black);
+    color: var(--accent);
+    transform: rotate(10deg) scale(1.1);
+    box-shadow: var(--shadow-hover);
+}
+
+.like-button:hover::before {
+    opacity: 1;
+    color: var(--accent);
+}
+
+.dislike-button:active,
+.like-button:active {
+    transform: scale(0.9) rotate(0deg);
+    box-shadow: 4px 4px 0px 0px var(--black);
+}
+
+/* Estados especiales con personalidad */
+.home-title:only-child {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 60vh;
+    color: var(--black);
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: -0.02em;
+    animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+}
+
+/* Animaciones de entrada espectaculares */
+.home-header {
+    animation: slideInDown 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.card-grid {
+    animation: zoomIn 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55) 0.2s both;
+}
+
+.home-buttons {
+    animation: slideInUp 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55) 0.4s both;
+}
+
+@keyframes slideInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-100px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes zoomIn {
+    from {
+        opacity: 0;
+        transform: scale(0.5);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@keyframes slideInUp {
+    from {
+        opacity: 0;
+        transform: translateY(100px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Responsive ultra cuidado */
+@media (max-width: 768px) {
+    .home-page::before {
+        background-size: 20px 20px;
+    }
+
+    .home-logo {
+        margin-bottom: 2rem;
+    }
+
+    .home-title {
+        text-shadow: 2px 2px 0px var(--accent);
+    }
+
+    .dislike-button,
+    .like-button {
+        border-width: 3px;
+        box-shadow: 4px 4px 0px 0px var(--black);
+    }
+}
+
+@media (max-width: 480px) {
+    .home-page::before {
+        background-size: 15px 15px;
+    }
+
+    .home-title {
+        text-shadow: 1px 1px 0px var(--accent);
+    }
+
+    .dislike-button,
+    .like-button {
+        border-width: 2px;
+        box-shadow: 3px 3px 0px 0px var(--black);
+    }
+
+    .dislike-button:hover,
+    .like-button:hover {
+        box-shadow: 6px 6px 0px 0px var(--black);
+    }
+}
+
+/* Focus estados brutales */
+.dislike-button:focus,
+.like-button:focus {
+    outline: 4px solid var(--accent);
+    outline-offset: 4px;
+}
+
+/* Efectos de hover en elementos interactivos */
+@media (hover: hover) {
+    .home-logo:hover::before {
+        animation: bounce 0.5s ease-in-out infinite alternate;
+    }
+}
+
+@keyframes bounce {
+    0% { transform: translate(-50%, -50%) rotate(-45deg) scale(1); }
+    100% { transform: translate(-50%, -50%) rotate(-45deg) scale(1.2); }
+}
+
+/* Modo reducido de movimiento */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.1s !important;
+    }
 }

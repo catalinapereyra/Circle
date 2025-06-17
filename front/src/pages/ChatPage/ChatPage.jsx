@@ -1,8 +1,11 @@
 import { useEffect, useState, useRef } from "react";
 import { Navigate, useParams } from "react-router-dom";
 import { io } from "socket.io-client";
-import CardGameModal from "../components/CardGame/CardGameModal.jsx";
-import CardGameResultModal from "../components/CardGame/CardGameResultModal.jsx";
+import CardGameModal from "../../components/CardGame/CardGameModal.jsx";
+import CardGameResultModal from "../../components/CardGame/CardGameResultModal.jsx";
+import { FaCamera, FaUpload, FaPaperPlane } from "react-icons/fa";
+import "./ChatPage.css";
+
 
 export default function ChatPage() {
     const { username: targetUser } = useParams();
@@ -25,8 +28,17 @@ export default function ChatPage() {
     const [cardGameQuestions, setCardGameQuestions] = useState([]);
     const [interactionId, setInteractionId] = useState(null);
 
+    const bottomRef = useRef(null);
+
     const socketRef = useRef(null);
     const prevEphemeralMode = useRef(false);
+    // tengo que guardar el estado para que los mensajes efimeros se borren cuando
+    // cambio de ephemeral true a false, no cuando entreo al chatr, sino cuando me voy
+
+    const videoRef = useRef(null);
+    const canvasRef = useRef(null);
+    const [isCameraOpen, setIsCameraOpen] = useState(false);
+
 
     if (!token) return <Navigate to="/login" />;
     const currentMode = isEphemeralMode ? "ephemeral" : "normal";
@@ -40,10 +52,9 @@ export default function ChatPage() {
                 const formatted = data.messages.map((msg) => ({
                     ...msg,
                     isMine: msg.sender === myUsername,
-                    display: msg.sender === myUsername
-                        ? `${msg.message} ${msg.seen ? "✅" : "⏳"}`
-                        : `${msg.sender}: ${msg.message}`,
+                    is_image: msg.is_image,
                 }));
+
 
                 if (currentMode === "ephemeral") {
                     setPendingEphemerals(formatted);
@@ -272,54 +283,184 @@ export default function ChatPage() {
         });
     };
 
-    return (
-        <div style={{ padding: "20px", maxWidth: "600px", margin: "0 auto" }}>
-            <h2>Chat with {targetUser} {isOnline ? "🟢" : "⚪️"}</h2>
-            <h3>🔥 Streak: {streak}</h3>
+    //CAMARA
+    const handleImageUpload = (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
 
-            <div style={{ marginBottom: "20px", display: "flex", gap: "10px", flexWrap: "wrap" }}>
-                <button
-                    onClick={() => setIsEphemeralMode((prev) => !prev)}
-                    style={{ padding: "8px 16px", backgroundColor: isEphemeralMode ? "#ff6b6b" : "#4ecdc4", color: "white", border: "none", borderRadius: "5px", cursor: "pointer" }}>
-                    {isEphemeralMode ? "Modo normal" : "Modo efímero"}
+        const reader = new FileReader();
+        reader.onload = () => {
+            const base64Image = reader.result;
+            socketRef.current.emit("private_message", {
+                recipient: targetUser,
+                message: base64Image,
+                ephemeral: isEphemeralMode,
+                is_image: true, // flag para saber que es imagen
+            });
+        };
+        reader.readAsDataURL(file); // convierte a base64 para mandar como string
+    };
+
+    useEffect(() => {
+        if (bottomRef.current) {
+            bottomRef.current.scrollIntoView({ behavior: "smooth" });
+        }
+    }, [messages]);
+
+    const openCamera = () => {
+        setIsCameraOpen(true);
+    };
+
+    useEffect(() => {
+        if (!isCameraOpen) return;
+
+        const setupCamera = async () => {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                if (videoRef.current) {
+                    videoRef.current.srcObject = stream;
+                    videoRef.current.play().catch(console.error);
+                }
+            } catch (err) {
+                console.error("❌ Error accediendo a la cámara:", err);
+            }
+        };
+
+        setupCamera();
+    }, [isCameraOpen]);
+
+    useEffect(() => {
+        if (isCameraOpen && videoRef.current && videoRef.current.srcObject) {
+            videoRef.current.play().catch((err) => {
+                console.error("Error al reproducir el video:", err);
+            });
+        }
+    }, [isCameraOpen]);
+
+    const closeCamera = () => {
+        const stream = videoRef.current?.srcObject;
+        if (stream) {
+            stream.getTracks().forEach((track) => track.stop());
+        }
+        if (videoRef.current) {
+            videoRef.current.srcObject = null;
+        }
+        setIsCameraOpen(false);
+    };
+
+    const takePhoto = () => {
+        const video = videoRef.current;
+        const canvas = canvasRef.current;
+
+        if (!video || !canvas) return;
+
+        // Verificá si el video tiene dimensiones válidas
+        if (video.videoWidth === 0 || video.videoHeight === 0) {
+            console.warn("⚠️ El video aún no está listo para capturar.");
+            return;
+        }
+
+        const ctx = canvas.getContext("2d");
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+        const base64Image = canvas.toDataURL("image/png");
+
+        // Confirmá que no esté vacío
+        if (base64Image === "data:,") {
+            console.error("❌ Imagen vacía capturada.");
+            return;
+        }
+
+        console.log("📸 Capturada:", base64Image.slice(0, 80) + "...");
+
+        socketRef.current.emit("private_message", {
+            recipient: targetUser,
+            message: base64Image,
+            ephemeral: isEphemeralMode,
+            is_image: true,
+        });
+
+        closeCamera();
+    };
+
+
+    return (
+        <div className="chat-container">
+            <div className="chat-header">
+                <h2>{targetUser} {isOnline ? "🟢" : "⚪️"}</h2>
+                <h3>🔥 Streak: {streak}</h3>
+            </div>
+
+            <div className="chat-controls">
+                <button onClick={() => setIsEphemeralMode(prev => !prev)}>
+                    {isEphemeralMode ? "Normal Chat" : "Ephemeral Chat"}
                 </button>
                 <button
                     onClick={() => {
                         if (!chatId) return;
-                        socketRef.current.emit("random_question_game", { chat_id: chatId, recipient: targetUser });
-                    }}
-                    style={{ padding: "8px 16px", backgroundColor: "#845ec2", color: "white", border: "none", borderRadius: "5px", cursor: "pointer" }}>
-                    ❓ Pregunta Aleatoria
+                        socketRef.current.emit("random_question_game", {
+                            chat_id: chatId,
+                            recipient: targetUser,
+                        });
+                    }}>
+                    ❓ Random Question Game
                 </button>
-                <button
-                    onClick={handleCardGameClick}
-                    style={{ padding: "8px 16px", backgroundColor: "#ff416c", color: "white", border: "none", borderRadius: "5px", cursor: "pointer", fontWeight: "bold" }}>
-                    🎴 Juego de Cartas
-                </button>
+                <button onClick={handleCardGameClick}>🎴 Card Game</button>
             </div>
 
-            <div style={{ height: "400px", overflowY: "auto", border: "1px solid #ddd", padding: "10px", marginBottom: "20px", backgroundColor: "#f9f9f9", borderRadius: "5px" }}>
-                {messages.map((m, i) => (
-                    <div key={i} style={{ marginBottom: "8px", padding: "5px", backgroundColor: m.is_system ? "#e8f5e8" : m.isMine ? "#dcf8c6" : "white", borderRadius: "5px", border: m.is_system ? "1px solid #4caf50" : "1px solid #eee" }}>
-                        <span style={{ fontSize: "12px", color: "#666" }}>[{m.ephemeral ? "⏱ efímero" : "💬 normal"}]</span> {m.display}
-                    </div>
-                ))}
+            <div className="messages-container">
+                {messages.map((m, i) => {
+                    let content = m.is_question ? `❓ ${m.message}` : m.is_image
+                        ? <img src={m.message} alt="sent" className="chat-image" />
+                        : m.isMine
+                            ? `${m.message} ${m.seen ? "✅" : "⏳"}`
+                            : `${m.sender}: ${m.message}`;
+
+                    return (
+                        <div key={i} className={`message ${m.isMine ? 'message-mine' : ''} ${m.ephemeral ? 'message-ephemeral' : ''} ${m.is_question ? 'random-question' : ''}`}>
+                            {content}
+                        </div>
+                    );
+                })}
+                <div ref={bottomRef}></div>
             </div>
 
-            <div style={{ display: "flex", gap: "10px" }}>
+            <div className="input-container">
                 <input
+                    className="chat-input"
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
-                    placeholder="Escribí tu mensaje..."
-                    onKeyPress={(e) => e.key === "Enter" && sendMessage()}
-                    style={{ flex: 1, padding: "10px", border: "1px solid #ddd", borderRadius: "5px" }}
+                    placeholder="Write your message..."
                 />
-                <button
-                    onClick={sendMessage}
-                    style={{ padding: "10px 20px", backgroundColor: "#007bff", color: "white", border: "none", borderRadius: "5px", cursor: "pointer" }}>
-                    Enviar
-                </button>
+                <div className="icon-buttons">
+                    <label className="icon-button upload">
+                        <FaUpload />
+                        <input type="file" accept="image/*" onChange={handleImageUpload} style={{ display: "none" }} />
+                    </label>
+                    {!isCameraOpen && (
+                        <label className="icon-button upload">
+                            <FaCamera />
+                            <input type="button" onClick={openCamera} style={{ display: "none" }} />
+                        </label>
+                    )}
+                    <button className="send-button" onClick={sendMessage}>
+                        <FaPaperPlane />
+                    </button>
+                </div>
             </div>
+
+            {isCameraOpen && (
+                <div className="camera-modal">
+                    <video ref={videoRef} autoPlay playsInline className="video-preview" />
+                    <canvas ref={canvasRef} style={{ display: "none" }} />
+                    <div className="camera-buttons">
+                        <button onClick={takePhoto}>📷 Tomar foto</button>
+                        <button onClick={closeCamera}>❌ Cerrar</button>
+                    </div>
+                </div>
+            )}
 
             {showCardGame && (
                 <CardGameModal

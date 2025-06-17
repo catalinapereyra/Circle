@@ -77,12 +77,12 @@ function ChooseMood() {
             <h2>¿What's your mood with CIRCLE today?</h2>
 
             <div className="mood-buttons">
-                <button onClick={handleCoupleModeClick} className="couple-button">
+                <button onClick={handleCoupleModeClick} className="button">
                     {profiles.has_couple_profile ? 'Cupid Mood: ON' : 'Create couple profile'}
                 </button>
 
-                <button onClick={handleFriendshipModeClick} className="friendship-button">
-                    {profiles.has_friendship_profile ? 'Friend Zone Mood' : 'Create friendship profile'}
+                <button onClick={handleFriendshipModeClick} className="button">
+                    {profiles.has_friendship_profile ? 'Just Looking for friends' : 'Create friendship profile'}
                 </button>
             </div>
         </div>

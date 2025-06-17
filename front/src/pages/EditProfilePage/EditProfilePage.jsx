@@ -54,7 +54,7 @@ function EditProfilePage() {
                 setMessage("profile updated successfully");  // Mostrar mensaje de éxito
                 navigate(`/my-profile`)}
 
-                // // Si el usuario ha modificado su email o contraseña, actualizamos también los datos del usuario
+            // // Si el usuario ha modificado su email o contraseña, actualizamos también los datos del usuario
             // if (email || password) {
             //     const userData = { email, password };
             //     await axiosInstance.put(`/user/update-user`, userData);

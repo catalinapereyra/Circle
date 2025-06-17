@@ -104,16 +104,15 @@ function RegisterForm() {
                     <input name="location" placeholder="Location" onChange={handleChange} />
                 </div>
 
-                {/* ✅ Botón de premium toggle */}
                 <div
                     className={`premium-option ${wantsPremium ? 'selected' : ''}`}
                     onClick={() => setWantsPremium(!wantsPremium)}
                 >
-                    {wantsPremium ? '✔️ ¡Quiero la opción Premium!' : '¿Obtener la opción Premium?'}
+                    {wantsPremium ? 'yes ;)' : 'Join the Premium club?'}
                 </div>
 
                 <div className="button-group">
-                    <button className="register-button" type="submit">SIGN UP</button>
+                    <button className="back-button" type="submit">SIGN UP</button>
                     <button className="back-button" type="button" onClick={() => navigate(-1)}>BACK</button>
                 </div>
             </form>

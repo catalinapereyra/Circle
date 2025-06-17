@@ -8,7 +8,7 @@ import './Matches.css'
 function Matches() {
     const [matches, setMatches] = useState([]);
     const [loading, setLoading] = useState(true);
-    const { mode } = useUserMode();
+    const {mode} = useUserMode();
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -48,20 +48,12 @@ function Matches() {
         <div className="matches-container">
             <button
                 onClick={() => navigate(`/${mode === "couple" ? "home" : "home"}`)}
-                style={{
-                    background: "none",
-                    border: "none",
-                    fontSize: "1.5rem",
-                    cursor: "pointer",
-                    position: "absolute",
-                    top: "1rem",
-                    left: "1rem"
-                }}
+                className="close-button"
             >
                 ✖
             </button>
 
-            <h2>Your Matches</h2>
+            <h2>My Matches</h2>
             {filteredMatches.length === 0 ? (
                 mode === "couple" ? (
                     <p>No matches in couple mode yet..</p>
@@ -78,29 +70,18 @@ function Matches() {
                         <div
                             key={match.username}
                             className="match-card"
-                            data-aos="fade-down"
+                            data-aos="fade-right"
                             data-aos-duration="800"
-                            data-aos-delay={index * 100} // Animación en cascada
+                            data-aos-delay={index * 100}
+                            onClick={() => navigate(`/chat/${match.username}`)}
                         >
-                            <img src={photoPath} alt={match.username} width="100"/>
-                            <p><strong>{match.username}</strong></p>
-                            <p>{match.bio}</p>
-                            <p>📚🍔🐾 {match.interest}</p>
-                            <button
-                                onClick={() => navigate(`/chat/${match.username}`)}
-                                className="chat-button"
-                                style={{
-                                    marginTop: "0.5rem",
-                                    padding: "0.5rem 1rem",
-                                    borderRadius: "8px",
-                                    backgroundColor: "#9370DB",
-                                    color: "white",
-                                    border: "none",
-                                    cursor: "pointer"
-                                }}
-                            >
-                                Chat 💬
-                            </button>
+                            <div className="match-info">
+                                {/*<img src={photoPath} alt={match.username}/>*/}
+                                <div className="match-details">
+                                    <p><strong>{match.username}</strong></p>
+                                </div>
+                            </div>
+                            <div className="chat-button"></div>
                         </div>
                     );
                 })

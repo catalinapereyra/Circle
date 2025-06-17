@@ -112,7 +112,7 @@ function Home() {
         return (
             <div className={mode === "couple" ? "home-page couple-bg" : "home-page friendship-bg"}>
                 <div className="home-header">
-                    <h2 className="home-title">No more profiles for now! 🎉</h2>
+                    <h2 className="home-title">No more profiles for now!</h2>
                 </div>
                 <BottomNavBar mode={mode} />
             </div>
