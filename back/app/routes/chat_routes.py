@@ -271,7 +271,8 @@ def streaks(chat_id):
         ten_minutes_ago = now - timedelta(minutes=1)
         last_messages = Message.query.filter(
             Message.chat_id == chat_id,
-            Message.timestamp >= ten_minutes_ago
+            Message.timestamp >= ten_minutes_ago,
+            Message.is_image == False,
         ).order_by(Message.timestamp.desc()).all()
 
         users = {message.sender_profile_id for message in last_messages}

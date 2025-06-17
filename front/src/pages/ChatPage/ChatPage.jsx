@@ -229,6 +229,7 @@ export default function ChatPage() {
             recipient: targetUser,
             message: input,
             ephemeral: isEphemeralMode,
+            is_image: false // 👈 esto es CLAVE
         });
         setInput("");
     };
