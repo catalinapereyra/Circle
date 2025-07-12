@@ -1,4 +1,3 @@
-import "./CardGameResultModal.css";
 
 //Muestra el resultado del juego: las preguntas donde ambos jugadores eligieron la misma opción.
 //array de coincidencias: coincidences

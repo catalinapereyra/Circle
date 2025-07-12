@@ -1,5 +1,5 @@
 from main import create_app
-from app.models.models import db, Question, Mode
+from app.models.models import  db, Question, Mode
 
 # Preguntas para modo pareja
 couple_questions = [
