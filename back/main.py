@@ -44,9 +44,10 @@ def create_app():
         preference_response = sdk.preference().create(preference_data)
         print(preference_response)
         preference = preference_response.get("response", {})
+        print("✅ URL del pago:", preference["init_point"])
         return jsonify({
             "preference_id": preference["id"],
-            "init_point": preference["init_point"]
+            "sandbox_init_point": preference["sandbox_init_point"]
         })
 
     @app.before_request

@@ -203,7 +203,7 @@ function RegisterForm() {
             });
             const data = await pagoResponse.json();
             console.log("✅ Pago response:", data);
-            window.location.href = data.init_point;
+            window.location.href = data.sandbox_init_point;
 
         } catch (error) {
             if (error.response?.data?.error) {
