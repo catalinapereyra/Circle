@@ -22,6 +22,7 @@ import ChatPage from "./pages/ChatPage/ChatPage.jsx";
 
 
 
+
 function App() {
     return (
         <UserModeProvider> {/* para manejar el modo couple/friendship en toda la app */}

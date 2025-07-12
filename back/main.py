@@ -1,12 +1,13 @@
 from datetime import timedelta
 
 from app.extensions import db, migrate, socketio
-from flask import Flask, request
+from flask import Flask, request, jsonify
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager
 
 from app.routes.chat_routes import chat_bp
 from app.routes.match_routes import bp_match
+import mercadopago
 from app.events import socket_handlers
 
 
@@ -22,7 +23,31 @@ def create_app():
     app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=1)
     JWTManager(app)
 
-    CORS(app, supports_credentials=True, expose_headers=["Authorization"]) # para que React se conecte
+
+    CORS(app, supports_credentials=True, origins=["http://localhost:5173", "https://c800b904dfa9.ngrok-free.app"], expose_headers=["Authorization"])
+
+    sdk = mercadopago.SDK("TEST-4914566019406899-071213-6fbf4f6b80b9feb5f6b5a8b35bf775c0-302805625")
+
+    @app.route("/make_payment", methods=["POST"])
+    def make_payment():
+        preference_data = {
+            "items": [
+                {
+                    "title": "Circle Premium subs",
+                    "quantity": 1,
+                    "unit_price": 999,
+                    "currency_id": "ARS"
+                }
+            ]
+        }
+
+        preference_response = sdk.preference().create(preference_data)
+        print(preference_response)
+        preference = preference_response.get("response", {})
+        return jsonify({
+            "preference_id": preference["id"],
+            "init_point": preference["init_point"]
+        })
 
     @app.before_request
     def handle_preflight():
