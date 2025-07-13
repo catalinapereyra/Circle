@@ -168,7 +168,7 @@ function RegisterForm() {
         email: '',
         age: '',
         gender: '',
-        location: '',
+        location: null,
     });
 
     const [wantsPremium, setWantsPremium] = useState(false);
@@ -176,7 +176,6 @@ function RegisterForm() {
     const navigate = useNavigate();
     const location = useLocation();
     const withFriendship = location.state?.withFriendship || false;
-    const [latLng, setLatLng] = useState(null);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -186,7 +185,7 @@ function RegisterForm() {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        if (!latLng) {
+        if (!formData.location || !formData.location.latitude || !formData.location.longitude) {
             setMessage("Please select your location on the map.");
             return;
         }
@@ -194,10 +193,7 @@ function RegisterForm() {
         try {
             const payload = {
                 ...formData,
-                location: {
-                    latitude: latLng.lat,
-                    longitude: latLng.lng
-                }
+                location: formData.location
             };
 
             const response = await axios.post('http://localhost:5001/user/register', payload);
@@ -250,7 +246,17 @@ function RegisterForm() {
                     <span>Select your location on the map</span>
                 </div>
 
-                <MapComponent setLatLng={setLatLng} />
+                <MapComponent
+                    setLatLng={(coords) =>
+                        setFormData(prev => ({
+                            ...prev,
+                            location: {
+                                latitude: coords.lat,
+                                longitude: coords.lng
+                            }
+                        }))
+                    }
+                />
                 <div
                     className={`premium-option ${wantsPremium ? 'selected' : ''}`}
                     onClick={() => setWantsPremium(!wantsPremium)}
