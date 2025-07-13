@@ -1,45 +1,61 @@
 .modal-overlay {
     position: fixed;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.6);
     display: flex;
     justify-content: center;
     align-items: center;
-    z-index: 1000;
+    z-index: 999;
+    animation: fadeIn 0.3s ease-in-out;
 }
 
 .modal-container {
-    background: white;
-    padding: 30px;
-    border-radius: 12px;
-    max-width: 400px;
-    width: 90%;
+    background-color: white;
+    padding: 2rem;
+    border-radius: 16px;
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
-}
-
-.modal-container h2 {
-    margin-top: 0;
-    color: #ff416c;
+    width: 90%;
+    max-width: 450px;
     text-align: center;
+    animation: zoomIn 0.3s ease-in-out;
 }
 
 .modal-container ul {
     list-style: none;
-    padding-left: 0;
+    padding: 0;
+    margin: 1rem 0;
+    text-align: left;
 }
 
 .modal-container li {
-    margin-bottom: 15px;
+    margin-bottom: 1rem;
 }
 
 .modal-container button {
-    background-color: #ff416c;
-    color: white;
-    padding: 10px 20px;
+    margin-top: 1.5rem;
+    padding: 0.6rem 1.2rem;
+    font-size: 1rem;
     border: none;
     border-radius: 8px;
+    background-color: #ff80ab;
+    color: white;
     cursor: pointer;
-    display: block;
-    margin: 20px auto 0;
+    transition: background-color 0.2s ease-in-out;
+}
+
+.modal-container button:hover {
+    background-color: #ff4081;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes zoomIn {
+    from { transform: scale(0.95); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
 }

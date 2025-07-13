@@ -297,46 +297,6 @@ def validate_token():
     return jsonify({"message": "Token válido"}), 200
 
 
-# @bp_user.route('/update_location', methods=['POST'])
-# def update_location():
-#     data = request.get_json()
-#     latitude = data['latitude']
-#     longitude = data['longitude']
-#     user_id = data['user_id']
-#
-#     try:
-#         # Use ST_Point to create a geometry point from lat/lon
-#         point = f'POINT({longitude} {latitude})'
-#         user = User.query.filter_by(user_id=user_id).first()
-#         user.location = point
-#         db.session.commit()
-#         return jsonify({'message': 'Location updated successfully!'}), 200
-#     except Exception as e:
-#         db.session.rollback()
-#         return jsonify({'error': str(e)}), 500
-#
-# @bp_user.route('/nearby_users', methods=['GET'])
-# def nearby_users():
-#     data = request.get_json()
-#     latitude = data['latitude']
-#     longitude = data['longitude']
-#     distance = data['distance'] # in meters
-#
-#     try:
-#         # Use ST_DWithin to find users within a certain distance
-#         point = f'POINT({longitude} {latitude})'
-#         nearby = db.session.query(User).filter(
-#             db.func.ST_DWithin(User.location, f'SRID=4326;{point}', distance)
-#         ).all()
-#
-#         users = []
-#         for user in nearby:
-#             users.append({'id': user.id, 'username': user.username})
-#
-#         return jsonify(users), 200
-#     except Exception as e:
-#         return jsonify({'error': str(e)}), 500
-
 @bp_user.route('/update_location', methods=['POST'])
 @jwt_required()
 def update_location():
@@ -379,3 +339,93 @@ def nearby_users():
         return jsonify(users), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
+
+
+from google.oauth2 import id_token
+from google.auth.transport import requests as google_requests
+
+@bp_user.route('/google-login', methods=['POST'])
+def google_login():
+    data = request.get_json()
+    token = data.get('token')
+
+    if not token:
+        return jsonify({"error": "Missing token"}), 400
+
+    try:
+        idinfo = id_token.verify_oauth2_token(
+            token, google_requests.Request(),
+            audience="415980449260-lkvk54is529a27k17t35kd9h57lerpqi.apps.googleusercontent.com"
+        )
+
+        email = idinfo.get('email')
+        name = idinfo.get('given_name') or "GoogleUser"
+        username = email.split('@')[0]
+
+        user = User.query.filter_by(email=email).first()
+
+        if not user:
+            # Usuario nuevo: creamos con valores por defecto
+            user = User(
+                username=username,
+                password='',
+                name=name,
+                age=18,
+                email=email,
+                gender='OTHER',
+                location=func.ST_SetSRID(func.ST_GeomFromText('POINT(0 0)'), 4326)
+            )
+            db.session.add(user)
+            db.session.commit()
+
+        access_token = create_access_token(identity=user.username)
+
+        needs_completion = user.gender.name == 'OTHER' or user.age == 18
+
+        return jsonify({
+            "access_token": access_token,
+            "username": user.username,
+            "needs_profile_completion": needs_completion
+        }), 200
+
+    except ValueError:
+        return jsonify({"error": "Invalid Google token"}), 401
+
+
+
+
+
+@bp_user.route('/complete-profile', methods=['POST'])
+@jwt_required()
+def complete_profile():
+    username = get_jwt_identity()
+    user = User.query.filter_by(username=username).first()
+
+    if not user:
+        return jsonify({"error": "User not found"}), 404
+
+    data = request.get_json()
+    gender = data.get('gender')
+    age = data.get('age')
+    location = data.get('location')
+
+    if not gender or not age or not location:
+        return jsonify({"error": "Missing fields"}), 400
+
+    if not str(age).isdigit() or int(age) < 18:
+        return jsonify({"error": "Invalid age"}), 400
+
+    latitude = location.get('latitude')
+    longitude = location.get('longitude')
+
+    if latitude is None or longitude is None:
+        return jsonify({"error": "Invalid location"}), 400
+
+    user.gender = gender
+    user.age = int(age)
+    user.location = func.ST_SetSRID(func.ST_GeomFromText(f'POINT({longitude} {latitude})'), 4326)
+
+    db.session.commit()
+
+    return jsonify({"message": "Profile completed successfully"}), 200
