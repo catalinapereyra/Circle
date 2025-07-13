@@ -5,6 +5,8 @@ import sqlalchemy
 
 from datetime import datetime
 from app.extensions import db
+from geoalchemy2 import Geometry
+
 
 metadata = sqlalchemy.MetaData()
 
@@ -28,7 +30,8 @@ class User(db.Model):
     age = db.Column(db.Integer, nullable=False)
     email = db.Column(db.String(100), nullable=False, unique=True)
     gender = db.Column(db.Enum(Genders), nullable=False)
-    location = db.Column(db.String(255), nullable=False)
+    # location = db.Column(db.String(255), nullable=False)
+    location = db.Column(Geometry(geometry_type='POINT', srid=4326))
 
     premium_subscription = db.relationship(
         'PremiumSubscription',

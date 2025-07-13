@@ -1,6 +1,6 @@
 # usamos blueprint para evitar que este init se vuelva muy largo
 # en este file estan todas las rutas que TIENEN QUE VER CON EL USER
-from os import access
+
 
 # Una ruta /endpoint es una URL que la web usa paa recibir y mandar solicitudes / respuestas.
 # cada ruta esta asociada a una funcion. POST GET
@@ -12,8 +12,6 @@ from os import access
 
 
 from flask import Blueprint, request, jsonify
-
-from app.models.models import User
 from app.extensions import db
 from flask_jwt_extended import create_access_token
 from flask_jwt_extended import jwt_required, get_jwt_identity
@@ -21,6 +19,7 @@ from datetime import datetime, timedelta
 from app.models.models import User, PremiumSubscription
 from app.models.models import Swipe
 from app.models.models import Match
+from sqlalchemy import func
 
 
 bp_user = Blueprint('user', __name__, url_prefix='/user') #creo un blueprint 'user'que tiene el prefijo '/user' en la URL
@@ -45,10 +44,19 @@ def register_user():
     email = data.get('email')
     gender = data.get('gender')
     location = data.get('location')
+
+    if not location or 'latitude' not in location or 'longitude' not in location:
+        return jsonify({"error": "Invalid or incorrect location"}), 400
+
+    latitude = location['latitude']
+    longitude = location['longitude']
+    point_wkt = f'POINT({longitude} {latitude})'
+
     #id_subscription = data.get('id_subscription')
     existing_user = User.query.filter_by(username=username).first()
     if existing_user:
         return jsonify({"error": "Username already taken"}), 409  # 409 Conflict
+
 
     # Crear un nuevo usuario con los datos
     new_user = User(
@@ -58,7 +66,7 @@ def register_user():
         age=int(age),
         email=email,
         gender=gender,
-        location=location,
+        location=func.ST_SetSRID(func.ST_GeomFromText(point_wkt), 4326)
         #id_subscription=id_subscription
     )
 
@@ -287,3 +295,87 @@ def delete_my_account():
 @jwt_required()
 def validate_token():
     return jsonify({"message": "Token válido"}), 200
+
+
+# @bp_user.route('/update_location', methods=['POST'])
+# def update_location():
+#     data = request.get_json()
+#     latitude = data['latitude']
+#     longitude = data['longitude']
+#     user_id = data['user_id']
+#
+#     try:
+#         # Use ST_Point to create a geometry point from lat/lon
+#         point = f'POINT({longitude} {latitude})'
+#         user = User.query.filter_by(user_id=user_id).first()
+#         user.location = point
+#         db.session.commit()
+#         return jsonify({'message': 'Location updated successfully!'}), 200
+#     except Exception as e:
+#         db.session.rollback()
+#         return jsonify({'error': str(e)}), 500
+#
+# @bp_user.route('/nearby_users', methods=['GET'])
+# def nearby_users():
+#     data = request.get_json()
+#     latitude = data['latitude']
+#     longitude = data['longitude']
+#     distance = data['distance'] # in meters
+#
+#     try:
+#         # Use ST_DWithin to find users within a certain distance
+#         point = f'POINT({longitude} {latitude})'
+#         nearby = db.session.query(User).filter(
+#             db.func.ST_DWithin(User.location, f'SRID=4326;{point}', distance)
+#         ).all()
+#
+#         users = []
+#         for user in nearby:
+#             users.append({'id': user.id, 'username': user.username})
+#
+#         return jsonify(users), 200
+#     except Exception as e:
+#         return jsonify({'error': str(e)}), 500
+
+@bp_user.route('/update_location', methods=['POST'])
+@jwt_required()
+def update_location():
+    data = request.get_json()
+    latitude = data['latitude']
+    longitude = data['longitude']
+    username = get_jwt_identity()
+
+    try:
+        point_wkt = f'POINT({longitude} {latitude})'
+        user = User.query.filter_by(username=username).first()
+        if not user:
+            return jsonify({'error': 'User not found'}), 404
+
+        user.location = func.ST_SetSRID(func.ST_GeomFromText(point_wkt), 4326)
+        db.session.commit()
+        return jsonify({'message': 'Location updated successfully'}), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 500
+
+
+@bp_user.route('/nearby_users', methods=['POST'])  # ← mejor que GET con JSON body
+@jwt_required()
+def nearby_users():
+    data = request.get_json()
+    latitude = data['latitude']
+    longitude = data['longitude']
+    distance = data['distance']  # en metros
+
+    try:
+        point_wkt = f'POINT({longitude} {latitude})'
+        reference_point = func.ST_SetSRID(func.ST_GeomFromText(point_wkt), 4326)
+
+        nearby = User.query.filter(
+            func.ST_DWithin(User.location, reference_point, distance)
+        ).all()
+
+        users = [{'id': u.id, 'username': u.username} for u in nearby]
+        return jsonify(users), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500

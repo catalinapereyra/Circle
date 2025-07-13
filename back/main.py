@@ -24,7 +24,15 @@ def create_app():
     JWTManager(app)
 
 
-    CORS(app, supports_credentials=True, origins=["http://localhost:5173", "https://c800b904dfa9.ngrok-free.app"], expose_headers=["Authorization"])
+    # CORS(app, supports_credentials=True, origins=["http://localhost:5173"], expose_headers=["Authorization"])
+
+    CORS(app,
+         supports_credentials=True,
+         origins=["http://localhost:5173"],
+         expose_headers=["Authorization"],
+         allow_headers=["Content-Type", "Authorization"],
+         methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"]
+         )
 
     sdk = mercadopago.SDK("TEST-4914566019406899-071213-6fbf4f6b80b9feb5f6b5a8b35bf775c0-302805625")
 

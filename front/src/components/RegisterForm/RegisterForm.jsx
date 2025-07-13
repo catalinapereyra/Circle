@@ -158,6 +158,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
 import './RegisterForm.css';
 import { FaUser, FaLock, FaEnvelope, FaBirthdayCake, FaVenusMars, FaMapMarkerAlt } from 'react-icons/fa';
+import MapComponent from "../MapComponent";
 
 function RegisterForm() {
     const [formData, setFormData] = useState({
@@ -175,6 +176,7 @@ function RegisterForm() {
     const navigate = useNavigate();
     const location = useLocation();
     const withFriendship = location.state?.withFriendship || false;
+    const [latLng, setLatLng] = useState(null);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -183,26 +185,36 @@ function RegisterForm() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+
+        if (!latLng) {
+            setMessage("Please select your location on the map.");
+            return;
+        }
+
         try {
-            // 1. Registrar usuario
-            const response = await axios.post('http://localhost:5001/user/register', formData);
+            const payload = {
+                ...formData,
+                location: {
+                    latitude: latLng.lat,
+                    longitude: latLng.lng
+                }
+            };
+
+            const response = await axios.post('http://localhost:5001/user/register', payload);
             const token = response.data.access_token;
             localStorage.setItem('token', token);
             localStorage.setItem('username', formData.username);
 
-            // 2. Si no quiere Premium → ir al perfil
             if (!wantsPremium) {
                 navigate('/choose-profile');
                 return;
             }
 
-            // 3. Si quiere Premium → crear preferencia y redirigir a Mercado Pago
             const pagoResponse = await fetch("http://localhost:5001/make_payment", {
                 method: "POST",
                 credentials: "include",
             });
             const data = await pagoResponse.json();
-            console.log("✅ Pago response:", data);
             window.location.href = data.sandbox_init_point;
 
         } catch (error) {
@@ -232,8 +244,13 @@ function RegisterForm() {
                         <option value="OTHER">Other</option>
                     </select>
                 </div>
-                <div className="input-group"><FaMapMarkerAlt /><input name="location" placeholder="Location" onChange={handleChange} /></div>
+                {/*<div className="input-group"><FaMapMarkerAlt /><input name="location" placeholder="Location" onChange={handleChange} /></div>*/}
+                <div className="input-group map-group">
+                    <FaMapMarkerAlt />
+                    <span>Select your location on the map</span>
+                </div>
 
+                <MapComponent setLatLng={setLatLng} />
                 <div
                     className={`premium-option ${wantsPremium ? 'selected' : ''}`}
                     onClick={() => setWantsPremium(!wantsPremium)}
