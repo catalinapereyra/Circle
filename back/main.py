@@ -79,7 +79,6 @@ def create_app():
     migrate.init_app(app, db)
     socketio.init_app(app, cors_allowed_origins="*")
 
-
     # Registrar blueprints
     app.register_blueprint(bp_user)
     app.register_blueprint(bp_profile, url_prefix="/profile")
