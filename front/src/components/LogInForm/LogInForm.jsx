@@ -1,8 +1,8 @@
-// LogInForm.jsx
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import './LogInForm.css'
+import { GoogleLogin } from '@react-oauth/google'; // ✅ Importar el botón
+import './LogInForm.css';
 
 function LogInForm() {
     const [formData, setFormData] = useState({
@@ -25,12 +25,11 @@ function LogInForm() {
         setError('');
 
         try {
-            // Modificado para usar el puerto 5001
             const response = await axios.post('http://localhost:5001/user/login', formData);
 
             if (response.status === 200) {
-                localStorage.setItem('token', response.data.access_token);   // GUARDAMOS EL TOKEN
-                localStorage.setItem('username', formData.username); //
+                localStorage.setItem('token', response.data.access_token);
+                localStorage.setItem('username', formData.username);
                 navigate('/choose-mood');
             }
 
@@ -41,7 +40,9 @@ function LogInForm() {
     };
 
     return (
-        <div className="logo-center"></div>,
+        <>
+            <div className="logo-center"></div>
+
             <div className="login-form-container">
                 {error && <div className="error-message">{error}</div>}
 
@@ -73,7 +74,40 @@ function LogInForm() {
                     <button type="submit" className="back-button">Log IN</button>
                     <button className="back-button" type="button" onClick={() => navigate(-1)}>BACK</button>
                 </form>
+
+                {/* 🔽 Google Sign In */}
+                <div className="google-login-container" style={{ marginTop: '1rem', textAlign: 'center' }}>
+                    <p>o</p>
+                    <GoogleLogin
+                        onSuccess={credentialResponse => {
+                            const token = credentialResponse.credential;
+
+                            axios.post('http://localhost:5001/user/google-login', { token })
+                                .then(res => {
+                                    const { access_token, username, needs_profile_completion } = res.data;
+
+                                    localStorage.setItem('token', access_token);
+                                    localStorage.setItem('username', username);
+
+                                    if (needs_profile_completion) {
+                                        navigate('/complete-profile');
+                                    } else {
+                                        navigate('/choose-mood');
+                                    }
+                                })
+                                .catch(err => {
+                                    console.error("Error con Google login:", err);
+                                    setError("No se pudo iniciar sesión con Google.");
+                                });
+                        }}
+                        onError={() => {
+                            setError("Falló el inicio de sesión con Google.");
+                            console.log("Google Login Failed");
+                        }}
+                    />
+                </div>
             </div>
+        </>
     );
 }
 

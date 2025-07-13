@@ -1,8 +1,7 @@
-// src/App.jsx
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import PublicRoute from './components/PublicRoute';
 import ProtectedRoute from './components/ProtectedRoute';
-import { UserModeProvider } from "./contexts/UserModeContext"; // este va más abajo pero igual está bien
+import { UserModeProvider } from "./contexts/UserModeContext";
 
 import MyProfilePage from './pages/MyProfilePage/MyProfilePage.jsx';
 import Landing from './pages/Landing/Landing.jsx';
@@ -15,17 +14,14 @@ import Home from './pages/Home/Home.jsx';
 import RegisterProfilePage from './pages/RegisterProfilePage';
 import ChooseMood from './components/ChooseMood/ChooseMood.jsx';
 import Matches from "./pages/Matches/Matches.jsx";
-import LikesReceived from './pages/LikesReceived.jsx'
+import LikesReceived from './pages/LikesReceived.jsx';
 import EditProfilePage from "./pages/EditProfilePage/EditProfilePage.jsx";
 import ChatPage from "./pages/ChatPage/ChatPage.jsx";
-
-
-
-
+import CompleteProfilePage from './pages//CompleteProfilePage.jsx'; // 👉 NUEVA IMPORTACIÓN
 
 function App() {
     return (
-        <UserModeProvider> {/* para manejar el modo couple/friendship en toda la app */}
+        <UserModeProvider>
             <Router>
                 <Routes>
                     {/* Rutas públicas */}
@@ -33,19 +29,19 @@ function App() {
                     <Route path="/register" element={<PublicRoute><Register /></PublicRoute>} />
                     <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
 
-                    {/* Rutas privadas (solo si hay token) */}
+                    {/* Rutas privadas */}
                     <Route path="/choose-profile" element={<ProtectedRoute><RegisterProfilePage /></ProtectedRoute>} />
                     <Route path="/couple-profile" element={<ProtectedRoute><CoupleProfilePage /></ProtectedRoute>} />
                     <Route path="/friend-profile" element={<ProtectedRoute><FriendshipProfilePage /></ProtectedRoute>} />
                     <Route path="/home" element={<ProtectedRoute><Home /></ProtectedRoute>} />
                     <Route path="/choose-mood" element={<ProtectedRoute><ChooseMood /></ProtectedRoute>} />
+                    <Route path="/complete-profile" element={<ProtectedRoute><CompleteProfilePage /></ProtectedRoute>} /> {/* 👉 NUEVA RUTA */}
                     <Route path="/matches" element={<ProtectedRoute><Matches /></ProtectedRoute>} />
                     <Route path="/likes-received" element={<ProtectedRoute><LikesReceived /></ProtectedRoute>} />
                     <Route path="/my-couple-profile" element={<ProtectedRoute><MyProfilePage /></ProtectedRoute>} />
                     <Route path="/my-friendship-profile" element={<ProtectedRoute><MyProfilePage /></ProtectedRoute>} />
                     <Route path="/my-profile" element={<MyProfilePage />} />
                     <Route path="/edit-profile/:mode" element={<EditProfilePage />} />
-                    <Route path="/matches" element={<Matches />} />
                     <Route path="/chat/:username" element={<ChatPage />} />
                 </Routes>
             </Router>
