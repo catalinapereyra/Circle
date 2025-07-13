@@ -323,3 +323,9 @@ form {
     right: 0;
     height: 1px;
 }
+
+.google-login-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
