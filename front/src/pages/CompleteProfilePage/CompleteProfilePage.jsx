@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import MapComponent from "../components/MapComponent.jsx";
+import MapComponent from "../../components/MapComponent.jsx";
+import './CompleteProfilePage.css';
 
 function CompleteProfilePage() {
     const [gender, setGender] = useState('');
@@ -45,14 +46,19 @@ function CompleteProfilePage() {
     };
 
     return (
-        <div style={{ padding: '2rem' }}>
-            <h2>Completa tu perfil</h2>
+        <div className="complete-profile-container">
+            <h2 className="complete-profile-title">Completa tu perfil</h2>
             {error && <p style={{ color: 'red' }}>{error}</p>}
 
             <form onSubmit={handleSubmit}>
-                <div>
-                    <label>Género:</label>
-                    <select value={gender} onChange={e => setGender(e.target.value)} required>
+                <div className="profile-form-group">
+                    <label className="profile-form-label">Género:</label>
+                    <select
+                        value={gender}
+                        onChange={e => setGender(e.target.value)}
+                        required
+                        className="profile-form-select"
+                    >
                         <option value="">Seleccionar</option>
                         <option value="MALE">Masculino</option>
                         <option value="FEMALE">Femenino</option>
@@ -60,25 +66,26 @@ function CompleteProfilePage() {
                     </select>
                 </div>
 
-                <div>
-                    <label>Edad:</label>
+                <div className="profile-form-group">
+                    <label className="profile-form-label">Edad:</label>
                     <input
                         type="number"
                         value={age}
                         onChange={e => setAge(e.target.value)}
                         min="18"
                         required
+                        className="profile-form-input"
                     />
                 </div>
 
-                <div>
-                    <label>Seleccioná tu ubicación en el mapa:</label>
+                <div className="map-section">
+                    <label className="profile-form-label">Seleccioná tu ubicación en el mapa:</label>
                     <MapComponent
                         setLatLng={(coords) => setLocation({ latitude: coords.lat, longitude: coords.lng })}
                     />
                 </div>
 
-                <button type="submit" style={{ marginTop: '1rem' }}>Guardar</button>
+                <button type="submit" className="submit-button">Guardar</button>
             </form>
         </div>
     );

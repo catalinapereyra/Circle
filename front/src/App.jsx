@@ -17,7 +17,7 @@ import Matches from "./pages/Matches/Matches.jsx";
 import LikesReceived from './pages/LikesReceived.jsx';
 import EditProfilePage from "./pages/EditProfilePage/EditProfilePage.jsx";
 import ChatPage from "./pages/ChatPage/ChatPage.jsx";
-import CompleteProfilePage from './pages//CompleteProfilePage.jsx'; // 👉 NUEVA IMPORTACIÓN
+import CompleteProfilePage from './pages/CompleteProfilePage/CompleteProfilePage.jsx'; // 👉 NUEVA IMPORTACIÓN
 
 function App() {
     return (
