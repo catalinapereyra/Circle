@@ -34,7 +34,7 @@ def create_app():
          methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"]
          )
 
-    sdk = mercadopago.SDK("TEST-7284458844008139-071315-4a0f0f3e790c3ddf821c59608052c68e-302805625")
+    sdk = mercadopago.SDK("TEST-5608208267317367-071316-e3681b81c946c512f3fb169272682c95-302805625")
 
     @app.route("/make_payment", methods=["POST"])
     def make_payment():
