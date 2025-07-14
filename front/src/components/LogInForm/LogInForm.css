@@ -67,28 +67,7 @@ form {
     margin-top: 3rem;
 }
 
-/* Título del formulario */
-form::before {
-    content: 'Welcome back';
-    display: block;
-    text-align: center;
-    font-size: 1.5rem;
-    font-weight: 600;
-    color: #000;
-    margin-bottom: 0.5rem;
-    margin-top: -1rem;
-}
 
-form::after {
-    content: 'Ready to swipe?';
-    display: block;
-    text-align: center;
-    font-size: 0.9rem;
-    font-weight: 400;
-    color: #575050;
-    margin-bottom: -3rem;
-    margin-top: 1rem;
-}
 
 /* Grupos de formulario */
 .form-group {
