@@ -24,3 +24,4 @@ function CardGameResultModal({ coincidences, onClose }) {
 }
 
 export default CardGameResultModal;
+//bien
