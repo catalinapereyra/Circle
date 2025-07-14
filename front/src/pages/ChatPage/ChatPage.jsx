@@ -5,6 +5,7 @@ import CardGameModal from "../../components/CardGame/CardGameModal.jsx";
 import CardGameResultModal from "../../components/CardGame/CardGameResultModal.jsx";
 import { FaCamera, FaUpload, FaPaperPlane } from "react-icons/fa";
 import "./ChatPage.css";
+import CardGameInviteModal from "../../components/CardGame/CardGameInviteModal.jsx";
 //
 
 export default function ChatPage() {
@@ -38,6 +39,10 @@ export default function ChatPage() {
     const videoRef = useRef(null);
     const canvasRef = useRef(null);
     const [isCameraOpen, setIsCameraOpen] = useState(false);
+
+    const [showInviteModal, setShowInviteModal] = useState(false);
+    const [inviteMessage, setInviteMessage] = useState("");
+
 
 
     if (!token) return <Navigate to="/login" />;
@@ -180,6 +185,7 @@ export default function ChatPage() {
         });
 
         socket.on("card_game_your_turn", (data) => {
+            // Agrega el mensaje al chat como mensaje del sistema
             const notificationMessage = {
                 id: Date.now(),
                 sender: "Sistema",
@@ -189,11 +195,14 @@ export default function ChatPage() {
                 is_system: true
             };
             setMessages((prev) => [...prev, notificationMessage]);
+
+            // Guarda las preguntas y el ID de la interacción
             setCardGameQuestions(data.questions);
             setInteractionId(data.interaction_id);
 
-            const accept = window.confirm(`${data.message}`);
-            if (accept) setShowCardGame(true);
+            // Guarda el mensaje para mostrarlo en el modal
+            setInviteMessage(data.message);
+            setShowInviteModal(true);
         });
 
         socket.on("card_game_saved", () => {
@@ -215,7 +224,17 @@ export default function ChatPage() {
         });
 
         socket.on("error", (data) => {
-            alert(data.error);
+            setMessages(prev => [
+                ...prev,
+                {
+                    id: Date.now(),
+                    sender: "Sistema",
+                    message: data.error,
+                    isMine: false,
+                    display: `⚠️ ${data.error}`,
+                    is_system: true,
+                }
+            ]);
         });
 
         return () => {
@@ -478,6 +497,18 @@ export default function ChatPage() {
                     onClose={() => setShowResultModal(false)}
                 />
             )}
+
+            <CardGameInviteModal
+                isOpen={showInviteModal}
+                message={inviteMessage}
+                onAccept={() => {
+                    setShowInviteModal(false);
+                    setShowCardGame(true);
+                }}
+                onCancel={() => {
+                    setShowInviteModal(false);
+                }}
+            />
         </div>
     );
 }

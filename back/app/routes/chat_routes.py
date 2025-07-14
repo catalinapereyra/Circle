@@ -450,15 +450,36 @@ def handle_start_card_game(data):
         match = Match.query.get(match_id)
         if not match:
             print("❌ Match no encontrado")
-            emit("error", {"error": "Match inválido"}, to=request.sid)
+            emit("new_message", {
+                "sender": "Sistema",
+                "message": "Match inválido",
+                "ephemeral": False,
+                "seen": True,
+                "id": -1,
+                "is_question": False
+            }, to=request.sid)
             return
         if match.mode != Mode.COUPLE:
             print("❌ El match no es modo couple:", match.mode)
-            emit("error", {"error": "Modo incorrecto para este match"}, to=request.sid)
+            emit("new_message", {
+                "sender": "Sistema",
+                "message": "Modo incorrecto para este match",
+                "ephemeral": False,
+                "seen": True,
+                "id": -1,
+                "is_question": False
+            }, to=request.sid)
             return
         if sender not in [match.user1, match.user2]:
             print("❌ Usuario no forma parte del match:", sender)
-            emit("error", {"error": "No autorizado"}, to=request.sid)
+            emit("new_message", {
+                "sender": "Sistema",
+                "message": "No estás autorizado para este match",
+                "ephemeral": False,
+                "seen": True,
+                "id": -1,
+                "is_question": False
+            }, to=request.sid)
             return
 
         # Verifica si hay una interacción previa no completada
@@ -475,20 +496,30 @@ def handle_start_card_game(data):
             usernames = set(r.user_username for r in respuestas)
             print("👥 Usuarios que ya respondieron:", usernames)
 
-            if match.user1 in usernames and match.user2 in usernames:
-                print("✅ Ambos ya respondieron, cerrando interacción previa")
-                existing.completed = True
-                db.session.commit()
-            else:
+            if match.user1 in usernames and match.user2 not in usernames:
                 print("⛔ Solo uno respondió. No se puede iniciar nuevo juego.")
-                emit("error", {"error": "Ya hay una partida activa en curso para este match"}, to=request.sid)
+                emit("new_message", {
+                    "sender": "Sistema",
+                    "message": "Ya hay una partida activa. Esperá que el otro jugador termine.",
+                    "ephemeral": False,
+                    "seen": True,
+                    "id": -1,
+                    "is_question": False
+                }, to=request.sid)
                 return
 
         # Selección de preguntas
         all_questions = CardGameQuestion.query.all()
         print(f"📊 Total de preguntas disponibles: {len(all_questions)}")
         if len(all_questions) < 5:
-            emit("error", {"error": "No hay suficientes preguntas para iniciar el juego"}, to=request.sid)
+            emit("new_message", {
+                "sender": "Sistema",
+                "message": "No hay suficientes preguntas para iniciar el juego",
+                "ephemeral": False,
+                "seen": True,
+                "id": -1,
+                "is_question": False
+            }, to=request.sid)
             return
 
         selected_ids = random.sample([q.id for q in all_questions], 5)
@@ -521,9 +552,17 @@ def handle_start_card_game(data):
 
         print(f"✅ Juego iniciado por {sender}, preguntas enviadas a ambos")
 
+
     except Exception as e:
         print("❌ Error en start_card_game:", e)
-        emit("error", {"error": "Error al iniciar juego de cartas"}, to=request.sid)
+        emit("new_message", {
+            "sender": "Sistema",
+            "message": "Error inesperado al iniciar el juego",
+            "ephemeral": False,
+            "seen": True,
+            "id": -1,
+            "is_question": False
+        }, to=request.sid)
 
 
 #usuario temrina de responder
@@ -543,8 +582,14 @@ def handle_card_game_completed(data):
 
         match = Match.query.get(match_id)
         if not match:
-            print("❌ Match no encontrado")
-            emit("error", {"error": "Match inválido"}, to=request.sid)
+            emit("new_message", {
+                "sender": "Sistema",
+                "message": "Match inválido",
+                "ephemeral": False,
+                "seen": True,
+                "id": -1,
+                "is_question": False
+            }, to=request.sid)
             return
         if sender not in [match.user1, match.user2]:
             print("❌ El usuario no pertenece al match")
@@ -712,7 +757,14 @@ def handle_check_card_game_turn(data):
         # Si ya completó el juego, no se le vuelve a enviar nadaaa
         if already_answered:
             print(f"⛔ El usuario {sender} ya completó esta interacción")
-            emit("error", {"error": "Ya completaste este juego de cartas"}, to=request.sid)
+            emit("new_message", {
+                "sender": "Sistema",
+                "message": "Ya completaste este juego de cartas",
+                "ephemeral": False,
+                "seen": True,
+                "id": -1,
+                "is_question": False
+            }, to=request.sid)
             return
 
         # Enviar las preguntas en orden original
@@ -741,6 +793,14 @@ def handle_check_card_game_turn(data):
         # Se le envía al jugador las preguntas para que comience su turno
         print(f"✅ Preguntas enviadas correctamente a {sender}")
 
+
     except Exception as e:
         print("❌ Error en check_card_game_turn:", e)
-        emit("error", {"error": "Error al verificar turno"}, to=request.sid)
+        emit("new_message", {
+            "sender": "Sistema",
+            "message": "Error al verificar si te toca responder",
+            "ephemeral": False,
+            "seen": True,
+            "id": -1,
+            "is_question": False
+        }, to=request.sid)
