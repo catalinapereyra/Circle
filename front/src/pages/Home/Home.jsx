@@ -15,6 +15,7 @@ function Home() {
     const [loading, setLoading] = useState(true);
     const [isPremium, setIsPremium] = useState(false);
     const [matchUsername, setMatchUsername] = useState(null);
+    const [nearbyOnly, setNearbyOnly] = useState(false);
 
 
     useEffect(() => {
@@ -42,7 +43,12 @@ function Home() {
 
         const fetchProfiles = async () => {
             try {
-                const res = await axiosInstance.get(`/profile/home/${mode}`);
+                let url = `/profile/home/${mode}`;
+                if (nearbyOnly) {
+                    url += '?radius=100';
+                }
+
+                const res = await axiosInstance.get(url);
                 setProfiles(res.data);
             } catch (error) {
                 console.error("Error fetching profiles:", error);
@@ -53,7 +59,7 @@ function Home() {
         };
 
         fetchProfiles();
-    }, [mode]);
+    }, [mode, nearbyOnly]);
 
     const handleLike = async () => {
         const currentProfile = profiles[0];
@@ -108,12 +114,23 @@ function Home() {
 
     if (loading) return <div className="home-title">Cargando perfiles...</div>;
 
+
     if (profiles.length === 0) {
         return (
             <div className={mode === "couple" ? "home-page couple-bg" : "home-page friendship-bg"}>
                 <div className="home-header">
                     <h2 className="home-title">No more profiles for now!</h2>
                 </div>
+
+                <label>
+                    <input
+                        type="checkbox"
+                        checked={nearbyOnly}
+                        onChange={() => setNearbyOnly(!nearbyOnly)}
+                    />
+                    Solo personas cercanas (100 km)
+                </label>
+
                 <BottomNavBar mode={mode} />
             </div>
         );
@@ -131,6 +148,14 @@ function Home() {
                         : "Good friends are hard to find… unless you swipe"}
                 </h2>
             </div>
+            <label>
+                <input
+                    type="checkbox"
+                    checked={nearbyOnly}
+                    onChange={() => setNearbyOnly(!nearbyOnly)}
+                />
+                Solo personas cercanas (100 km)
+            </label>
 
             <div className="card-grid" data-aos="fade-up">
                 <ProfileCard

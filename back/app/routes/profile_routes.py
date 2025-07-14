@@ -1,14 +1,10 @@
 import base64
 
 from flask import Blueprint, request, jsonify
-from werkzeug.utils import secure_filename
-
-from app.models.models import CouplePreferences, CoupleMode, User, FriendshipMode, CouplePhoto, FriendshipPhoto
-from app.extensions import db
-from app.models.models import Swipe, SwipeMode
-from app.models.models import Swipe, SwipeType, User
-import os
+from app.models.models import CouplePreferences, CoupleMode, User, FriendshipMode, CouplePhoto, FriendshipPhoto, SwipeMode,Swipe,SwipeType
+from geoalchemy2.functions import ST_DWithin
 from flask_jwt_extended import jwt_required, get_jwt_identity
+from app.extensions import db
 
 
 bp_profile = Blueprint('profile', __name__)
@@ -135,16 +131,19 @@ def check_profiles():
 @jwt_required()
 def get_profiles_by_mode(mode):
     current_user = get_jwt_identity()
+    radius_km = request.args.get('radius', None, type=float)
+    user = User.query.filter_by(username=current_user).first()
+
+    if not user or not user.location:
+        return jsonify({"error": "Tu ubicación no está configurada"}), 400
 
     if mode == 'couple':
         swiped_usernames = [s.swiped_id for s in Swipe.query.filter_by(swiper_id=current_user, mode=SwipeMode.COUPLE).all()]
-        user = User.query.filter_by(username=current_user).first()
         my_profile = CoupleMode.query.filter_by(username=current_user).first()
 
-        if not user or not my_profile:
-            return jsonify({"error": "Profile or user not found"}), 404
+        if not my_profile:
+            return jsonify({"error": "Profile not found"}), 404
 
-        # Determinar qué géneros mostrar según preferencias
         pref = my_profile.preferences.lower()
 
         if pref == 'men':
@@ -158,8 +157,7 @@ def get_profiles_by_mode(mode):
         else:
             gender_filter = []
 
-        # Join con User para filtrar por género
-        profiles = (
+        query = (
             CoupleMode.query
             .join(User, CoupleMode.username == User.username)
             .filter(
@@ -167,8 +165,12 @@ def get_profiles_by_mode(mode):
                 ~CoupleMode.username.in_(swiped_usernames),
                 User.gender.in_(gender_filter)
             )
-            .all()
         )
+
+        if radius_km:
+            query = query.filter(ST_DWithin(User.location, user.location, radius_km * 1000))
+
+        profiles = query.all()
 
         result = [
             {
@@ -185,10 +187,20 @@ def get_profiles_by_mode(mode):
 
     elif mode == 'friendship':
         swiped_usernames = [s.swiped_id for s in Swipe.query.filter_by(swiper_id=current_user, mode=SwipeMode.FRIEND).all()]
-        profiles = FriendshipMode.query.filter(
-            FriendshipMode.username != current_user,
-            ~FriendshipMode.username.in_(swiped_usernames)
-        ).all()
+
+        query = (
+            FriendshipMode.query
+            .join(User, FriendshipMode.username == User.username)
+            .filter(
+                FriendshipMode.username != current_user,
+                ~FriendshipMode.username.in_(swiped_usernames)
+            )
+        )
+
+        if radius_km:
+            query = query.filter(ST_DWithin(User.location, user.location, radius_km * 1000))
+
+        profiles = query.all()
 
         result = [
             {
