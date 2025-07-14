@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { GoogleLogin } from '@react-oauth/google'; // ✅ Importar el botón
+import { GoogleLogin } from '@react-oauth/google';
 import './LogInForm.css';
 
 function LogInForm() {

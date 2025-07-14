@@ -77,7 +77,7 @@ function RegisterForm() {
             localStorage.setItem('username', formData.username);
 
             if (!wantsPremium) {
-                navigate('/choose-profile');
+                navigate('/choose-mood');
                 return;
             }
 
