@@ -1,7 +1,6 @@
 import { useEffect, useState, useRef } from "react";
 import { Navigate, useParams } from "react-router-dom";
 import { io } from "socket.io-client";
-import CardGameModal from "../../components/CardGame/CardGameModal.jsx";
 import CardGameResultModal from "../../components/CardGame/CardGameResultModal.jsx";
 import { FaCamera, FaUpload, FaPaperPlane } from "react-icons/fa";
 import "./ChatPage.css";
