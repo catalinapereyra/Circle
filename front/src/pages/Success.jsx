@@ -6,7 +6,7 @@ function Success() {
 
     useEffect(() => {
         const timeout = setTimeout(() => {
-            navigate('/choose-profile'); // redirige después de éxito
+            navigate('/choose-mood'); // redirige después de éxito
         }, 3000);
         return () => clearTimeout(timeout);
     }, []);

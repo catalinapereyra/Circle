@@ -73,7 +73,13 @@ def create_app():
             })
 
             payments = result["response"]["results"]
-            print(payments)
+            for p in payments:
+                print(f"🔹 ID: {p.get('id')}")
+                print(f"📅 Fecha: {p.get('date_created')}")
+                print(f"📌 Estado: {p.get('status')}")
+
+
+
             if not payments:
                 return jsonify({"message": "No hay pagos registrados."}), 404
 
