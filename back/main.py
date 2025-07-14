@@ -34,49 +34,28 @@ def create_app():
          methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"]
          )
 
-    sdk = mercadopago.SDK("TEST-4448250949116850-071315-308b9b75d0b0af062d1120459069e3a5-302805625")
+    sdk = mercadopago.SDK("APP_USR-4375157623145893-071317-f0a212905c6a2d29ca9b597499786681-2555845014")
 
-    # @app.route("/make_payment", methods=["POST"])
-    # def make_payment():
-    #     preference_data = {
-    #         "items": [
-    #             {
-    #                 "title": "Circle Premium subs",
-    #                 "quantity": 1,
-    #                 "unit_price": 999,
-    #                 "currency_id": "ARS"
-    #             }
-    #         ]
-    #     }
-    #
-    #     preference_response = sdk.preference().create(preference_data)
-    #     print(preference_response)
-    #     preference = preference_response.get("response", {})
-    #     print("✅ URL del pago:", preference["init_point"])
-    #     return jsonify({
-    #         "preference_id": preference["id"],
-    #         "sandbox_init_point": preference["sandbox_init_point"]
-    #     })
-
-    @app.route("/crear_suscripcion", methods=["POST"])
-    def crear_suscripcion():
-        preapproval_data = {
-            "reason": "Circle Premium Subscription",
-            "auto_recurring": {
-                "frequency": 1,
-                "frequency_type": "months",
-                "transaction_amount": 999,
-                "currency_id": "ARS",
-                "start_date": "2025-07-13T00:00:00.000-03:00",
-                "end_date": "2026-07-13T00:00:00.000-03:00"
-            },
-            "back_url": "http://localhost:5173/choose-profile",
-            "payer_email": "mail@de.prueba.com",  
+    @app.route("/make_payment", methods=["POST"])
+    def make_payment():
+        preference_data = {
+            "items": [
+                {
+                    "title": "Circle Premium subs",
+                    "quantity": 1,
+                    "unit_price": 999,
+                    "currency_id": "ARS"
+                }
+            ]
         }
 
-        result = sdk.preapproval().create(preapproval_data)
+        preference_response = sdk.preference().create(preference_data)
+        print(preference_response)
+        preference = preference_response.get("response", {})
+        print("✅ URL del pago:", preference["init_point"])
         return jsonify({
-            "init_point": result["response"]["init_point"]
+            "preference_id": preference["id"],
+            "sandbox_init_point": preference["sandbox_init_point"]
         })
 
     @app.before_request
@@ -99,7 +78,6 @@ def create_app():
     db.init_app(app)
     migrate.init_app(app, db)
     socketio.init_app(app, cors_allowed_origins="*")
-
 
     # Registrar blueprints
     app.register_blueprint(bp_user)
