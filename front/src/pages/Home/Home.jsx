@@ -59,7 +59,7 @@ function Home() {
         };
 
         fetchProfiles();
-    }, [mode, nearbyOnly]); // ⚠️ importante: agregamos nearbyOnly como dependencia
+    }, [mode, nearbyOnly]);
 
     const handleLike = async () => {
         const currentProfile = profiles[0];
@@ -114,12 +114,23 @@ function Home() {
 
     if (loading) return <div className="home-title">Cargando perfiles...</div>;
 
+
     if (profiles.length === 0) {
         return (
             <div className={mode === "couple" ? "home-page couple-bg" : "home-page friendship-bg"}>
                 <div className="home-header">
                     <h2 className="home-title">No more profiles for now!</h2>
                 </div>
+
+                <label>
+                    <input
+                        type="checkbox"
+                        checked={nearbyOnly}
+                        onChange={() => setNearbyOnly(!nearbyOnly)}
+                    />
+                    Solo personas cercanas (100 km)
+                </label>
+
                 <BottomNavBar mode={mode} />
             </div>
         );
