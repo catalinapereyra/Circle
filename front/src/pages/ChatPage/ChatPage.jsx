@@ -406,98 +406,101 @@ export default function ChatPage() {
 
 
     return (
-        <div className="chat-container">
-            <div className="chat-header">
-                <h2>{targetUser} {isOnline ? "🟢" : "⚪️"}</h2>
-                <h3>🔥 Streak: {streak}</h3>
-            </div>
-
-            <div className="chat-controls">
-                <button onClick={() => setIsEphemeralMode(prev => !prev)}>
-                    {isEphemeralMode ? "Normal Chat" : "Ephemeral Chat"}
-                </button>
-                <button
-                    onClick={() => {
-                        if (!chatId) return;
-                        socketRef.current.emit("random_question_game", {
-                            chat_id: chatId,
-                            recipient: targetUser,
-                        });
-                    }}>
-                    ❓ Random Question Game
-                </button>
-                <button onClick={handleCardGameClick}>🎴 Card Game</button>
-            </div>
-
-            <div className="messages-container">
-                {messages.map((m, i) => {
-                    let content = m.is_question ? `❓ ${m.message}` : m.is_image
-                        ? <img src={m.message} alt="sent" className="chat-image" />
-                        : m.isMine
-                            ? `${m.message} ${m.seen ? "✅" : "⏳"}`
-                            : `${m.sender}: ${m.message}`;
-
-                    return (
-                        <div key={i} className={`message ${m.isMine ? 'message-mine' : ''} ${m.ephemeral ? 'message-ephemeral' : ''} ${m.is_question ? 'random-question' : ''}`}>
-                            {content}
-                        </div>
-                    );
-                })}
-                <div ref={bottomRef}></div>
-            </div>
-
-            <div className="input-container">
-                <input
-                    className="chat-input"
-                    value={input}
-                    onChange={(e) => setInput(e.target.value)}
-                    placeholder="Write your message..."
-                />
-                <div className="icon-buttons">
-                    <label className="icon-button upload">
-                        <FaUpload />
-                        <input type="file" accept="image/*" onChange={handleImageUpload} style={{ display: "none" }} />
-                    </label>
-                    {!isCameraOpen && (
-                        <label className="icon-button upload">
-                            <FaCamera />
-                            <input type="button" onClick={openCamera} style={{ display: "none" }} />
-                        </label>
-                    )}
-                    <button className="send-button" onClick={sendMessage}>
-                        <FaPaperPlane />
-                    </button>
+        <>
+            <div className="chat-container">
+                <div className="chat-header">
+                    <h2>{targetUser} {isOnline ? "🟢" : "⚪️"}</h2>
+                    <h3>🔥 Streak: {streak}</h3>
                 </div>
-            </div>
 
-            {isCameraOpen && (
-                <div className="camera-modal">
-                    <video ref={videoRef} autoPlay playsInline className="video-preview" />
-                    <canvas ref={canvasRef} style={{ display: "none" }} />
-                    <div className="camera-buttons">
-                        <button onClick={takePhoto}>📷 Tomar foto</button>
-                        <button onClick={closeCamera}>❌ Cerrar</button>
+                <div className="chat-controls">
+                    <button onClick={() => setIsEphemeralMode(prev => !prev)}>
+                        {isEphemeralMode ? "Normal Chat" : "Ephemeral Chat"}
+                    </button>
+                    <button
+                        onClick={() => {
+                            if (!chatId) return;
+                            socketRef.current.emit("random_question_game", {
+                                chat_id: chatId,
+                                recipient: targetUser,
+                            });
+                        }}>
+                        ❓ Random Question Game
+                    </button>
+                    <button onClick={handleCardGameClick}>🎴 Card Game</button>
+                </div>
+
+                <div className="messages-container">
+                    {messages.map((m, i) => {
+                        let content = m.is_question ? `❓ ${m.message}` : m.is_image
+                            ? <img src={m.message} alt="sent" className="chat-image" />
+                            : m.isMine
+                                ? `${m.message} ${m.seen ? "✅" : "⏳"}`
+                                : `${m.sender}: ${m.message}`;
+
+                        return (
+                            <div key={i} className={`message ${m.isMine ? 'message-mine' : ''} ${m.ephemeral ? 'message-ephemeral' : ''} ${m.is_question ? 'random-question' : ''}`}>
+                                {content}
+                            </div>
+                        );
+                    })}
+                    <div ref={bottomRef}></div>
+                </div>
+
+                <div className="input-container">
+                    <input
+                        className="chat-input"
+                        value={input}
+                        onChange={(e) => setInput(e.target.value)}
+                        placeholder="Write your message..."
+                    />
+                    <div className="icon-buttons">
+                        <label className="icon-button upload">
+                            <FaUpload />
+                            <input type="file" accept="image/*" onChange={handleImageUpload} style={{ display: "none" }} />
+                        </label>
+                        {!isCameraOpen && (
+                            <label className="icon-button upload">
+                                <FaCamera />
+                                <input type="button" onClick={openCamera} style={{ display: "none" }} />
+                            </label>
+                        )}
+                        <button className="send-button" onClick={sendMessage}>
+                            <FaPaperPlane />
+                        </button>
                     </div>
                 </div>
-            )}
 
-            {showCardGame && (
-                <CardGameModal
-                    questions={cardGameQuestions}
-                    interactionId={interactionId}
-                    matchId={matchId}
-                    onSubmit={handleCardGameSubmit}
-                    onClose={() => setShowCardGame(false)}
-                />
-            )}
+                {isCameraOpen && (
+                    <div className="camera-modal">
+                        <video ref={videoRef} autoPlay playsInline className="video-preview" />
+                        <canvas ref={canvasRef} style={{ display: "none" }} />
+                        <div className="camera-buttons">
+                            <button onClick={takePhoto}>📷 Tomar foto</button>
+                            <button onClick={closeCamera}>❌ Cerrar</button>
+                        </div>
+                    </div>
+                )}
 
-            {showResultModal && (
-                <CardGameResultModal
-                    coincidences={cardGameResult}
-                    onClose={() => setShowResultModal(false)}
-                />
-            )}
+                {showCardGame && (
+                    <CardGameModal
+                        questions={cardGameQuestions}
+                        interactionId={interactionId}
+                        matchId={matchId}
+                        onSubmit={handleCardGameSubmit}
+                        onClose={() => setShowCardGame(false)}
+                    />
+                )}
 
+                {showResultModal && (
+                    <CardGameResultModal
+                        coincidences={cardGameResult}
+                        onClose={() => setShowResultModal(false)}
+                    />
+                )}
+            </div>
+
+            {/* 🔥 MODAL FUERA DEL CONTENEDOR */}
             <CardGameInviteModal
                 isOpen={showInviteModal}
                 message={inviteMessage}
@@ -509,7 +512,8 @@ export default function ChatPage() {
                     setShowInviteModal(false);
                 }}
             />
-        </div>
+        </>
     );
+
 }
 //bienn
