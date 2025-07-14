@@ -1,135 +1,599 @@
+/* FriendshipForm.css - Minimalist White Edition */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* === CONTAINER PRINCIPAL === */
 .friendship .form-container {
-    width: 100vw;
-    height: 100vh;
-    position: relative;
-    overflow: hidden;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    color: #ffdb0a;
-    font-family: 'Arial Narrow', sans-serif;
-}
-
-.friendship .overlay {
+    min-height: 100vh;
     width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.4);
-    backdrop-filter: blur(1px);
-    -webkit-backdrop-filter: blur(1px);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.friendship .form-wrapper {
-    background: rgba(0, 0, 0, 0.5);
-    border-radius: 16px;
-    padding: 30px 20px;
-    width: 90%;
-    max-width: 370px;
+    background: #ffffff;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 20px;
-    backdrop-filter: blur(4px);
-    -webkit-backdrop-filter: blur(4px);
-    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+    justify-content: center;
+    padding: 2rem;
+    font-family: 'Inter', sans-serif;
+    position: relative;
+    overflow: auto;
+    animation: fadeIn 0.6s ease-out;
 }
 
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+/* Texto "CIRCLE" arriba */
+.friendship .form-container::after {
+    content: 'CIRCLE';
+    position: absolute;
+    top: 16%;
+    left: 50%;
+    transform: translateX(-50%);
+    font-family: 'Inter', sans-serif;
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #000;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    z-index: 10;
+}
+
+/* === OVERLAY (removido para estilo minimalista) === */
+.friendship .overlay {
+    width: 100%;
+    height: 100%;
+    background: transparent;
+    backdrop-filter: none;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* === FORMULARIO === */
+.friendship .form-wrapper {
+    width: 100%;
+    max-width: 350px;
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem;
+    backdrop-filter: none;
+    box-shadow: none;
+    z-index: 2;
+    margin-top: 4rem;
+    position: relative;
+}
+
+/* Línea sutil bajo el logo */
+.friendship .form-wrapper:before {
+    border-bottom: 1px solid #e0e0e0;
+    content: '';
+    position: absolute;
+    top: -2rem;
+    left: 0;
+    right: 0;
+    height: 1px;
+}
+
+/* === FOTO PRINCIPAL === */
 .friendship .upload-photo {
     cursor: pointer;
+    margin-bottom: 1rem;
 }
 
 .friendship .photo-circle {
-    width: 180px;
-    height: 180px;
-    border: 6px solid #ffdb0a;
+    width: 120px;
+    height: 120px;
+    border: 3px solid #000;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-weight: bold;
-    font-size: 1.2rem;
-    color: #ffdb0a;
-    margin-bottom: 1rem;
-    background-position: center;
+    font-weight: 500;
+    font-size: 0.85rem;
+    color: #666;
+    background: transparent;
     background-size: cover;
+    background-position: center;
     background-repeat: no-repeat;
     overflow: hidden;
     position: relative;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-family: 'Inter', sans-serif;
 }
 
-.friendship .hidden-file {
-    display: none;
+.friendship .photo-circle:hover {
+    border-color: #333;
+    color: #000;
 }
 
+/* === TEXTAREA === */
 .friendship .form-textarea {
     background: transparent;
     border: none;
-    border-bottom: 2px solid #ffdb0a;
+    border-bottom: 1px solid #e0e0e0;
     width: 100%;
     font-size: 1rem;
-    padding: 0.5rem 0;
-    color: grey;
+    padding: 1rem 0;
+    color: #000;
     resize: vertical;
-    min-height: 50px;
-    font-family: 'Playfair Display', serif;
-    font-style: italic;
+    min-height: 80px;
+    max-height: 120px;
+    font-family: 'Inter', sans-serif;
+    font-style: normal;
+    font-weight: 400;
+    outline: none;
+    transition: all 0.3s ease;
 }
 
+.friendship .form-textarea::placeholder {
+    color: #999;
+    font-weight: 300;
+    text-transform: none;
+    letter-spacing: normal;
+}
+
+.friendship .form-textarea:focus {
+    border-bottom: 2px solid #000;
+    background: transparent;
+}
+
+.friendship .form-textarea:valid {
+    border-bottom: 1px solid #000;
+}
+
+/* === SECCIÓN DE FOTOS MEJORADA === */
+.photo-upload-section {
+    width: 100%;
+    max-width: 350px;
+    margin: 1.5rem 0;
+}
+
+.photo-section-title {
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: #333;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-bottom: 1.5rem;
+    text-align: center;
+    position: relative;
+}
+
+.photo-section-title::after {
+    content: '';
+    position: absolute;
+    bottom: -8px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 40px;
+    height: 1px;
+    background: #e0e0e0;
+}
+
+/* === GRID DE FOTOS PREMIUM === */
 .friendship .extra-photos-preview {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 10px;
+    gap: 12px;
     width: 100%;
-    margin-top: 10px;
     justify-items: center;
+    padding: 1rem 0;
 }
 
-.friendship .preview-img,
+.photo-slot {
+    position: relative;
+    width: 80px;
+    height: 80px;
+    overflow: hidden;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer;
+}
+
+.friendship .preview-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border: 1px solid #e0e0e0;
+    border-radius: 0;
+    transition: all 0.4s ease;
+    position: relative;
+}
+
+.friendship .preview-img:hover {
+    border-color: #000;
+    transform: scale(1.02);
+    filter: brightness(1.1);
+}
+
+/* Overlay de eliminar foto */
+.photo-slot:hover .delete-overlay {
+    opacity: 1;
+}
+
+.delete-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    cursor: pointer;
+}
+
+.delete-icon {
+    color: white;
+    font-size: 1.2rem;
+    font-weight: 600;
+}
+
+/* === BOTÓN DE AGREGAR FOTOS MEJORADO === */
+.friendship .upload-more-photos .photo-square,
 .friendship .photo-square {
     width: 80px;
     height: 80px;
-    object-fit: cover;
-    border: 2px solid #ffdb0a;
-    border-radius: 8px;
-    flex: 0 0 auto;
+    background: linear-gradient(145deg, #fafafa 0%, #f5f5f5 100%);
+    border: 2px dashed #e0e0e0;
+    color: #999;
+    font-weight: 300;
+    font-size: 1.8rem;
+    border-radius: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
 }
 
+.friendship .photo-square::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(0, 0, 0, 0.05), transparent);
+    transition: left 0.6s ease;
+}
+
+.friendship .photo-square:hover::before {
+    left: 100%;
+}
+
+.friendship .photo-square:hover {
+    border-color: #000;
+    background: linear-gradient(145deg, #f8f8f8 0%, #f0f0f0 100%);
+    color: #333;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.friendship .photo-square:active {
+    transform: translateY(0);
+}
+
+/* === DRAG & DROP ZONE === */
+.photo-drop-zone {
+    width: 100%;
+    padding: 2rem 1rem;
+    border: 2px dashed #e0e0e0;
+    background: linear-gradient(145deg, #fafafa 0%, #f8f8f8 100%);
+    text-align: center;
+    margin: 1rem 0;
+    transition: all 0.4s ease;
+    cursor: pointer;
+    position: relative;
+}
+
+.photo-drop-zone.drag-over {
+    border-color: #000;
+    background: linear-gradient(145deg, #f5f5f5 0%, #f0f0f0 100%);
+    transform: scale(1.02);
+}
+
+.drop-zone-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.drop-zone-icon {
+    font-size: 2rem;
+    color: #999;
+    margin-bottom: 0.5rem;
+}
+
+.drop-zone-text {
+    font-size: 0.85rem;
+    color: #666;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.drop-zone-subtext {
+    font-size: 0.75rem;
+    color: #999;
+    font-weight: 300;
+}
+
+/* === CONTADOR DE FOTOS === */
+.photo-counter {
+    text-align: center;
+    margin-top: 1rem;
+    font-size: 0.75rem;
+    color: #666;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.photo-counter .current {
+    color: #000;
+    font-weight: 600;
+}
+
+/* === BOTONES === */
 .friendship .form-buttons {
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
+    gap: 1rem;
     width: 100%;
+    margin-top: 2rem;
 }
 
 .friendship .back-button,
 .friendship .submit-button {
-    background: none;
-    border: 2px solid #ffdb0a;
-    color: #ffdb0a;
-    font-weight: bold;
-    padding: 8px 16px;
-    border-radius: 8px;
-    cursor: pointer;
-}
-
-.friendship .form-message {
-    margin-top: 10px;
-    font-size: 0.9rem;
-    color: #ffdb0a;
-}
-
-.friendship .upload-more-photos .photo-square {
-    width: 80px;
-    height: 80px;
     background: transparent;
-    border: 2px dashed #ffdb0a; /* Amarillo */
-    color: #ffdb0a; /* Amarillo */
-    font-weight: bold;
-    font-size: 2rem;
-    border-radius: 8px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    border: 1px solid #e0e0e0;
+    color: #666;
+    padding: 1rem 2rem;
+    font-weight: 500;
     cursor: pointer;
+    border-radius: 0;
+    transition: all 0.3s ease;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-family: 'Inter', sans-serif;
+    flex: 1;
+    max-width: 150px;
+}
+
+.friendship .back-button:hover,
+.friendship .submit-button:hover {
+    background: #000;
+    color: white;
+    border-color: #000;
+    transform: translateY(-1px);
+}
+
+.friendship .back-button:active,
+.friendship .submit-button:active {
+    transform: translateY(0);
+}
+
+/* === MENSAJE === */
+.friendship .form-message {
+    margin-top: 1rem;
+    font-size: 0.85rem;
+    color: #d63384;
+    text-align: center;
+    padding: 1rem 1.5rem;
+    background: #fff;
+    border: 1px solid #f8d7da;
+    border-radius: 0;
+    max-width: 350px;
+    font-weight: 500;
+    letter-spacing: 0.3px;
+    animation: errorSlideIn 0.3s ease-out;
+}
+
+@keyframes errorSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* === HIDDEN === */
+.friendship .hidden-file {
+    display: none;
+}
+
+/* === FIELD GROUPS === */
+.field-group {
+    width: 100%;
+    position: relative;
+    margin-bottom: 1.5rem;
+}
+
+.field-group label {
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: #333;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-bottom: 0.5rem;
+    display: block;
+}
+
+/* === RESPONSIVE === */
+@media (max-width: 768px) {
+    .friendship .form-container {
+        padding: 1.5rem;
+    }
+
+    .friendship .form-wrapper {
+        max-width: 300px;
+        gap: 1.2rem;
+    }
+
+    .friendship .photo-circle {
+        width: 100px;
+        height: 100px;
+        font-size: 0.8rem;
+    }
+
+    .photo-upload-section {
+        max-width: 300px;
+    }
+
+    .friendship .extra-photos-preview {
+        gap: 10px;
+    }
+
+    .photo-slot,
+    .friendship .photo-square {
+        width: 75px;
+        height: 75px;
+    }
+
+    .photo-drop-zone {
+        padding: 1.5rem 0.8rem;
+    }
+
+    .drop-zone-icon {
+        font-size: 1.5rem;
+    }
+
+    .friendship .form-buttons {
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .friendship .back-button,
+    .friendship .submit-button {
+        max-width: none;
+    }
+}
+
+@media (max-width: 400px) {
+    .friendship .form-container {
+        padding: 1rem;
+    }
+
+    .friendship .form-wrapper {
+        max-width: 280px;
+    }
+
+    .friendship .photo-circle {
+        width: 90px;
+        height: 90px;
+        font-size: 0.75rem;
+    }
+
+    .friendship .form-container::after {
+        font-size: 1.5rem;
+        top: 14%;
+    }
+
+    .photo-upload-section {
+        max-width: 260px;
+    }
+
+    .friendship .extra-photos-preview {
+        gap: 8px;
+    }
+
+    .photo-slot,
+    .friendship .photo-square {
+        width: 70px;
+        height: 70px;
+        font-size: 1.5rem;
+    }
+
+    .photo-drop-zone {
+        padding: 1.2rem 0.5rem;
+    }
+
+    .drop-zone-text {
+        font-size: 0.8rem;
+    }
+
+    .drop-zone-subtext {
+        font-size: 0.7rem;
+    }
+}
+
+/* === ESTADOS DE LOADING === */
+.friendship .back-button:disabled,
+.friendship .submit-button:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+    transform: none;
+    color: #666;
+    border-color: #ccc;
+}
+
+.friendship .back-button:disabled:hover,
+.friendship .submit-button:disabled:hover {
+    background: #ccc;
+    transform: none;
+    color: #666;
+    border-color: #ccc;
+}
+
+/* === INDICADOR DE CARGA === */
+.upload-indicator {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.9);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.upload-indicator.uploading {
+    opacity: 1;
+}
+
+.spinner {
+    width: 20px;
+    height: 20px;
+    border: 2px solid #e0e0e0;
+    border-top: 2px solid #000;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
 }

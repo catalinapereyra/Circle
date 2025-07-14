@@ -78,7 +78,6 @@ function CoupleProfileForm() {
     return (
         <div
             className="form-container couple"
-            style={{ backgroundImage: `url(${backgroundRegister})` }}
         >
             <div className="overlay">
                 <form onSubmit={handleSubmit} className="form-wrapper">
@@ -155,7 +154,7 @@ function CoupleProfileForm() {
 
                     <div className="form-buttons">
                         <button type="button" onClick={() => navigate(-1)} className="back-button">BACK</button>
-                        <button type="submit" className="submit-button">READY</button>
+                        <button type="submit" className="back-button">READY</button>
                     </div>
 
                     <p className="form-message">{message}</p>

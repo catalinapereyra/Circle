@@ -73,13 +73,6 @@ function FriendshipProfileForm() {
     return (
         <div
             className="form-container friendship"
-            style={{
-                backgroundImage: `url(${backgroundFriendship})`,
-                backgroundSize: 'cover',
-                backgroundPosition: 'center',
-                backgroundRepeat: 'no-repeat',
-                backgroundAttachment: 'fixed'
-            }}
         >
             <div className="overlay">
                 <form className="form-wrapper" onSubmit={handleSubmit}>
@@ -137,7 +130,7 @@ function FriendshipProfileForm() {
 
                     <div className="form-buttons">
                         <button type="button" onClick={() => navigate(-1)} className="back-button">BACK</button>
-                        <button type="submit" className="submit-button">NEXT</button>
+                        <button type="submit" className="back-button">NEXT</button>
                     </div>
 
                     <p className="form-message">{message}</p>
