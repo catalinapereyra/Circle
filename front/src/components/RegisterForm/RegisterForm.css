@@ -37,7 +37,7 @@
 .register-container::after {
     content: 'CIRCLE';
     position: absolute;
-    top: 8%;
+    top: 9%;
     left: 50%;
     transform: translateX(-50%);
     font-family: 'Inter', sans-serif;
