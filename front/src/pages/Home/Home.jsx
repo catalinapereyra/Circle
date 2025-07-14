@@ -15,6 +15,7 @@ function Home() {
     const [loading, setLoading] = useState(true);
     const [isPremium, setIsPremium] = useState(false);
     const [matchUsername, setMatchUsername] = useState(null);
+    const [nearbyOnly, setNearbyOnly] = useState(false);
 
 
     useEffect(() => {
@@ -42,7 +43,12 @@ function Home() {
 
         const fetchProfiles = async () => {
             try {
-                const res = await axiosInstance.get(`/profile/home/${mode}`);
+                let url = `/profile/home/${mode}`;
+                if (nearbyOnly) {
+                    url += '?radius=100';
+                }
+
+                const res = await axiosInstance.get(url);
                 setProfiles(res.data);
             } catch (error) {
                 console.error("Error fetching profiles:", error);
@@ -53,7 +59,7 @@ function Home() {
         };
 
         fetchProfiles();
-    }, [mode]);
+    }, [mode, nearbyOnly]); // ⚠️ importante: agregamos nearbyOnly como dependencia
 
     const handleLike = async () => {
         const currentProfile = profiles[0];
@@ -131,6 +137,14 @@ function Home() {
                         : "Good friends are hard to find… unless you swipe"}
                 </h2>
             </div>
+            <label>
+                <input
+                    type="checkbox"
+                    checked={nearbyOnly}
+                    onChange={() => setNearbyOnly(!nearbyOnly)}
+                />
+                Solo personas cercanas (100 km)
+            </label>
 
             <div className="card-grid" data-aos="fade-up">
                 <ProfileCard
