@@ -27,6 +27,36 @@ function RegisterForm() {
         setFormData(prev => ({ ...prev, [name]: value }));
     };
 
+    const handleVerifyPayment = async () => {
+        try {
+            const res = await fetch("http://localhost:5001/verify_last_payment", {
+                method: "GET",
+                credentials: "include",
+            });
+            const data = await res.json();
+            console.log("Payment status data:", data);
+
+            if (data.status === "approved") {
+                const token = localStorage.getItem('token');
+                await fetch("http://localhost:5001/user/subscribe", {
+                    method: "POST",
+                    headers: {
+                        "Authorization": `Bearer ${token}`,
+                        "Content-Type": "application/json"
+                    }
+                });
+                navigate("/success");
+            } else if (data.status === "pending") {
+                navigate("/pending");
+            } else {
+                navigate("/failure");
+            }
+        } catch (err) {
+            console.error("Error al verificar pago", err);
+            setMessage("No se pudo verificar el estado del pago.");
+        }
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
 
@@ -56,7 +86,7 @@ function RegisterForm() {
                 credentials: "include",
             });
             const data = await pagoResponse.json();
-            window.location.href = data.sandbox_init_point;
+            window.open(data.sandbox_init_point, '_blank');
 
         } catch (error) {
             if (error.response?.data?.error) {
@@ -85,7 +115,6 @@ function RegisterForm() {
                         <option value="OTHER">Other</option>
                     </select>
                 </div>
-                {/*<div className="input-group"><FaMapMarkerAlt /><input name="location" placeholder="Location" onChange={handleChange} /></div>*/}
                 <div className="input-group map-group">
                     <FaMapMarkerAlt />
                     <span>Select your location on the map</span>
@@ -108,6 +137,12 @@ function RegisterForm() {
                 >
                     {wantsPremium ? 'yes ;)' : 'Join the Premium club?'}
                 </div>
+
+                {wantsPremium && (
+                    <button type="button" className="verify-button" onClick={handleVerifyPayment}>
+                        Verificar estado del pago
+                    </button>
+                )}
 
                 <div className="button-group">
                     <button className="back-button" type="submit">SIGN UP</button>

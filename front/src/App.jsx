@@ -17,7 +17,10 @@ import Matches from "./pages/Matches/Matches.jsx";
 import LikesReceived from './pages/LikesReceived.jsx';
 import EditProfilePage from "./pages/EditProfilePage/EditProfilePage.jsx";
 import ChatPage from "./pages/ChatPage/ChatPage.jsx";
-import CompleteProfilePage from './pages/CompleteProfilePage/CompleteProfilePage.jsx'; // 👉 NUEVA IMPORTACIÓN
+import CompleteProfilePage from './pages/CompleteProfilePage/CompleteProfilePage.jsx';
+import Success from './pages/Success.jsx';
+import Pending from './pages/Pending.jsx';
+import Failure from './pages/Failure.jsx';
 
 function App() {
     return (
@@ -43,6 +46,9 @@ function App() {
                     <Route path="/my-profile" element={<MyProfilePage />} />
                     <Route path="/edit-profile/:mode" element={<EditProfilePage />} />
                     <Route path="/chat/:username" element={<ChatPage />} />
+                    <Route path="/success" element={<Success />} />
+                    <Route path="/pending" element={<Pending />} />
+                    <Route path="/failure" element={<Failure />} />
                 </Routes>
             </Router>
         </UserModeProvider>

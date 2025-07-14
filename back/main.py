@@ -1,3 +1,4 @@
+import json
 from datetime import timedelta
 
 from app.extensions import db, migrate, socketio
@@ -50,13 +51,52 @@ def create_app():
         }
 
         preference_response = sdk.preference().create(preference_data)
-        print(preference_response)
+        # print(preference_response)
         preference = preference_response.get("response", {})
-        print("✅ URL del pago:", preference["init_point"])
+        # print("✅ URL del pago:", preference["init_point"])
+
+
+
         return jsonify({
             "preference_id": preference["id"],
             "sandbox_init_point": preference["sandbox_init_point"]
         })
+
+    @app.route('/verify_last_payment', methods=['GET'])
+    def verify_last_payment():
+        try:
+            # Trae los últimos pagos ordenados por fecha de creación descendente
+            result = sdk.payment().search({
+                "sort": "date_created",
+                "criteria": "desc",
+                "limit": 100
+            })
+
+            payments = result["response"]["results"]
+            print(payments)
+            if not payments:
+                return jsonify({"message": "No hay pagos registrados."}), 404
+
+            for i, entry in enumerate(payments):
+                if not entry:  # o cualquier otro chequeo
+                    if i == 0:
+                        return jsonify({"message": "No hay pagos válidos."}), 404
+                    last_valid = payments[i - 1]
+                    break
+            else:
+                last_valid = payments[-1]
+
+            # last_valid YA es un objeto de pago completo
+            return jsonify({
+                "status": last_valid.get("status"),
+                "id": last_valid.get("id"),
+                "status_detail": last_valid.get("status_detail"),
+                "amount": last_valid.get("transaction_amount")
+            })
+
+        except Exception as e:
+            return jsonify({"error": str(e)}), 500
+
 
     @app.before_request
     def handle_preflight():
