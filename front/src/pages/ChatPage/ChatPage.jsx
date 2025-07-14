@@ -5,7 +5,7 @@ import CardGameModal from "../../components/CardGame/CardGameModal.jsx";
 import CardGameResultModal from "../../components/CardGame/CardGameResultModal.jsx";
 import { FaCamera, FaUpload, FaPaperPlane } from "react-icons/fa";
 import "./ChatPage.css";
-
+//
 
 export default function ChatPage() {
     const { username: targetUser } = useParams();
