@@ -422,14 +422,14 @@ def question_game(data):
         }, to=get_sid_by_username(recipient))
 
         # Emitir al emisor (ya marcado como visto)
-        emit("new_message", {
-            "sender": sender,
-            "message": question.question,
-            "ephemeral": False,
-            "seen": True,
-            "id": new_message.id,
-            "is_question": True
-        }, to=request.sid)
+        # emit("new_message", {
+        #     "sender": sender,
+        #     "message": question.question,
+        #     "ephemeral": False,
+        #     "seen": True,
+        #     "id": new_message.id,
+        #     "is_question": True
+        # }, to=request.sid)
 
         print("🎲 Pregunta seleccionada:", question.question)
         emit("question_sent", {"status": "ok", "question": question.question}, to=request.sid)
@@ -549,7 +549,7 @@ def handle_start_card_game(data):
                 "questions": questions_data
             }, to=sid)
 
-        print(f"✅ Juego iniciado por {sender}, preguntas enviadas a ambos")
+        # print(f"✅ Juego iniciado por {sender}, preguntas enviadas a ambos")
 
 
     except Exception as e:
