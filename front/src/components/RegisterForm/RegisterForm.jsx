@@ -52,8 +52,8 @@ function RegisterForm() {
                 navigate("/failure");
             }
         } catch (err) {
-            console.error("Error al verificar pago", err);
-            setMessage("No se pudo verificar el estado del pago.");
+            console.error("There was an error verifying your payment", err);
+            setMessage("Could not verify payment status");
         }
     };
 

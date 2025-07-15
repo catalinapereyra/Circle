@@ -15,7 +15,7 @@ function RegisterProfilePage() {
 
     return (
         <div style={{ padding: '2rem', textAlign: 'center' }}>
-            <h2>¿Qué tipo de perfil querés crear?</h2>
+            <h2>What type of profile do you want to create?</h2>
             <div style={{ display: 'flex', justifyContent: 'center', gap: '1rem', marginTop: '2rem' }}>
                 <button onClick={() => handleChoice('couple')}>Couple Mode 💕</button>
                 <button onClick={() => handleChoice('friend')}>Friendship Mode 👫</button>

@@ -34,8 +34,8 @@ function LogInForm() {
             }
 
         } catch (error) {
-            setError('Credenciales inválidas. Por favor, inténtelo de nuevo.');
-            console.error('Error al iniciar sesión:', error);
+            setError('Invalid credentials. Please try again.');
+            console.error('Login error:', error);
         }
     };
 
@@ -96,12 +96,12 @@ function LogInForm() {
                                     }
                                 })
                                 .catch(err => {
-                                    console.error("Error con Google login:", err);
-                                    setError("No se pudo iniciar sesión con Google.");
+                                    console.error("Error with Google login:", err);
+                                    setError("Couldn't sign in with Google");
                                 });
                         }}
                         onError={() => {
-                            setError("Falló el inicio de sesión con Google.");
+                            setError("Google login failed.");
                             console.log("Google Login Failed");
                         }}
                     />

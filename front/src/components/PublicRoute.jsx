@@ -19,7 +19,7 @@ function PublicRoute({ children }) {
                 await axiosInstance.get('/user/validate-token');
                 setIsAuthenticated(true);
             } catch (error) {
-                console.error('Token inválido o expirado:', error);
+                console.error('invalid or expired token:', error);
                 localStorage.removeItem('token');
                 localStorage.removeItem('username');
                 setIsAuthenticated(false);
@@ -31,7 +31,7 @@ function PublicRoute({ children }) {
         checkToken();
     }, []);
 
-    if (isValidating) return <div>Cargando...</div>;
+    if (isValidating) return <div>Loading...</div>;
 
     if (isAuthenticated) {
         return <Navigate to="/choose-mood" replace />;

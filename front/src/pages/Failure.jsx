@@ -13,8 +13,8 @@ function Failure() {
 
     return (
         <div className="payment-status failure">
-            <h1>❌ Pago rechazado</h1>
-            <p>Lo podras volver a intentar luego</p>
+            <h1>❌ Payment rejected</h1>
+            <p>You can try again later</p>
         </div>
     );
 }

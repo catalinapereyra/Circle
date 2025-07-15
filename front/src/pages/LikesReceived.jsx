@@ -76,7 +76,7 @@ function LikesReceived() {
 
             setLikes(prev => prev.filter(u => u.username !== user.username));
         } catch (err) {
-            console.error("Error al hacer like:", err);
+            console.error("Error sending like:", err);
         }
     };
 

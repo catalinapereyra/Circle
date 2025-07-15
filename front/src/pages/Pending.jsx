@@ -13,8 +13,8 @@ function Pending() {
 
     return (
         <div className="payment-status pending">
-            <h1>⏳ Pago pendiente</h1>
-            <p>Estamos procesando tu pago. Podés volver más tarde para verificar el estado.</p>
+            <h1>⏳ Pending payment</h1>
+            <p>We're processing your payment. You can come back later to check the status.</p>
         </div>
     );
 }
