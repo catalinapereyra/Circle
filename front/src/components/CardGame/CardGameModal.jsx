@@ -31,7 +31,7 @@ function CardGameModal({ questions, interactionId, matchId, onSubmit, onClose })
         <div className="card-game-modal">
             <div className="card-game-container">
                 <div className="header">
-                    <h3>Pregunta {currentIndex + 1}/{questions.length}</h3>
+                    <h3>Question {currentIndex + 1}/{questions.length}</h3>
                     <button onClick={onClose} className="close-button">×</button>
                 </div>
 
