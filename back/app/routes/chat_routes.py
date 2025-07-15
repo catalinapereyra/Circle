@@ -496,10 +496,10 @@ def handle_start_card_game(data):
             print("👥 Usuarios que ya respondieron:", usernames)
 
             if match.user1 in usernames and match.user2 not in usernames:
-                print("⛔ Solo uno respondió. No se puede iniciar nuevo juego.")
+
                 emit("new_message", {
                     "sender": "Sistema",
-                    "message": "Ya hay una partida activa. Esperá que el otro jugador termine.",
+                    "message": "A game is already started, wait for opponent to respond.",
                     "ephemeral": False,
                     "seen": True,
                     "id": -1,
@@ -543,7 +543,7 @@ def handle_start_card_game(data):
         # Emitir evento a ambos jugadores
         for username in [match.user1, match.user2]:
             sid = get_sid_by_username(username)
-            print(f"📤 Enviando preguntas a {username} (SID: {sid})")
+
             emit("card_game_started", {
                 "interaction_id": interaction.id,
                 "questions": questions_data
@@ -645,15 +645,17 @@ def handle_card_game_completed(data):
         }, to=recipient_sid)
 
         emit("card_game_saved", {"status": "ok"}, to=request.sid)
-        print("💾 Confirmación enviada al iniciador")
+
 
         # Verificar si ambos respondieron
         answers_user1 = CardGameAnswer.query.filter_by(interaction_id=interaction.id, user_username=match.user1).all()
         answers_user2 = CardGameAnswer.query.filter_by(interaction_id=interaction.id, user_username=match.user2).all()
-        print(f"👥 Respuestas de {match.user1}: {len(answers_user1)}")
-        print(f"👥 Respuestas de {match.user2}: {len(answers_user2)}")
 
-        if answers_user1 and answers_user2:
+        if interaction.completed:
+            print("⛔ Esta interacción ya estaba completada. No se reenviará el resumen.")
+            return
+
+        if answers_user1 and answers_user2 and not interaction.completed:
             print("🔍 Comparando respuestas...")
             map1 = {a.question_id: a.answer for a in answers_user1}
             map2 = {a.question_id: a.answer for a in answers_user2}
@@ -669,8 +671,7 @@ def handle_card_game_completed(data):
 
             interaction.completed = True
             db.session.commit()
-            print("✅ Interacción marcada como completada")
-            print("🎯 Coincidencias encontradas:", coincidences)
+
 
             resumen = (
                 "No matches 🥲"
@@ -679,7 +680,7 @@ def handle_card_game_completed(data):
             )
 
             system_message = {
-                "sender": "Sistema",
+                "sender": "System",
                 "message": resumen,
                 "ephemeral": False,
                 "seen": True,
@@ -691,7 +692,6 @@ def handle_card_game_completed(data):
 
             for username in [match.user1, match.user2]:
                 sid = get_sid_by_username(username)
-                print(f"📢 Enviando resultado y mensaje a {username} (SID: {sid})")
                 emit("card_game_result", {
                     "coincidences": coincidences
                 }, to=sid)
@@ -738,14 +738,11 @@ def handle_check_card_game_turn(data):
             .first()
         )
         if not interaction:
-            print(f"⚠️ No hay interacción activa para el match {match_id}")
-            emit("error", {"error": "No hay juego de cartas activo para este match"}, to=request.sid)
             return
         else:
             print(f"🃏 Interacción activa encontrada: ID {interaction.id}")
             print(f"📅 Preguntas asociadas: {interaction.question_ids}")
 
-        print(f"🧩 Interacción encontrada con ID: {interaction.id}")
 
         # Consulta si el usuario ya respondió el juego.
         already_answered = CardGameAnswer.query.filter_by(
@@ -755,7 +752,6 @@ def handle_check_card_game_turn(data):
 
         # Si ya completó el juego, no se le vuelve a enviar nadaaa
         if already_answered:
-            print(f"⛔ El usuario {sender} ya completó esta interacción")
             emit("new_message", {
                 "sender": "Sistema",
                 "message": "Ya completaste este juego de cartas",
@@ -786,7 +782,7 @@ def handle_check_card_game_turn(data):
         emit("card_game_your_turn", {
             "interaction_id": interaction.id,
             "questions": questions_data,
-            "message": f"{match.user1 if match.user2 == sender else match.user2} comenzó un juego de cartas. ¿Querés responder?"
+            "message": f"{match.user1 if match.user2 == sender else match.user2} started a Card Game. Wanna play?"
         }, to=request.sid)
 
         # Se le envía al jugador las preguntas para que comience su turno

@@ -116,8 +116,8 @@ export default function ChatPage() {
             setShowResultModal(true);
 
             const resumen = data.coincidences.length === 0
-                ? "No tuvieron coincidencias 🥲"
-                : `Tuvieron ${data.coincidences.length} coincidencia${data.coincidences.length > 1 ? "s" : ""} 🎉`;
+                ? "No matches"
+                : `You had ${data.coincidences.length} matches${data.coincidences.length > 1 ? "s" : ""} 🎉`;
 
             const resultMsg = {
                 id: Date.now(),
@@ -213,7 +213,7 @@ export default function ChatPage() {
                 sender: "Sistema",
                 message: "¡Tus respuestas han sido guardadas!",
                 isMine: false,
-                display: "✅ ¡Tus respuestas han sido guardadas!",
+                display: "Answers saved!",
                 is_system: true
             };
             setMessages((prev) => [...prev, confirmMessage]);
@@ -232,7 +232,7 @@ export default function ChatPage() {
                     sender: "Sistema",
                     message: data.error,
                     isMine: false,
-                    display: `⚠️ ${data.error}`,
+                    display: `${data.error}`,
                     is_system: true,
                 }
             ]);
