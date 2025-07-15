@@ -47,10 +47,10 @@ function Matches() {
     return (
         <div className="matches-container">
             <button
-                onClick={() => navigate(`/${mode === "couple" ? "home" : "home"}`)}
-                className="close-button"
+                onClick={() => navigate(`/home`)}
+                className="back-button"
             >
-                ✖
+                Back
             </button>
 
             <h2>My Matches</h2>

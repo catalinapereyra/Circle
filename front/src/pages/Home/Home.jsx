@@ -112,7 +112,7 @@ function Home() {
     };
 
 
-    if (loading) return <div className="home-title">Cargando perfiles...</div>;
+    if (loading) return <div className="home-title">Loading profiles</div>;
 
 
     if (profiles.length === 0) {
@@ -128,7 +128,7 @@ function Home() {
                         checked={nearbyOnly}
                         onChange={() => setNearbyOnly(!nearbyOnly)}
                     />
-                    Solo personas cercanas (100 km)
+                    People nearby only (100 km)
                 </label>
 
                 <BottomNavBar mode={mode} />
