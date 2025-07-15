@@ -122,12 +122,49 @@ function Home() {
                     <h2 className="home-title">No more profiles for now!</h2>
                 </div>
 
-                <label>
+                <label style={{
+                    fontFamily: 'Space Grotesk, monospace',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.5rem',
+                    cursor: 'pointer',
+                    userSelect: 'none',
+                    padding: '0.5rem 0.75rem',
+                    border: '2px solid #000000',
+                    background: '#ffffff',
+                    transition: 'all 0.3s ease',
+                    boxShadow: '3px 3px 0px #000000',
+                    fontSize: '0.85rem',
+                    fontWeight: '500',
+                    color: '#000000',
+                    margin: '0.5rem 0',
+                    width: 'fit-content'
+                }}>
                     <input
                         type="checkbox"
                         checked={nearbyOnly}
                         onChange={() => setNearbyOnly(!nearbyOnly)}
+                        style={{
+                            position: 'absolute',
+                            opacity: 0,
+                            width: 0,
+                            height: 0
+                        }}
                     />
+                    <div style={{
+                        width: '16px',
+                        height: '16px',
+                        border: '2px solid #000000',
+                        background: nearbyOnly ? '#000000' : '#ffffff',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        color: '#ffffff',
+                        fontSize: '12px',
+                        fontWeight: '700'
+                    }}>
+                        {nearbyOnly ? '✓' : ''}
+                    </div>
                     People nearby only (100 km)
                 </label>
 
