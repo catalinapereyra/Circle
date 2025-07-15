@@ -436,7 +436,6 @@ def question_game(data):
     except Exception as e:
         print("❌ Error en random_question_game:", e)
 
-
 #usuario inicia el juego
 @socketio.on("start_card_game")
 def handle_start_card_game(data):
