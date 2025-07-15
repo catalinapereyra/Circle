@@ -1,82 +1,70 @@
-/* Variables minimalistas pero poderosas */
+/* BRUTAL MINIMALIST HOMEPAGE - BLANCO Y NEGRO PURO */
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
+
+/* === VARIABLES BRUTALES === */
 :root {
     --white: #ffffff;
     --black: #000000;
-    --gray-50: #fafafa;
-    --gray-100: #f5f5f5;
-    --gray-900: #111111;
-    --pink: #ff0066;
-    --yellow: #ffdd00;
-    --shadow-brutal: 8px 8px 0px 0px #000000;
-    --shadow-hover: 16px 16px 0px 0px #000000;
-    --transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    --gray: #808080;
+
+    /* Shadows brutales pero limpios */
+    --shadow-brutal: 8px 8px 0px var(--black);
+    --shadow-mega: 16px 16px 0px var(--black);
+    --shadow-insane: 24px 24px 0px var(--black);
+
+    /* Transiciones con punch */
+    --bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    --punch: cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
-/* Reset base */
+/* === RESET BRUTAL === */
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
 }
 
+body {
+    font-family: 'Space Grotesk', monospace;
+    background: var(--white);
+    color: var(--black);
+    overflow-x: hidden;
+}
+
+/* === CONTAINER PRINCIPAL === */
 .home-page {
     min-height: 100vh;
     background: var(--white);
     display: flex;
     flex-direction: column;
-    font-family: 'JetBrains Mono', 'Courier New', monospace;
-    color: var(--black);
     position: relative;
-    overflow-x: hidden;
 }
 
-/* Modo acentos */
-.couple-bg {
-    --accent: var(--pink);
-}
-
-.friendship-bg {
-    --accent: var(--yellow);
-}
-
-/* Patrón de fondo sorprendente */
+/* Fondo limpio sin patterns */
 .home-page::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-image:
-            radial-gradient(circle at 2px 2px, var(--black) 1px, transparent 0);
-    background-size: 40px 40px;
-    opacity: 0.03;
-    pointer-events: none;
-    animation: drift 20s linear infinite;
+    display: none;
 }
 
-@keyframes drift {
-    0% { transform: translateX(0) translateY(0); }
-    100% { transform: translateX(40px) translateY(40px); }
-}
-
-/* Header brutal y sorprendente */
+/* === HEADER BRUTAL === */
 .home-header {
-    padding: clamp(3rem, 8vh, 6rem) clamp(1rem, 5vw, 3rem) clamp(2rem, 6vh, 4rem);
+    padding: clamp(4rem, 12vh, 8rem) 2rem 3rem;
     text-align: center;
     position: relative;
     z-index: 10;
+    animation: slideDown 1s var(--bounce);
 }
 
+/* Logo circular simple */
 .home-logo {
-    width: clamp(60px, 15vw, 120px);
-    height: clamp(60px, 15vw, 120px);
+    width: clamp(80px, 20vw, 120px);
+    height: clamp(80px, 20vw, 120px);
     background: var(--black);
-    margin: 0 auto clamp(2rem, 5vh, 3rem);
+    margin: 0 auto 3rem;
     position: relative;
     cursor: pointer;
-    transition: var(--transition);
-    transform: rotate(45deg);
+    transition: all 0.3s ease;
+    border: 4px solid var(--black);
+    border-radius: 50%;
 }
 
 .home-logo::before {
@@ -86,67 +74,76 @@
     left: 50%;
     width: 40%;
     height: 40%;
-    background: var(--accent);
-    transform: translate(-50%, -50%) rotate(-45deg);
-    transition: var(--transition);
+    background: var(--white);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    transition: all 0.3s ease;
 }
 
 .home-logo:hover {
-    transform: rotate(225deg) scale(1.1);
     box-shadow: var(--shadow-brutal);
+    transform: scale(1.1);
 }
 
+.home-logo:hover::before {
+    width: 60%;
+    height: 60%;
+}
+
+/* Título sin pavadas */
 .home-title {
-    font-size: clamp(1.5rem, 5vw, 3rem);
-    font-weight: 900;
+    font-size: clamp(3rem, 10vw, 6rem);
+    font-weight: 700;
     line-height: 0.9;
-    letter-spacing: -0.05em;
+    letter-spacing: -0.02em;
     color: var(--black);
     text-transform: uppercase;
-    max-width: 800px;
     margin: 0 auto;
+    max-width: 800px;
     position: relative;
-    text-shadow: 3px 3px 0px var(--accent);
+    text-shadow: 4px 4px 0px var(--white);
 }
 
 .home-title::after {
     content: '';
     position: absolute;
-    bottom: -10px;
+    bottom: -20px;
     left: 50%;
     transform: translateX(-50%);
-    width: clamp(60px, 20vw, 120px);
-    height: 4px;
-    background: var(--accent);
-    animation: stretch 2s ease-in-out infinite alternate;
+    width: 100px;
+    height: 6px;
+    background: var(--black);
+    animation: lineGrow 2s var(--bounce) 0.5s both;
 }
 
-@keyframes stretch {
-    0% { width: clamp(60px, 20vw, 120px); }
-    100% { width: clamp(120px, 40vw, 240px); }
+@keyframes lineGrow {
+    0% { width: 0; }
+    100% { width: 200px; }
 }
 
-/* Grid principal con efecto WOW */
+/* === GRID CENTRAL BRUTAL === */
 .card-grid {
     flex: 1;
     display: flex;
     justify-content: center;
     align-items: center;
-    padding: clamp(2rem, 8vh, 4rem) clamp(1rem, 5vw, 3rem);
+    padding: 3rem 2rem;
     position: relative;
     z-index: 10;
+    animation: popIn 1s var(--bounce) 0.3s both;
 }
 
+/* Background spinning thing */
 .card-grid::before {
     content: '';
     position: absolute;
     top: 50%;
     left: 50%;
-    width: 200%;
-    height: 200%;
-    background: conic-gradient(from 0deg, transparent, var(--accent), transparent);
+    width: 300px;
+    height: 300px;
+    border: 2px solid var(--black);
     transform: translate(-50%, -50%) rotate(0deg);
-    animation: spin 20s linear infinite;
+    animation: spin 15s linear infinite;
     opacity: 0.1;
     pointer-events: none;
 }
@@ -155,139 +152,131 @@
     100% { transform: translate(-50%, -50%) rotate(360deg); }
 }
 
+/* Card sin animaciones - se queda quieta */
 .card-grid > * {
     position: relative;
-    z-index: 2;
-    transition: var(--transition);
+    z-index: 5;
+    transition: none;
     filter: drop-shadow(var(--shadow-brutal));
 }
 
 .card-grid > *:hover {
-    transform: scale(1.02) rotate(1deg);
-    filter: drop-shadow(var(--shadow-hover));
+    transform: none;
+    filter: drop-shadow(var(--shadow-brutal));
 }
 
-/* Botones brutales pero elegantes */
+/* === BOTONES BRUTALES === */
 .home-buttons {
     display: flex;
     justify-content: center;
-    gap: clamp(2rem, 8vw, 4rem);
-    padding: clamp(2rem, 6vh, 3rem) clamp(1rem, 5vw, 3rem) clamp(3rem, 8vh, 5rem);
+    gap: 4rem;
+    padding: 3rem 2rem 5rem;
     position: relative;
     z-index: 10;
+    animation: slideUp 1s var(--bounce) 0.6s both;
 }
 
-.dislike-button,
-.like-button {
-    width: clamp(60px, 15vw, 80px);
-    height: clamp(60px, 15vw, 80px);
-    border: 4px solid var(--black);
+/* Botones minimalistas rectangulares */
+.dislike-button {
+    width: clamp(100px, 25vw, 140px);
+    height: clamp(50px, 12vw, 60px);
+    border: 3px solid var(--black);
     background: var(--white);
-    font-size: clamp(1.2rem, 4vw, 1.8rem);
+    font-size: clamp(0.9rem, 3vw, 1.1rem);
     cursor: pointer;
-    transition: var(--transition);
+    transition: all 0.3s ease;
     display: flex;
     align-items: center;
     justify-content: center;
     position: relative;
-    font-weight: 900;
+    font-weight: 600;
+    color: var(--black);
     text-transform: uppercase;
-    letter-spacing: -0.02em;
+    letter-spacing: 1px;
     box-shadow: var(--shadow-brutal);
 }
 
-.dislike-button {
-    color: var(--black);
-    transform: rotate(-5deg);
-}
-
 .dislike-button::before {
-    content: 'NOPE';
-    position: absolute;
-    font-size: clamp(0.6rem, 2vw, 0.8rem);
-    top: -30px;
-    opacity: 0;
-    transition: var(--transition);
+    content: 'PASS';
+    font-size: inherit;
+    font-family: inherit;
 }
 
 .dislike-button:hover {
     background: var(--black);
     color: var(--white);
-    transform: rotate(-10deg) scale(1.1);
-    box-shadow: var(--shadow-hover);
-}
-
-.dislike-button:hover::before {
-    opacity: 1;
-    color: var(--black);
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-mega);
 }
 
 .like-button {
-    background: var(--accent);
-    border-color: var(--black);
-    color: var(--black);
-    transform: rotate(5deg);
-}
-
-.like-button::before {
-    content: 'YES!';
-    position: absolute;
-    font-size: clamp(0.6rem, 2vw, 0.8rem);
-    top: -30px;
-    opacity: 0;
-    transition: var(--transition);
-}
-
-.like-button:hover {
+    width: clamp(100px, 25vw, 140px);
+    height: clamp(50px, 12vw, 60px);
+    border: 3px solid var(--black);
     background: var(--black);
-    color: var(--accent);
-    transform: rotate(10deg) scale(1.1);
-    box-shadow: var(--shadow-hover);
-}
-
-.like-button:hover::before {
-    opacity: 1;
-    color: var(--accent);
-}
-
-.dislike-button:active,
-.like-button:active {
-    transform: scale(0.9) rotate(0deg);
-    box-shadow: 4px 4px 0px 0px var(--black);
-}
-
-/* Estados especiales con personalidad */
-.home-title:only-child {
+    font-size: clamp(0.9rem, 3vw, 1.1rem);
+    cursor: pointer;
+    transition: all 0.3s ease;
     display: flex;
     align-items: center;
     justify-content: center;
-    min-height: 60vh;
+    position: relative;
+    font-weight: 600;
+    color: var(--white);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    box-shadow: var(--shadow-brutal);
+}
+
+.like-button::before {
+    content: 'LIKE';
+    font-size: inherit;
+    font-family: inherit;
+}
+
+.like-button:hover {
+    background: var(--white);
     color: var(--black);
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-mega);
+}
+
+/* Estados activos de botones rectangulares */
+.dislike-button:active,
+.like-button:active {
+    transform: translateY(0);
+    box-shadow: 4px 4px 0px var(--black);
+}
+
+/* === ESTADO VACÍO === */
+.empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 60vh;
+    text-align: center;
+    animation: fadeIn 1s ease;
+}
+
+.empty-state h2 {
+    font-size: clamp(2rem, 6vw, 3rem);
     font-weight: 900;
+    color: var(--black);
+    margin-bottom: 2rem;
     text-transform: uppercase;
     letter-spacing: -0.02em;
-    animation: pulse 2s ease-in-out infinite;
 }
 
-@keyframes pulse {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.05); }
+.empty-state p {
+    font-size: clamp(1.2rem, 3vw, 1.5rem);
+    color: var(--gray);
+    max-width: 500px;
+    line-height: 1.4;
 }
 
-/* Animaciones de entrada espectaculares */
-.home-header {
-    animation: slideInDown 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-}
-
-.card-grid {
-    animation: zoomIn 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55) 0.2s both;
-}
-
-.home-buttons {
-    animation: slideInUp 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55) 0.4s both;
-}
-
-@keyframes slideInDown {
+/* === ANIMACIONES SIMPLES PERO BRUTALES === */
+@keyframes slideDown {
     from {
         opacity: 0;
         transform: translateY(-100px);
@@ -298,10 +287,10 @@
     }
 }
 
-@keyframes zoomIn {
+@keyframes popIn {
     from {
         opacity: 0;
-        transform: scale(0.5);
+        transform: scale(0.8);
     }
     to {
         opacity: 1;
@@ -309,7 +298,7 @@
     }
 }
 
-@keyframes slideInUp {
+@keyframes slideUp {
     from {
         opacity: 0;
         transform: translateY(100px);
@@ -320,68 +309,81 @@
     }
 }
 
-/* Responsive ultra cuidado */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* === RESPONSIVE SIN COMPLICACIONES === */
 @media (max-width: 768px) {
-    .home-page::before {
-        background-size: 20px 20px;
+    .home-header {
+        padding: 3rem 1rem 2rem;
     }
 
-    .home-logo {
-        margin-bottom: 2rem;
-    }
-
-    .home-title {
-        text-shadow: 2px 2px 0px var(--accent);
+    .home-buttons {
+        gap: 3rem;
+        padding: 2rem 1rem 4rem;
     }
 
     .dislike-button,
     .like-button {
         border-width: 3px;
-        box-shadow: 4px 4px 0px 0px var(--black);
     }
 }
 
 @media (max-width: 480px) {
-    .home-page::before {
-        background-size: 15px 15px;
+    .home-title {
+        text-shadow: 2px 2px 0px var(--white);
     }
 
-    .home-title {
-        text-shadow: 1px 1px 0px var(--accent);
+    .home-buttons {
+        gap: 2rem;
     }
 
     .dislike-button,
     .like-button {
         border-width: 2px;
-        box-shadow: 3px 3px 0px 0px var(--black);
-    }
-
-    .dislike-button:hover,
-    .like-button:hover {
-        box-shadow: 6px 6px 0px 0px var(--black);
+        box-shadow: 4px 4px 0px var(--black);
     }
 }
 
-/* Focus estados brutales */
+/* === FOCUS STATES === */
 .dislike-button:focus,
-.like-button:focus {
-    outline: 4px solid var(--accent);
+.like-button:focus,
+.home-logo:focus {
+    outline: 4px solid var(--gray);
     outline-offset: 4px;
 }
 
-/* Efectos de hover en elementos interactivos */
+/* === EFECTOS EXTRAS === */
+.home-logo:active {
+    transform: scale(0.95);
+}
+
+/* Para que no se vea tan generado */
+.home-title {
+    font-feature-settings: normal;
+}
+
+.dislike-button,
+.like-button {
+    font-family: inherit;
+}
+
+/* Efecto de parallax sutil */
 @media (hover: hover) {
-    .home-logo:hover::before {
-        animation: bounce 0.5s ease-in-out infinite alternate;
+    .card-grid > *:hover {
+        animation: cardWiggle 0.5s ease-in-out;
     }
 }
 
-@keyframes bounce {
-    0% { transform: translate(-50%, -50%) rotate(-45deg) scale(1); }
-    100% { transform: translate(-50%, -50%) rotate(-45deg) scale(1.2); }
+@keyframes cardWiggle {
+    0%, 100% { transform: scale(1.05) rotate(2deg); }
+    25% { transform: scale(1.05) rotate(1deg); }
+    75% { transform: scale(1.05) rotate(3deg); }
 }
 
-/* Modo reducido de movimiento */
+/* Reduce motion */
 @media (prefers-reduced-motion: reduce) {
     * {
         animation-duration: 0.01ms !important;
