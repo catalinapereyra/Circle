@@ -6,6 +6,7 @@ import CardGameResultModal from "../../components/CardGame/CardGameResultModal.j
 import { FaCamera, FaUpload, FaPaperPlane } from "react-icons/fa";
 import "./ChatPage.css";
 import CardGameInviteModal from "../../components/CardGame/CardGameInviteModal.jsx";
+import { useNavigate } from 'react-router-dom';
 //
 
 export default function ChatPage() {
@@ -42,6 +43,8 @@ export default function ChatPage() {
 
     const [showInviteModal, setShowInviteModal] = useState(false);
     const [inviteMessage, setInviteMessage] = useState("");
+    const [hasSeenCardGameMessage, setHasSeenCardGameMessage] = useState(false);
+    const navigate = useNavigate();
 
 
 
@@ -96,6 +99,7 @@ export default function ChatPage() {
         socketRef.current?.emit("check_card_game_turn", { match_id: matchId });
     }, [matchId]);
 
+
     useEffect(() => {
         const socket = io("http://localhost:5001", { auth: { token } });
         socketRef.current = socket;
@@ -140,11 +144,7 @@ export default function ChatPage() {
             const messageObj = {
                 ...data,
                 isMine,
-                display: data.is_question
-                    ? `❓ ${data.message}`
-                    : isMine
-                        ? `${data.message} ${data.seen ? "✅" : "⏳"}`
-                        : `${data.sender}: ${data.message}`,
+                is_image: data.is_image || data.message.startsWith("data:image/"),
             };
 
             if (data.is_question) {
@@ -258,13 +258,21 @@ export default function ChatPage() {
         })
             .then((res) => res.json())
             .then((data) => {
-                const formatted = data.messages.map((msg) => ({
-                    ...msg,
-                    isMine: msg.sender === myUsername,
-                    display: msg.sender === myUsername
-                        ? `${msg.message} ${msg.seen ? "✅" : "⏳"}`
-                        : `${msg.sender}: ${msg.message}`,
-                }));
+                const formatted = data.messages.map((msg) => {
+                    const isImage = typeof msg.message === "string" && msg.message.startsWith("data:image");
+
+                    return {
+                        ...msg,
+                        isMine: msg.sender === myUsername,
+                        is_image: msg.is_image || isImage,
+                        display: isImage
+                            ? msg.message
+                            : msg.sender === myUsername
+                                ? `${msg.message} ${msg.seen ? "✅" : "⏳"}`
+                                : `${msg.sender}: ${msg.message}`,
+                    };
+                });
+
                 setMessages(formatted);
                 setStreak(data.streak);
             });
@@ -408,11 +416,21 @@ export default function ChatPage() {
     return (
         <>
             <div className="chat-container">
-                <div className="chat-header">
-                    <h2>{targetUser} {isOnline ? "🟢" : "⚪️"}</h2>
-                    <h3>🔥 Streak: {streak}</h3>
+                {/* Header con nombre, estado y streak */}
+                <div className="chat-header flex items-center justify-between px-4 py-2">
+                    <div className="flex items-center gap-3">
+                        <h2>{targetUser} {isOnline ? "🟢" : "⚪️"}</h2>
+                        <h3>🔥 Streak: {streak}</h3>
+                    </div>
+                    <button
+                        onClick={() => navigate('/matches')}
+                        className="text-2xl text-red-500 hover:text-red-700 transition"
+                    >
+                        ❌
+                    </button>
                 </div>
 
+                {/* Botones para juegos */}
                 <div className="chat-controls">
                     <button onClick={() => setIsEphemeralMode(prev => !prev)}>
                         {isEphemeralMode ? "Normal Chat" : "Ephemeral Chat"}
@@ -424,22 +442,33 @@ export default function ChatPage() {
                                 chat_id: chatId,
                                 recipient: targetUser,
                             });
-                        }}>
+                        }}
+                    >
                         ❓ Random Question Game
                     </button>
                     <button onClick={handleCardGameClick}>🎴 Card Game</button>
                 </div>
 
+                {/* Lista de mensajes */}
                 <div className="messages-container">
                     {messages.map((m, i) => {
-                        let content = m.is_question ? `❓ ${m.message}` : m.is_image
-                            ? <img src={m.message} alt="sent" className="chat-image" />
-                            : m.isMine
-                                ? `${m.message} ${m.seen ? "✅" : "⏳"}`
-                                : `${m.sender}: ${m.message}`;
+                        let content;
+
+                        if (m.is_image || m.message.startsWith("data:image")) {
+                            content = <img src={m.message} alt="sent" className="chat-image" />;
+                        } else if (m.is_question) {
+                            content = `❓ ${m.message}`;
+                        } else if (m.isMine) {
+                            content = `${m.message} ${m.seen ? "✅" : "⏳"}`;
+                        } else {
+                            content = `${m.sender}: ${m.message}`;
+                        }
 
                         return (
-                            <div key={i} className={`message ${m.isMine ? 'message-mine' : ''} ${m.ephemeral ? 'message-ephemeral' : ''} ${m.is_question ? 'random-question' : ''}`}>
+                            <div
+                                key={i}
+                                className={`message ${m.isMine ? 'message-mine' : ''} ${m.ephemeral ? 'message-ephemeral' : ''} ${m.is_question ? 'random-question' : ''}`}
+                            >
                                 {content}
                             </div>
                         );
@@ -447,6 +476,7 @@ export default function ChatPage() {
                     <div ref={bottomRef}></div>
                 </div>
 
+                {/* Input para escribir y botones de imagen */}
                 <div className="input-container">
                     <input
                         className="chat-input"
@@ -471,6 +501,7 @@ export default function ChatPage() {
                     </div>
                 </div>
 
+                {/* Modal de cámara */}
                 {isCameraOpen && (
                     <div className="camera-modal">
                         <video ref={videoRef} autoPlay playsInline className="video-preview" />
@@ -482,6 +513,7 @@ export default function ChatPage() {
                     </div>
                 )}
 
+                {/* Modal del juego de cartas */}
                 {showCardGame && (
                     <CardGameModal
                         questions={cardGameQuestions}
@@ -492,6 +524,7 @@ export default function ChatPage() {
                     />
                 )}
 
+                {/* Modal de resultados */}
                 {showResultModal && (
                     <CardGameResultModal
                         coincidences={cardGameResult}
@@ -500,7 +533,7 @@ export default function ChatPage() {
                 )}
             </div>
 
-            {/* 🔥 MODAL FUERA DEL CONTENEDOR */}
+            {/* Modal para invitar al juego */}
             <CardGameInviteModal
                 isOpen={showInviteModal}
                 message={inviteMessage}
@@ -514,6 +547,4 @@ export default function ChatPage() {
             />
         </>
     );
-
 }
-//bienn
