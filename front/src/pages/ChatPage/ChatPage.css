@@ -530,3 +530,27 @@
     from { opacity: 0; transform: translate(-50%, -55%); }
     to { opacity: 1; transform: translate(-50%, -50%); }
 }
+
+.chat-container {
+    position: relative;
+}
+
+.exit-button {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    z-index: 999;
+}
+
+.exit-button button {
+    font-size: 1.5rem;
+    color: #ec4899;
+    background: none;
+    border: none;
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+
+.exit-button button:hover {
+    color: #be185d;
+}

@@ -5,6 +5,8 @@ import CardGameModal from "../../components/CardGame/CardGameModal.jsx";
 import CardGameResultModal from "../../components/CardGame/CardGameResultModal.jsx";
 import { FaCamera, FaUpload, FaPaperPlane } from "react-icons/fa";
 import "./ChatPage.css";
+import CardGameInviteModal from "../../components/CardGame/CardGameInviteModal.jsx";
+import { useNavigate } from 'react-router-dom';
 //
 
 export default function ChatPage() {
@@ -38,6 +40,12 @@ export default function ChatPage() {
     const videoRef = useRef(null);
     const canvasRef = useRef(null);
     const [isCameraOpen, setIsCameraOpen] = useState(false);
+
+    const [showInviteModal, setShowInviteModal] = useState(false);
+    const [inviteMessage, setInviteMessage] = useState("");
+    const [hasSeenCardGameMessage, setHasSeenCardGameMessage] = useState(false);
+    const navigate = useNavigate();
+
 
 
     if (!token) return <Navigate to="/login" />;
@@ -91,6 +99,7 @@ export default function ChatPage() {
         socketRef.current?.emit("check_card_game_turn", { match_id: matchId });
     }, [matchId]);
 
+
     useEffect(() => {
         const socket = io("http://localhost:5001", { auth: { token } });
         socketRef.current = socket;
@@ -135,11 +144,7 @@ export default function ChatPage() {
             const messageObj = {
                 ...data,
                 isMine,
-                display: data.is_question
-                    ? `❓ ${data.message}`
-                    : isMine
-                        ? `${data.message} ${data.seen ? "✅" : "⏳"}`
-                        : `${data.sender}: ${data.message}`,
+                is_image: data.is_image || data.message.startsWith("data:image/"),
             };
 
             if (data.is_question) {
@@ -180,6 +185,7 @@ export default function ChatPage() {
         });
 
         socket.on("card_game_your_turn", (data) => {
+            // Agrega el mensaje al chat como mensaje del sistema
             const notificationMessage = {
                 id: Date.now(),
                 sender: "Sistema",
@@ -189,11 +195,14 @@ export default function ChatPage() {
                 is_system: true
             };
             setMessages((prev) => [...prev, notificationMessage]);
+
+            // Guarda las preguntas y el ID de la interacción
             setCardGameQuestions(data.questions);
             setInteractionId(data.interaction_id);
 
-            const accept = window.confirm(`${data.message}`);
-            if (accept) setShowCardGame(true);
+            // Guarda el mensaje para mostrarlo en el modal
+            setInviteMessage(data.message);
+            setShowInviteModal(true);
         });
 
         socket.on("card_game_saved", () => {
@@ -215,7 +224,17 @@ export default function ChatPage() {
         });
 
         socket.on("error", (data) => {
-            alert(data.error);
+            setMessages(prev => [
+                ...prev,
+                {
+                    id: Date.now(),
+                    sender: "Sistema",
+                    message: data.error,
+                    isMine: false,
+                    display: `⚠️ ${data.error}`,
+                    is_system: true,
+                }
+            ]);
         });
 
         return () => {
@@ -239,13 +258,21 @@ export default function ChatPage() {
         })
             .then((res) => res.json())
             .then((data) => {
-                const formatted = data.messages.map((msg) => ({
-                    ...msg,
-                    isMine: msg.sender === myUsername,
-                    display: msg.sender === myUsername
-                        ? `${msg.message} ${msg.seen ? "✅" : "⏳"}`
-                        : `${msg.sender}: ${msg.message}`,
-                }));
+                const formatted = data.messages.map((msg) => {
+                    const isImage = typeof msg.message === "string" && msg.message.startsWith("data:image");
+
+                    return {
+                        ...msg,
+                        isMine: msg.sender === myUsername,
+                        is_image: msg.is_image || isImage,
+                        display: isImage
+                            ? msg.message
+                            : msg.sender === myUsername
+                                ? `${msg.message} ${msg.seen ? "✅" : "⏳"}`
+                                : `${msg.sender}: ${msg.message}`,
+                    };
+                });
+
                 setMessages(formatted);
                 setStreak(data.streak);
             });
@@ -387,97 +414,137 @@ export default function ChatPage() {
 
 
     return (
-        <div className="chat-container">
-            <div className="chat-header">
-                <h2>{targetUser} {isOnline ? "🟢" : "⚪️"}</h2>
-                <h3>🔥 Streak: {streak}</h3>
-            </div>
-
-            <div className="chat-controls">
-                <button onClick={() => setIsEphemeralMode(prev => !prev)}>
-                    {isEphemeralMode ? "Normal Chat" : "Ephemeral Chat"}
-                </button>
-                <button
-                    onClick={() => {
-                        if (!chatId) return;
-                        socketRef.current.emit("random_question_game", {
-                            chat_id: chatId,
-                            recipient: targetUser,
-                        });
-                    }}>
-                    ❓ Random Question Game
-                </button>
-                <button onClick={handleCardGameClick}>🎴 Card Game</button>
-            </div>
-
-            <div className="messages-container">
-                {messages.map((m, i) => {
-                    let content = m.is_question ? `❓ ${m.message}` : m.is_image
-                        ? <img src={m.message} alt="sent" className="chat-image" />
-                        : m.isMine
-                            ? `${m.message} ${m.seen ? "✅" : "⏳"}`
-                            : `${m.sender}: ${m.message}`;
-
-                    return (
-                        <div key={i} className={`message ${m.isMine ? 'message-mine' : ''} ${m.ephemeral ? 'message-ephemeral' : ''} ${m.is_question ? 'random-question' : ''}`}>
-                            {content}
-                        </div>
-                    );
-                })}
-                <div ref={bottomRef}></div>
-            </div>
-
-            <div className="input-container">
-                <input
-                    className="chat-input"
-                    value={input}
-                    onChange={(e) => setInput(e.target.value)}
-                    placeholder="Write your message..."
-                />
-                <div className="icon-buttons">
-                    <label className="icon-button upload">
-                        <FaUpload />
-                        <input type="file" accept="image/*" onChange={handleImageUpload} style={{ display: "none" }} />
-                    </label>
-                    {!isCameraOpen && (
-                        <label className="icon-button upload">
-                            <FaCamera />
-                            <input type="button" onClick={openCamera} style={{ display: "none" }} />
-                        </label>
-                    )}
-                    <button className="send-button" onClick={sendMessage}>
-                        <FaPaperPlane />
+        <>
+            <div className="chat-container">
+                {/* Header con nombre, estado y streak */}
+                <div className="chat-header flex items-center justify-between px-4 py-2">
+                    <div className="flex items-center gap-3">
+                        <h2>{targetUser} {isOnline ? "🟢" : "⚪️"}</h2>
+                        <h3>🔥 Streak: {streak}</h3>
+                    </div>
+                    <button
+                        onClick={() => navigate('/matches')}
+                        className="text-2xl text-red-500 hover:text-red-700 transition"
+                    >
+                        ❌
                     </button>
                 </div>
-            </div>
 
-            {isCameraOpen && (
-                <div className="camera-modal">
-                    <video ref={videoRef} autoPlay playsInline className="video-preview" />
-                    <canvas ref={canvasRef} style={{ display: "none" }} />
-                    <div className="camera-buttons">
-                        <button onClick={takePhoto}>📷 Tomar foto</button>
-                        <button onClick={closeCamera}>❌ Cerrar</button>
+                {/* Botones para juegos */}
+                <div className="chat-controls">
+                    <button onClick={() => setIsEphemeralMode(prev => !prev)}>
+                        {isEphemeralMode ? "Normal Chat" : "Ephemeral Chat"}
+                    </button>
+                    <button
+                        onClick={() => {
+                            if (!chatId) return;
+                            socketRef.current.emit("random_question_game", {
+                                chat_id: chatId,
+                                recipient: targetUser,
+                            });
+                        }}
+                    >
+                        ❓ Random Question Game
+                    </button>
+                    <button onClick={handleCardGameClick}>🎴 Card Game</button>
+                </div>
+
+                {/* Lista de mensajes */}
+                <div className="messages-container">
+                    {messages.map((m, i) => {
+                        let content;
+
+                        if (m.is_image || m.message.startsWith("data:image")) {
+                            content = <img src={m.message} alt="sent" className="chat-image" />;
+                        } else if (m.is_question) {
+                            content = `❓ ${m.message}`;
+                        } else if (m.isMine) {
+                            content = `${m.message} ${m.seen ? "✅" : "⏳"}`;
+                        } else {
+                            content = `${m.sender}: ${m.message}`;
+                        }
+
+                        return (
+                            <div
+                                key={i}
+                                className={`message ${m.isMine ? 'message-mine' : ''} ${m.ephemeral ? 'message-ephemeral' : ''} ${m.is_question ? 'random-question' : ''}`}
+                            >
+                                {content}
+                            </div>
+                        );
+                    })}
+                    <div ref={bottomRef}></div>
+                </div>
+
+                {/* Input para escribir y botones de imagen */}
+                <div className="input-container">
+                    <input
+                        className="chat-input"
+                        value={input}
+                        onChange={(e) => setInput(e.target.value)}
+                        placeholder="Write your message..."
+                    />
+                    <div className="icon-buttons">
+                        <label className="icon-button upload">
+                            <FaUpload />
+                            <input type="file" accept="image/*" onChange={handleImageUpload} style={{ display: "none" }} />
+                        </label>
+                        {!isCameraOpen && (
+                            <label className="icon-button upload">
+                                <FaCamera />
+                                <input type="button" onClick={openCamera} style={{ display: "none" }} />
+                            </label>
+                        )}
+                        <button className="send-button" onClick={sendMessage}>
+                            <FaPaperPlane />
+                        </button>
                     </div>
                 </div>
-            )}
 
-            {showCardGame && (
-                <CardGameModal
-                    questions={cardGameQuestions}
-                    interactionId={interactionId}
-                    matchId={matchId}
-                    onSubmit={handleCardGameSubmit}
-                    onClose={() => setShowCardGame(false)}
-                />
-            )}
+                {/* Modal de cámara */}
+                {isCameraOpen && (
+                    <div className="camera-modal">
+                        <video ref={videoRef} autoPlay playsInline className="video-preview" />
+                        <canvas ref={canvasRef} style={{ display: "none" }} />
+                        <div className="camera-buttons">
+                            <button onClick={takePhoto}>📷 Tomar foto</button>
+                            <button onClick={closeCamera}>❌ Cerrar</button>
+                        </div>
+                    </div>
+                )}
 
-            {showResultModal && (
-                <CardGameResultModal
-                    coincidences={cardGameResult}
-                    onClose={() => setShowResultModal(false)}
-                />
-            )}
-        </div>
+                {/* Modal del juego de cartas */}
+                {showCardGame && (
+                    <CardGameModal
+                        questions={cardGameQuestions}
+                        interactionId={interactionId}
+                        matchId={matchId}
+                        onSubmit={handleCardGameSubmit}
+                        onClose={() => setShowCardGame(false)}
+                    />
+                )}
+
+                {/* Modal de resultados */}
+                {showResultModal && (
+                    <CardGameResultModal
+                        coincidences={cardGameResult}
+                        onClose={() => setShowResultModal(false)}
+                    />
+                )}
+            </div>
+
+            {/* Modal para invitar al juego */}
+            <CardGameInviteModal
+                isOpen={showInviteModal}
+                message={inviteMessage}
+                onAccept={() => {
+                    setShowInviteModal(false);
+                    setShowCardGame(true);
+                }}
+                onCancel={() => {
+                    setShowInviteModal(false);
+                }}
+            />
+        </>
     );
-}
+}//
