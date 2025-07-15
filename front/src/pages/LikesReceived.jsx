@@ -78,6 +78,11 @@ function LikesReceived() {
 
     return (
         <div className="likes-received-container">
+            <div className="back-button-container">
+                <button className="back-button" onClick={() => navigate('/home')}>
+                    Back to Home
+                </button>
+            </div>
             <div className="likes-received-header">
                 <h1>People who liked you</h1>
             </div>
