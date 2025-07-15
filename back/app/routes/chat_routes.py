@@ -126,7 +126,7 @@ def handle_private_message(data):
             "sender": sender,
             "message": message_text,
             "ephemeral": ephemeral,
-            "seen": True,
+            "seen": False,
             "id": new_message.id,
             "is_question": new_message.is_question,
         }, to=request.sid)
@@ -673,9 +673,9 @@ def handle_card_game_completed(data):
             print("🎯 Coincidencias encontradas:", coincidences)
 
             resumen = (
-                "No tuvieron coincidencias 🥲"
+                "No matches 🥲"
                 if len(coincidences) == 0
-                else f"Tuvieron {len(coincidences)} coincidencia{'s' if len(coincidences) > 1 else ''} 🎉"
+                else f"You had {len(coincidences)} matches{'s' if len(coincidences) > 1 else ''}"
             )
 
             system_message = {

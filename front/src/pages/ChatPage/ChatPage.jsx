@@ -147,6 +147,7 @@ export default function ChatPage() {
                 is_image: data.is_image || data.message.startsWith("data:image/"),
             };
 
+
             if (data.is_question) {
                 setMessages((prev) => [...prev, messageObj]);
                 return;
@@ -265,11 +266,7 @@ export default function ChatPage() {
                         ...msg,
                         isMine: msg.sender === myUsername,
                         is_image: msg.is_image || isImage,
-                        display: isImage
-                            ? msg.message
-                            : msg.sender === myUsername
-                                ? `${msg.message} ${msg.seen ? "✅" : "⏳"}`
-                                : `${msg.sender}: ${msg.message}`,
+                        display: msg.message
                     };
                 });
 
