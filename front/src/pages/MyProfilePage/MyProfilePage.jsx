@@ -47,7 +47,7 @@ function MyProfilePage() {
                 <button onClick={handleEditClick} className="edit-button">
                     Edit profile
                 </button>
-                <button onClick={() => navigate('/')} className="back-button">
+                <button onClick={() => navigate('/home')} className="back-button">
                     Back
                 </button>
             </div>
