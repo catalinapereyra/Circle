@@ -38,7 +38,6 @@ function BottomNavBar({ mode }) {
             <div className="bottom-nav">
                 <img src={icons.settings} alt="Settings" className="nav-icon" onClick={() => setShowSettings(true)}/>
 
-                {/* Solo mostrar el corazón si el user es premium */}
                 {isPremium && (
                     <Link to="/likes-received">
                         <img src={icons.heart} alt="Likes Received" className="nav-icon"/>

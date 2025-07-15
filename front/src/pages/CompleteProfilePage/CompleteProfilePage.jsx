@@ -18,7 +18,7 @@ function CompleteProfilePage() {
         const token = localStorage.getItem('token');
 
         if (!location.latitude || !location.longitude) {
-            setError("Seleccioná tu ubicación en el mapa.");
+            setError("Set your location on the map");
             return;
         }
 
@@ -47,27 +47,27 @@ function CompleteProfilePage() {
 
     return (
         <div className="complete-profile-container">
-            <h2 className="complete-profile-title">Completa tu perfil</h2>
+            <h2 className="complete-profile-title">Complete your profile</h2>
             {error && <p style={{ color: 'red' }}>{error}</p>}
 
             <form onSubmit={handleSubmit}>
                 <div className="profile-form-group">
-                    <label className="profile-form-label">Género:</label>
+                    <label className="profile-form-label">Gender:</label>
                     <select
                         value={gender}
                         onChange={e => setGender(e.target.value)}
                         required
                         className="profile-form-select"
                     >
-                        <option value="">Seleccionar</option>
-                        <option value="MALE">Masculino</option>
-                        <option value="FEMALE">Femenino</option>
-                        <option value="OTHER">Otro</option>
+                        <option value="">Select</option>
+                        <option value="MALE">Man</option>
+                        <option value="FEMALE">Women</option>
+                        <option value="OTHER">other</option>
                     </select>
                 </div>
 
                 <div className="profile-form-group">
-                    <label className="profile-form-label">Edad:</label>
+                    <label className="profile-form-label">Age:</label>
                     <input
                         type="number"
                         value={age}
@@ -79,13 +79,13 @@ function CompleteProfilePage() {
                 </div>
 
                 <div className="map-section">
-                    <label className="profile-form-label">Seleccioná tu ubicación en el mapa:</label>
+                    <label className="profile-form-label">Select your location on the map</label>
                     <MapComponent
                         setLatLng={(coords) => setLocation({ latitude: coords.lat, longitude: coords.lng })}
                     />
                 </div>
 
-                <button type="submit" className="submit-button">Guardar</button>
+                <button type="submit" className="submit-button">Save</button>
             </form>
         </div>
     );

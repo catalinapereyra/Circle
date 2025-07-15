@@ -1,157 +1,405 @@
-/* EditProfilePage.css */
-@import url('https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;600&family=Playfair+Display:ital,wght@1,400&display=swap');
+/* EditProfilePage.css - BRUTAL MINIMALISTA */
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
 
-/* Contenedor principal con fondo degradado */
+/* === VARIABLES BRUTALES === */
+:root {
+    --white: #ffffff;
+    --black: #000000;
+    --shadow-brutal: 8px 8px 0px var(--black);
+    --shadow-mega: 12px 12px 0px var(--black);
+    --shadow-small: 4px 4px 0px var(--black);
+}
+
+/* === CONTAINER PRINCIPAL === */
 .edit-profile-container {
-    font-family: 'Inter', sans-serif;
-    background: linear-gradient(to right, #8e44ad, #3498db); /* Fondo degradado */
-    padding: 40px;
-    border-radius: 20px;
+    font-family: 'Space Grotesk', monospace;
+    background: var(--white);
+    border: 4px solid var(--black);
+    padding: 2rem;
     width: 90%;
-    max-width: 650px;
-    margin: 50px auto;
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
-    transition: all 0.3s ease-in-out;
-    background-size: 400% 400%; /* Efecto de animación del fondo */
-    animation: gradientAnimation 5s ease infinite;
+    max-width: 500px;
+    margin: 2rem auto;
+    box-shadow: var(--shadow-brutal);
+    transition: all 0.3s ease;
+    position: relative;
 }
 
-/* Animación del fondo degradado */
-@keyframes gradientAnimation {
-    0% {
-        background-position: 0% 50%;
-    }
-    50% {
-        background-position: 100% 50%;
-    }
-    100% {
-        background-position: 0% 50%;
-    }
-}
-
-/* Efecto al pasar el ratón sobre el contenedor */
 .edit-profile-container:hover {
-    transform: scale(1.02);
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-mega);
 }
 
+/* === HEADER === */
 .edit-profile-header {
     text-align: center;
-    margin-bottom: 20px;
+    margin-bottom: 2rem;
+    border-bottom: 3px solid var(--black);
+    padding-bottom: 1.5rem;
 }
 
 .edit-profile-header h2 {
-    font-family: 'Anton', sans-serif;
-    color: white;
-    font-size: 2.5rem;
+    font-family: 'Space Grotesk', monospace;
+    color: var(--black);
+    font-size: clamp(1.8rem, 6vw, 2.2rem);
     font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 1.5px;
-    margin-bottom: 10px;
+    letter-spacing: 2px;
+    margin-bottom: 0;
+    line-height: 1;
 }
 
-/* Estilo para los campos de formulario */
+/* === FORMULARIO === */
 .edit-profile-form {
     display: flex;
     flex-direction: column;
-    gap: 20px;
-    margin-top: 30px;
+    gap: 1.5rem;
+    margin-top: 2rem;
 }
 
 .edit-profile-form label {
-    font-weight: bold;
-    color: #ecf0f1;
+    font-weight: 600;
+    color: var(--black);
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 0.5rem;
+    display: block;
 }
 
+/* === INPUTS BRUTALES === */
 .edit-profile-form input,
 .edit-profile-form textarea {
-    padding: 12px;
+    padding: 0.75rem;
     font-size: 1rem;
-    border: 1px solid #ccc;
-    border-radius: 8px;
+    border: 3px solid var(--black);
+    background: var(--white);
     width: 100%;
     box-sizing: border-box;
-    background-color: #fff;
-    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    font-family: 'Space Grotesk', monospace;
+    font-weight: 500;
+    color: var(--black);
+    transition: all 0.3s ease;
+    box-shadow: var(--shadow-small);
 }
 
-/* Efecto al pasar el ratón sobre los inputs */
+.edit-profile-form input:focus,
+.edit-profile-form textarea:focus {
+    outline: none;
+    background: var(--black);
+    color: var(--white);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-brutal);
+}
+
 .edit-profile-form input:hover,
 .edit-profile-form textarea:hover {
-    border-color: #3498db;
-    box-shadow: 0 0 8px rgba(52, 152, 219, 0.5);
+    transform: translateY(-1px);
+    box-shadow: 6px 6px 0px var(--black);
 }
 
-/* Estilo para la caja de texto (textarea) */
+.edit-profile-form input::placeholder,
+.edit-profile-form textarea::placeholder {
+    color: #666;
+    font-style: normal;
+}
+
+/* === TEXTAREA ESPECIAL === */
 .edit-profile-form textarea {
     height: 120px;
     resize: vertical;
+    font-family: 'Space Grotesk', monospace;
 }
 
-/* Botón de guardar cambios */
+/* === BOTONES BRUTALES === */
 .save-button {
-    padding: 14px 30px;
-    background-color: #3498db;
-    color: white;
-    border: none;
-    border-radius: 8px;
-    font-size: 1.2rem;
-    cursor: pointer;
-    transition: background-color 0.3s ease, transform 0.3s ease;
-    margin-top: 20px;
-    width: 100%;
-}
-
-/* Efecto hover sobre el botón de guardar */
-.save-button:hover {
-    background-color: #2980b9;
-    transform: translateY(-3px); /* Elevar el botón ligeramente */
-}
-
-/* Efecto cuando el botón está deshabilitado */
-.save-button:disabled {
-    background-color: #b0c4de;
-    cursor: not-allowed;
-}
-
-/* Botón de volver (Back) */
-.back-button {
-    padding: 12px 30px;
-    background-color: #f0f0f0;
-    color: #333;
-    border: 1px solid #ccc;
+    padding: 1rem 2rem;
+    background: var(--black);
+    color: var(--white);
+    border: 3px solid var(--black);
     font-size: 1rem;
+    font-weight: 600;
     cursor: pointer;
-    transition: background-color 0.3s ease, transform 0.3s ease;
-    margin-top: 20px;
+    transition: all 0.3s ease;
+    margin-top: 1.5rem;
     width: 100%;
-    border-radius: 8px;
+    font-family: 'Space Grotesk', monospace;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    box-shadow: var(--shadow-brutal);
 }
 
-/* Estilo para los mensajes de éxito y error */
-.message {
-    margin-top: 15px;
-    padding: 10px;
-    border-radius: 5px;
-    text-align: center;
-    font-size: 1.1rem;
-    font-weight: bold;
+.save-button:hover {
+    background: var(--white);
+    color: var(--black);
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-mega);
 }
 
-/* Estilo para el mensaje de éxito */
-.message-success {
-    background-color: #28a745;
-    color: white;
+.save-button:active {
+    transform: translateY(0);
+    box-shadow: var(--shadow-small);
 }
 
-/* Estilo para el mensaje de error */
-.message-error {
-    background-color: #e74c3c;
-    color: white;
+/* === BOTÓN DESHABILITADO === */
+.save-button:disabled {
+    background: #ccc;
+    color: #666;
+    border-color: #ccc;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: var(--shadow-small);
 }
 
-/* Efecto hover sobre el botón de volver */
+.save-button:disabled:hover {
+    background: #ccc;
+    color: #666;
+    transform: none;
+    box-shadow: var(--shadow-small);
+}
+
+/* === BOTÓN DE VOLVER === */
+.back-button {
+    padding: 1rem 2rem;
+    background: var(--white);
+    color: var(--black);
+    border: 3px solid var(--black);
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: 1rem;
+    width: 100%;
+    font-family: 'Space Grotesk', monospace;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    box-shadow: var(--shadow-brutal);
+}
+
 .back-button:hover {
-    background-color: #ecf0f1;
-    transform: translateY(-3px); /* Elevar el botón ligeramente */
+    background: var(--black);
+    color: var(--white);
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-mega);
+}
+
+.back-button:active {
+    transform: translateY(0);
+    box-shadow: var(--shadow-small);
+}
+
+/* === MENSAJES === */
+.message {
+    margin-top: 1.5rem;
+    padding: 1rem;
+    border: 3px solid var(--black);
+    text-align: center;
+    font-size: 1rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    box-shadow: var(--shadow-small);
+    font-family: 'Space Grotesk', monospace;
+}
+
+/* Mensaje de éxito */
+.message-success {
+    background: var(--white);
+    color: var(--black);
+    border-color: var(--black);
+}
+
+.message-success::before {
+    content: '✓ ';
+    font-weight: 700;
+}
+
+/* Mensaje de error */
+.message-error {
+    background: var(--black);
+    color: var(--white);
+    border-color: var(--black);
+}
+
+.message-error::before {
+    content: '✕ ';
+    font-weight: 700;
+}
+
+/* === FIELD GROUPS === */
+.field-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.field-group-row {
+    display: flex;
+    gap: 1rem;
+}
+
+.field-group-row .field-group {
+    flex: 1;
+}
+
+/* === FILE INPUT BRUTAL === */
+.file-input-wrapper {
+    position: relative;
+    display: inline-block;
+    width: 100%;
+}
+
+.file-input-wrapper input[type="file"] {
+    position: absolute;
+    opacity: 0;
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
+}
+
+.file-input-label {
+    display: block;
+    padding: 1rem;
+    background: var(--white);
+    border: 3px solid var(--black);
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    box-shadow: var(--shadow-small);
+}
+
+.file-input-label:hover {
+    background: var(--black);
+    color: var(--white);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-brutal);
+}
+
+/* === RESPONSIVE === */
+@media (max-width: 768px) {
+    .edit-profile-container {
+        padding: 1.5rem;
+        margin: 1rem auto;
+        border-width: 3px;
+    }
+
+    .edit-profile-header h2 {
+        font-size: 1.6rem;
+        letter-spacing: 1px;
+    }
+
+    .edit-profile-form {
+        gap: 1.2rem;
+    }
+
+    .edit-profile-form input,
+    .edit-profile-form textarea {
+        padding: 0.6rem;
+        border-width: 2px;
+        box-shadow: 3px 3px 0px var(--black);
+    }
+
+    .save-button,
+    .back-button {
+        padding: 0.8rem 1.5rem;
+        border-width: 2px;
+        box-shadow: 4px 4px 0px var(--black);
+    }
+
+    .save-button:hover,
+    .back-button:hover {
+        box-shadow: 6px 6px 0px var(--black);
+    }
+
+    .field-group-row {
+        flex-direction: column;
+        gap: 1.2rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .edit-profile-container {
+        padding: 1rem;
+        border-width: 2px;
+        box-shadow: 4px 4px 0px var(--black);
+    }
+
+    .edit-profile-container:hover {
+        box-shadow: 6px 6px 0px var(--black);
+    }
+
+    .edit-profile-header {
+        border-width: 2px;
+    }
+
+    .edit-profile-form input,
+    .edit-profile-form textarea {
+        border-width: 2px;
+        box-shadow: 2px 2px 0px var(--black);
+    }
+
+    .save-button,
+    .back-button {
+        border-width: 2px;
+        box-shadow: 3px 3px 0px var(--black);
+    }
+
+    .message {
+        border-width: 2px;
+        box-shadow: 2px 2px 0px var(--black);
+    }
+}
+
+/* === FOCUS STATES === */
+.save-button:focus,
+.back-button:focus {
+    outline: 3px solid var(--black);
+    outline-offset: 2px;
+}
+
+/* === LOADING STATE === */
+.edit-profile-container.loading {
+    opacity: 0.7;
+    pointer-events: none;
+}
+
+.edit-profile-container.loading::after {
+    content: 'SAVING...';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: var(--white);
+    border: 3px solid var(--black);
+    padding: 1rem 2rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    box-shadow: var(--shadow-brutal);
+    z-index: 1000;
+}
+
+/* === VALIDACIÓN === */
+.edit-profile-form input:invalid,
+.edit-profile-form textarea:invalid {
+    border-color: var(--black);
+    background: #fff;
+}
+
+.edit-profile-form input:valid,
+.edit-profile-form textarea:valid {
+    border-color: var(--black);
+}
+
+/* === CHARACTER COUNTER === */
+.character-counter {
+    text-align: right;
+    font-size: 0.8rem;
+    color: var(--black);
+    font-weight: 600;
+    margin-top: 0.25rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }

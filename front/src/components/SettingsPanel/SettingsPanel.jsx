@@ -46,7 +46,7 @@ function SettingsPanel({ isOpen, onClose, mode }) {
         try {
             const res = await axiosInstance.post("/user/subscribe");
             if (res.status === 200) {
-                setIsPremium(true); // 💥 Cambiar a premium globalmente
+                setIsPremium(true);
                 setShowSubPopup(false);
                 setShowWelcome(true);
             } else {
