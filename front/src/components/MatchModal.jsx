@@ -24,7 +24,7 @@ function MatchModal({ username, onClose }) {
     return (
         <div style={styles.overlay}>
             <div style={styles.modal}>
-                <h2>🎉 ¡Match logrado!</h2>
+                <h2>🎉 It's a match!</h2>
                 <p>Con <strong>@{username}</strong></p>
                 <p style={{ marginTop: '1rem' }}>Do you want to chat?</p>
                 <div style={styles.buttonContainer}>

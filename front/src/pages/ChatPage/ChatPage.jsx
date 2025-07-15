@@ -277,7 +277,7 @@ export default function ChatPage() {
 
     const handleCardGameClick = () => {
         if (!matchId) {
-            alert("No se pudo obtener el match.");
+            alert("Could not retrieve the match.");
             return;
         }
 
@@ -346,7 +346,7 @@ export default function ChatPage() {
                     videoRef.current.play().catch(console.error);
                 }
             } catch (err) {
-                console.error("❌ Error accediendo a la cámara:", err);
+                console.error("❌ Error accessing the camera:", err);
             }
         };
 
@@ -356,7 +356,7 @@ export default function ChatPage() {
     useEffect(() => {
         if (isCameraOpen && videoRef.current && videoRef.current.srcObject) {
             videoRef.current.play().catch((err) => {
-                console.error("Error al reproducir el video:", err);
+                console.error("Error playing the video:", err);
             });
         }
     }, [isCameraOpen]);
@@ -380,7 +380,7 @@ export default function ChatPage() {
 
         // Verificá si el video tiene dimensiones válidas
         if (video.videoWidth === 0 || video.videoHeight === 0) {
-            console.warn("⚠️ El video aún no está listo para capturar.");
+            console.warn("⚠️The video is not ready to capture yet.");
             return;
         }
 
@@ -393,11 +393,11 @@ export default function ChatPage() {
 
         // Confirmá que no esté vacío
         if (base64Image === "data:,") {
-            console.error("❌ Imagen vacía capturada.");
+            console.error("❌ Empty image captured.");
             return;
         }
 
-        console.log("📸 Capturada:", base64Image.slice(0, 80) + "...");
+        console.log("📸 Captured:", base64Image.slice(0, 80) + "...");
 
         socketRef.current.emit("private_message", {
             recipient: targetUser,

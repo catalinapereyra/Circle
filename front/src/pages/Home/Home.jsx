@@ -31,7 +31,7 @@ function Home() {
                 const res = await axiosInstance.get('/user/me/subscription');
                 setIsPremium(res.data.premium);
             } catch (err) {
-                console.error("Error al verificar suscripción:", err);
+                console.error("Error verifying subscription:", err);
             }
         };
 
@@ -85,7 +85,7 @@ function Home() {
                 setProfiles(prev => prev.slice(1));
             }
         } catch (err) {
-            console.error("Error al hacer like:", err);
+            console.error("Error sending like:", err);
             setProfiles(prev => prev.slice(1));
         }
     };
@@ -104,7 +104,7 @@ function Home() {
                 mode: mode,
             });
         } catch (err) {
-            console.error("Error al hacer dislike:", err);
+            console.error("Error sending dislike:", err);
             // Aunque falle el post, seguimos igual
         } finally {
             setProfiles(prev => prev.slice(1)); // pase lo que pase, saco el primer perfil

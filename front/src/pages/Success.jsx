@@ -13,9 +13,9 @@ function Success() {
 
     return (
         <div className="payment-status success">
-            <h1>✅ ¡Pago exitoso!</h1>
-            <p>Gracias por unirte a Circle Premium 💫</p>
-            <p>Redirigiendo a tu perfil...</p>
+            <h1>✅ Payment successful!</h1>
+            <p>Thank you for joining Circle Premium 💫</p>
+            <p>Redirecting to your profile...</p>
         </div>
     );
 }

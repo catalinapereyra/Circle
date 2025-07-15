@@ -31,9 +31,9 @@ function MyProfilePage() {
         navigate(`/edit-profile/${mode}`);
     };
 
-    if (loading) return <p>Cargando perfil...</p>;
+    if (loading) return <p>Loading profile...</p>;
 
-    if (!profile) return <p>No se encontró tu perfil.</p>;
+    if (!profile) return <p>Your profile was not found.</p>;
 
     return (
         <div className="profile-container">

@@ -56,10 +56,10 @@ function SettingsPanel({ isOpen, onClose, mode }) {
                 setShowVerifyButton(true);
                 setShowSubPopup(false);
             } else {
-                console.error("No se recibió un init point válido:", data);
+                console.error("No valid init point received", data);
             }
         } catch (err) {
-            console.error("Error iniciando el pago:", err);
+            console.error("Error starting the payment", err);
         }
     };
 

@@ -60,12 +60,12 @@ function FriendshipProfileForm() {
                 headers: { 'Content-Type': 'multipart/form-data' } // solo content-type
             });
 
-            setMessage('Perfil creado exitosamente');
+            setMessage('Profile created successfully');
             setMode('friendship');
 
             navigate(then ?? '/choose-mood');
         } catch (err) {
-            setMessage('Error al crear perfil');
+            setMessage('Error creating profile');
             console.error("Error:", err.response?.data);
         }
     };
