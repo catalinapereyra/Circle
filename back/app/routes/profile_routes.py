@@ -333,43 +333,83 @@ def get_my_friendship_profile():
     }), 200
 
 
+from flask import request, jsonify
+from flask_jwt_extended import jwt_required, get_jwt_identity
+import base64
+
 @bp_profile.route('/update-profile', methods=['PUT'])
 @jwt_required()
 def update_profile():
-    data = request.get_json()
-
-    # Obtener el username desde el JWT
     username = get_jwt_identity()
-    bio = data.get('bio', '')
-    interest = data.get('interest', '')
-    mode = data.get('mode', '')  # 'couple' o 'friendship'
+    data = request.form
+    print("🛠️ Actualizando perfil para:", username)
+    print("📩 Form data:", data)
 
-    if mode not in ['couple', 'friendship']:
-        return jsonify({'error': 'Invalid mode, must be "couple" or "friendship"'}), 400
+    mode = data.get("mode")
+    bio = data.get("bio")
+    interest = data.get("interest")
 
-    profile = None
+    if not mode or mode not in ["couple", "friendship"]:
+        return jsonify({"error": "Invalid mode"}), 400
 
-    # Buscar el perfil dependiendo del modo seleccionado
-    if mode == 'couple':
-        profile = CoupleMode.query.filter_by(username=username).first()
-    elif mode == 'friendship':
-        profile = FriendshipMode.query.filter_by(username=username).first()
+    # Buscar el perfil correspondiente
+    profile_cls = CoupleMode if mode == "couple" else FriendshipMode
+    profile = db.session.query(profile_cls).filter_by(username=username).first()
 
     if not profile:
-        return jsonify({'error': f'{mode.capitalize()} profile not found for user {username}'}), 404
+        return jsonify({"error": "Profile not found"}), 404
 
-    # Actualizar los datos del perfil (solo bio e interest)
-    if bio:
-        profile.bio = bio
-    if interest:
-        profile.interest = interest
+    # Actualizar campos básicos
+    profile.bio = bio
+    profile.interest = interest
 
-    try:
-        db.session.commit()
-    except Exception as e:
-        # Si hay un error al guardar en la base de datos, devolver un mensaje detallado
-        db.session.rollback()
-        return jsonify({'error': f'Error al guardar los cambios: {str(e)}'}), 500
+    # Si hay nueva imagen
+    if 'profile_picture' in request.files:
+        file = request.files['profile_picture']
+        image_bytes = file.read()
+        profile.profile_picture = base64.b64encode(image_bytes).decode('utf-8')
 
-    # Devolver una respuesta exitosa
-    return jsonify({'message': 'profile updated successfully'}), 200
+    db.session.commit()
+    return jsonify({"message": "profile updated successfully"})
+
+
+# @bp_profile.route('/update-profile', methods=['PUT'])
+# @jwt_required()
+# def update_profile():
+#     data = request.get_json()
+#
+#     # Obtener el username desde el JWT
+#     username = get_jwt_identity()
+#     bio = data.get('bio', '')
+#     interest = data.get('interest', '')
+#     mode = data.get('mode', '')  # 'couple' o 'friendship'
+#
+#     if mode not in ['couple', 'friendship']:
+#         return jsonify({'error': 'Invalid mode, must be "couple" or "friendship"'}), 400
+#
+#     profile = None
+#
+#     # Buscar el perfil dependiendo del modo seleccionado
+#     if mode == 'couple':
+#         profile = CoupleMode.query.filter_by(username=username).first()
+#     elif mode == 'friendship':
+#         profile = FriendshipMode.query.filter_by(username=username).first()
+#
+#     if not profile:
+#         return jsonify({'error': f'{mode.capitalize()} profile not found for user {username}'}), 404
+#
+#     # Actualizar los datos del perfil (solo bio e interest)
+#     if bio:
+#         profile.bio = bio
+#     if interest:
+#         profile.interest = interest
+#
+#     try:
+#         db.session.commit()
+#     except Exception as e:
+#         # Si hay un error al guardar en la base de datos, devolver un mensaje detallado
+#         db.session.rollback()
+#         return jsonify({'error': f'Error al guardar los cambios: {str(e)}'}), 500
+#
+#     # Devolver una respuesta exitosa
+#     return jsonify({'message': 'profile updated successfully'}), 200
