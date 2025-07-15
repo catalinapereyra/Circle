@@ -10,6 +10,7 @@ function SettingsPanel({ isOpen, onClose, mode }) {
     const [hoverDelete, setHoverDelete] = useState(false);
     const [showSubPopup, setShowSubPopup] = useState(false);
     const [showWelcome, setShowWelcome] = useState(false);
+    const [showVerifyButton, setShowVerifyButton] = useState(false);
 
     useEffect(() => {
         const checkSubscription = async () => {
@@ -44,18 +45,38 @@ function SettingsPanel({ isOpen, onClose, mode }) {
 
     const handleSubscribe = async () => {
         try {
-            const res = await axiosInstance.post("/user/subscribe");
-            if (res.status === 200) {
-                setIsPremium(true);
+            const res = await fetch("http://localhost:5001/make_payment", {
+                method: "POST",
+                credentials: "include",
+            });
+            const data = await res.json();
+
+            if (data.sandbox_init_point) {
+                window.open(data.sandbox_init_point, "_blank");
+                setShowVerifyButton(true);
                 setShowSubPopup(false);
-                setShowWelcome(true);
             } else {
-                console.error("Error activating subscription:", res.data);
+                console.error("No se recibió un init point válido:", data);
             }
         } catch (err) {
-            console.error("Error:", err);
+            console.error("Error iniciando el pago:", err);
         }
     };
+
+    // const handleSubscribe = async () => {
+    //     try {
+    //         const res = await axiosInstance.post("/user/subscribe");
+    //         if (res.status === 200) {
+    //             setIsPremium(true);
+    //             setShowSubPopup(false);
+    //             setShowWelcome(true);
+    //         } else {
+    //             console.error("Error activating subscription:", res.data);
+    //         }
+    //     } catch (err) {
+    //         console.error("Error:", err);
+    //     }
+    // };
 
     const handleLogout = () => {
         localStorage.removeItem("token");
@@ -101,7 +122,7 @@ function SettingsPanel({ isOpen, onClose, mode }) {
 
                 {showSubPopup && (
                     <div className="confirm-popup">
-                        <p>😢 Ohhh... No Premium Subscription</p>
+                        <p>Ohhh... No Premium Subscription yet</p>
                         <p>Do you want to activate it?</p>
                         <div className="confirm-buttons">
                             <button onClick={handleSubscribe} className="yes-btn">YES</button>
@@ -110,9 +131,39 @@ function SettingsPanel({ isOpen, onClose, mode }) {
                     </div>
                 )}
 
+                {showVerifyButton && !isPremium && (
+                    <div className="confirm-popup">
+                        <p>Payment done?</p>
+                        <div className="confirm-buttons">
+                            <button
+                                className="yes-btn"
+                                onClick={async () => {
+                                    try {
+                                        const token = localStorage.getItem("token");
+                                        await fetch("http://localhost:5001/user/subscribe", {
+                                            method: "POST",
+                                            headers: {
+                                                "Authorization": `Bearer ${token}`,
+                                                "Content-Type": "application/json"
+                                            }
+                                        });
+                                        setIsPremium(true);
+                                        setShowVerifyButton(false);
+                                        setShowWelcome(true);
+                                    } catch (err) {
+                                        console.error("Error al simular activación premium:", err);
+                                    }
+                                }}
+                            >
+                                Confirm
+                            </button>
+                        </div>
+                    </div>
+                )}
+
                 {showWelcome && (
                     <div className="confirm-popup">
-                        <p>✨ Bienvenidx a Circle Premium</p>
+                        <p>Payment done. Enjoy Premium Circle</p>
                         <div className="confirm-buttons">
                             <button onClick={() => setShowWelcome(false)} className="yes-btn">OK</button>
                         </div>

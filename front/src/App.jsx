@@ -22,6 +22,7 @@ import Success from './pages/Success.jsx';
 import Pending from './pages/Pending.jsx';
 import Failure from './pages/Failure.jsx';
 
+
 function App() {
     return (
         <UserModeProvider>
