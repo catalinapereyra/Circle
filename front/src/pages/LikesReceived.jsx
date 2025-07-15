@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axiosInstance from '../api/axiosInstance';
-import { useUserMode } from '../contexts/UserModeContext'; // contexto global
+import { useUserMode } from '../contexts/UserModeContext';
+import './LikesReceived.css';
+
 
 function LikesReceived() {
     const [likes, setLikes] = useState([]);
@@ -74,44 +76,64 @@ function LikesReceived() {
         }
     };
 
-    if (loading) return <p>Loading...</p>;
-
-    if (premiumError) {
-        return (
-            <div style={{ textAlign: 'center', marginTop: '2rem' }}>
-                <h2>⭐ Only for Premium Users!</h2>
-                <p>Upgrade to Premium to see who liked you!</p>
-            </div>
-        );
-    }
-
-    if (likes.length === 0) {
-        return <p>No pending likes yet!</p>;
-    }
-
     return (
-        <div>
-            <h1>People who liked you</h1>
-            <ul style={{ listStyle: 'none', padding: 0 }}>
-                {likes.map((user) => (
-                    <li key={user.username} style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem' }}>
-                        <span>{user.name} ({user.age} years old) - @{user.username}</span>
-                        <button
-                            onClick={() => handleLike(user)}
-                            style={{
-                                fontSize: '1.5rem',
-                                background: 'none',
-                                border: 'none',
-                                cursor: 'pointer',
-                                color: 'crimson',
-                            }}
-                            title="Like back"
-                        >
-                            ❤️
-                        </button>
-                    </li>
-                ))}
-            </ul>
+        <div className="likes-received-container">
+            <div className="likes-received-header">
+                <h1>People who liked you</h1>
+            </div>
+
+            {loading && (
+                <div className="loading-container">
+                    LOADING
+                </div>
+            )}
+
+            {premiumError && (
+                <div className="premium-error-container">
+                    <h2>⭐ Only for Premium Users!</h2>
+                    <p>Upgrade to Premium to see who liked you!</p>
+                    <button className="upgrade-button">UPGRADE NOW</button>
+                </div>
+            )}
+
+            {likes.length === 0 && !loading && !premiumError && (
+                <div className="empty-state">
+                    No pending likes yet!
+                </div>
+            )}
+
+            {likes.length > 0 && !loading && !premiumError && (
+                <>
+                    <div className="likes-stats">
+                        <div className="likes-count">
+                            <span className="likes-count-number">{likes.length}</span>
+                            People liked you
+                        </div>
+                    </div>
+
+                    <ul className="likes-list">
+                        {likes.map((user) => (
+                            <li key={user.username} className="like-item">
+                                <div className="like-item-content">
+                                    <div className="user-info">
+                                        <div className="user-name">{user.name}</div>
+                                        <div className="user-details">
+                                            {user.age} years old - @<span className="user-username">{user.username}</span>
+                                        </div>
+                                    </div>
+                                    <button
+                                        className="like-back-button"
+                                        onClick={() => handleLike(user)}
+                                        title="Like back"
+                                    >
+                                        ❤️
+                                    </button>
+                                </div>
+                            </li>
+                        ))}
+                    </ul>
+                </>
+            )}
         </div>
     );
 }

@@ -1,0 +1,311 @@
+/* LikesReceived.css - BRUTAL MINIMALISTA */
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
+
+/* === VARIABLES BRUTALES === */
+:root {
+    --white: #ffffff;
+    --black: #000000;
+    --shadow-brutal: 8px 8px 0px var(--black);
+    --shadow-mega: 12px 12px 0px var(--black);
+    --shadow-small: 4px 4px 0px var(--black);
+}
+
+/* === CONTAINER PRINCIPAL === */
+.likes-received-container {
+    font-family: 'Space Grotesk', monospace;
+    background: var(--white);
+    border: 4px solid var(--black);
+    padding: 2rem;
+    width: 90%;
+    max-width: 600px;
+    margin: 2rem auto;
+    box-shadow: var(--shadow-brutal);
+    transition: all 0.3s ease;
+    position: relative;
+    min-height: 400px;
+}
+
+.likes-received-container:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-mega);
+}
+
+/* === HEADER === */
+.likes-received-header {
+    text-align: center;
+    margin-bottom: 2rem;
+    border-bottom: 3px solid var(--black);
+    padding-bottom: 1.5rem;
+}
+
+.likes-received-header h1 {
+    font-family: 'Space Grotesk', monospace;
+    color: var(--black);
+    font-size: clamp(1.8rem, 6vw, 2.5rem);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 0;
+    line-height: 1;
+}
+
+/* === LOADING STATE === */
+.loading-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 200px;
+    font-family: 'Space Grotesk', monospace;
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: var(--black);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+/* === PREMIUM ERROR === */
+.premium-error-container {
+    text-align: center;
+    padding: 2rem;
+    border: 3px solid var(--black);
+    background: var(--white);
+    box-shadow: var(--shadow-small);
+    margin: 2rem 0;
+}
+
+.premium-error-container h2 {
+    font-family: 'Space Grotesk', monospace;
+    color: var(--black);
+    font-size: clamp(1.5rem, 5vw, 2rem);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 1rem;
+}
+
+.premium-error-container p {
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--black);
+    margin-bottom: 1.5rem;
+    line-height: 1.5;
+}
+
+.upgrade-button {
+    padding: 1rem 2rem;
+    background: var(--black);
+    color: var(--white);
+    border: 3px solid var(--black);
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-family: 'Space Grotesk', monospace;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    box-shadow: var(--shadow-small);
+}
+
+.upgrade-button:hover {
+    background: var(--white);
+    color: var(--black);
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-brutal);
+}
+
+/* === EMPTY STATE === */
+.empty-state {
+    text-align: center;
+    padding: 3rem 2rem;
+    font-family: 'Space Grotesk', monospace;
+    color: var(--black);
+    font-size: 1.1rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    border: 3px solid var(--black);
+    background: var(--white);
+    box-shadow: var(--shadow-small);
+}
+
+/* === LISTA DE LIKES === */
+.likes-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.like-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    border: 3px solid var(--black);
+    background: var(--white);
+    box-shadow: var(--shadow-small);
+    transition: all 0.3s ease;
+}
+
+.like-item:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-brutal);
+}
+
+.like-item:last-child {
+    margin-bottom: 0;
+}
+
+/* === USER INFO === */
+.user-info {
+    flex: 1;
+    font-family: 'Space Grotesk', monospace;
+    color: var(--black);
+    font-size: 1rem;
+    font-weight: 500;
+    line-height: 1.4;
+}
+
+.user-name {
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.user-details {
+    font-size: 0.9rem;
+    opacity: 0.8;
+    margin-top: 0.25rem;
+}
+
+.user-username {
+    font-weight: 600;
+    text-transform: none;
+}
+
+/* === LIKE BUTTON === */
+.like-back-button {
+    width: 50px;
+    height: 50px;
+    background: var(--white);
+    border: 3px solid var(--black);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    box-shadow: var(--shadow-small);
+    flex-shrink: 0;
+}
+
+.like-back-button:hover {
+    background: var(--black);
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-brutal);
+}
+
+.like-back-button:active {
+    transform: translateY(0);
+    box-shadow: 2px 2px 0px var(--black);
+}
+
+/* === STATS SECTION === */
+.likes-stats {
+    text-align: center;
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    border: 3px solid var(--black);
+    background: var(--white);
+    box-shadow: var(--shadow-small);
+}
+
+.likes-count {
+    font-family: 'Space Grotesk', monospace;
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--black);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.likes-count-number {
+    font-size: 2rem;
+    font-weight: 700;
+    display: block;
+    margin-bottom: 0.5rem;
+}
+
+/* === RESPONSIVE === */
+@media (max-width: 768px) {
+    .likes-received-container {
+        padding: 1.5rem;
+        margin: 1rem auto;
+        border-width: 3px;
+    }
+
+    .likes-received-header h1 {
+        font-size: 1.8rem;
+        letter-spacing: 1px;
+    }
+
+    .like-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+        padding: 1rem;
+        border-width: 2px;
+    }
+
+    .like-item-content {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+    }
+
+    .like-back-button {
+        width: 45px;
+        height: 45px;
+        border-width: 2px;
+        font-size: 1.3rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .likes-received-container {
+        padding: 1rem;
+        border-width: 2px;
+        box-shadow: 4px 4px 0px var(--black);
+    }
+
+    .likes-received-container:hover {
+        box-shadow: 6px 6px 0px var(--black);
+    }
+
+    .likes-received-header {
+        border-width: 2px;
+    }
+
+    .like-item {
+        border-width: 2px;
+        box-shadow: 2px 2px 0px var(--black);
+    }
+
+    .like-item:hover {
+        box-shadow: 4px 4px 0px var(--black);
+    }
+
+    .like-back-button {
+        border-width: 2px;
+        box-shadow: 2px 2px 0px var(--black);
+    }
+
+    .premium-error-container,
+    .empty-state,
+    .likes-stats {
+        border-width: 2px;
+        box-shadow: 2px 2px 0px var(--black);
+    }
+}
